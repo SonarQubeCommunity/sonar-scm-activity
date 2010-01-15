@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
+  <artifactId>maven-scm-ext</artifactId>
+  <packaging>jar</packaging>
+  <version>0.1-SNAPSHOT</version>
+
+  <name>Sonar SCM Activity Plugin :: Maven SCM Ext</name>
+
+  <properties>
+    <version.maven-scm>1.2</version.maven-scm>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-api</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
+    <!-- SVN -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-svnexe</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
+    <!-- GIT -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-gitexe</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
+    <!-- CVS -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-cvsexe</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
+    <!-- Mercurial -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-hg</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+  </dependencies>
+
+</project>
