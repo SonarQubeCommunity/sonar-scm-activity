@@ -20,7 +20,9 @@
     <sonar.plugin.class>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.plugin.class>
     <sonar.version>1.12</sonar.version>
     <jdk.min.version>1.5</jdk.min.version>
+
     <sonarVersion>1.12</sonarVersion>
+    <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
   </properties>
 
   <dependencies>
