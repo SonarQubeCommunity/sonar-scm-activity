@@ -2,6 +2,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.sonar.api.Extension;
 import org.sonar.api.Plugin;
+import org.sonar.plugins.scmactivity.blameviewer.BlameViewerDefinition;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,8 @@ public class ScmActivityPlugin implements Plugin {
         ScmActivityMetrics.class,
         ScmActivityWidget.class,
         ScmActivitySensor.class,
-        ProjectActivityDecorator.class
+        ProjectActivityDecorator.class,
+        BlameViewerDefinition.class
     );
   }
 }

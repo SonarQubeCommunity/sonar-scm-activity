@@ -38,12 +38,25 @@ public class ScmActivityMetrics implements Metrics {
   );
 
   /**
-   * Blame information.
+   * Blame authors information.
    */
-  public static final Metric BLAME_DATA = new Metric(
-      "blame_data",
+  public static final Metric BLAME_AUTHORS_DATA = new Metric(
+      "blame_authors_data",
       "Blame data",
       "Blame data",
+      Metric.ValueType.DATA,
+      Metric.DIRECTION_NONE,
+      false,
+      DOMAIN_SCM
+  );
+
+  /**
+   * Blame dates information.
+   */
+  public static final Metric BLAME_DATE_DATA = new Metric(
+      "blame_date_data",
+      "Blame date data",
+      "Blame date data",
       Metric.ValueType.DATA,
       Metric.DIRECTION_NONE,
       false,
@@ -70,7 +83,8 @@ public class ScmActivityMetrics implements Metrics {
   public List<Metric> getMetrics() {
     return Arrays.asList(
         LAST_ACTIVITY,
-        BLAME_DATA
+        BLAME_AUTHORS_DATA,
+        BLAME_DATE_DATA
     );
   }
 }

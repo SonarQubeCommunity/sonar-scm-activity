@@ -44,6 +44,21 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- GWT -->
+    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-user</artifactId>
+      <version>1.7.0</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-incubator</artifactId>
+      <version>july-14-2009</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -105,6 +120,26 @@
             </manifestEntries>
           </archive>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <version>1.2</version>
+        <executions>
+          <execution>
+            <configuration>
+              <modules>
+                <module>org.sonar.plugins.scmactivity.blameviewer.BlameViewer</module>
+              </modules>
+              <skip>${skipGwt}</skip>
+              <webappDirectory>${project.build.directory}/classes</webappDirectory>
+            </configuration>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

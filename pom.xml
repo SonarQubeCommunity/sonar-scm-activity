@@ -18,6 +18,11 @@
 
   <inceptionYear>2010</inceptionYear>
 
+  <organization>
+    <name>Evgeny Mandrikov</name>
+    <url>http://godin.net.ru/</url>
+  </organization>
+
   <modules>
     <module>maven-scm-ext</module>
     <module>sonar-plugin</module>

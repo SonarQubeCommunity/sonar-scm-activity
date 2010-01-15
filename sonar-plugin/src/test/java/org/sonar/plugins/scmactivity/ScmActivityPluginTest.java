@@ -18,6 +18,6 @@ public class ScmActivityPluginTest {
 
   @Test
   public void testGetExtensions() throws Exception {
-    assertEquals(plugin.getExtensions().size(), 4);
+    assertEquals(plugin.getExtensions().size(), 5);
   }
 }

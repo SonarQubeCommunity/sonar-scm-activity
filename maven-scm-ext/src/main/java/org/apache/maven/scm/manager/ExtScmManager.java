@@ -4,6 +4,8 @@ import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.AbstractBlameCommand;
 import org.apache.maven.scm.command.blame.BlameScmResult;
+import org.apache.maven.scm.log.DefaultLog;
+import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
 import org.apache.maven.scm.provider.cvslib.repository.CvsScmProviderRepository;
@@ -18,7 +20,22 @@ import org.apache.maven.scm.repository.ScmRepository;
 /**
  * @author Evgeny Mandrikov
  */
-public class ExtScmManager extends BasicScmManager {
+public class ExtScmManager extends AbstractScmManager {
+  private ScmLogger logger;
+
+  public ExtScmManager() {
+    this(new DefaultLog());
+  }
+
+  public ExtScmManager(ScmLogger logger) {
+    this.logger = logger;
+  }
+
+  @Override
+  protected ScmLogger getScmLogger() {
+    return logger;
+  }
+
   protected AbstractBlameCommand getBlameCommand(ScmProviderRepository providerRepository) throws ScmException {
     if (providerRepository instanceof SvnScmProviderRepository) {
       return new SvnBlameCommand();

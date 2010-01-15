@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * TODO add lines count
+ *
  * @author Evgeny Mandrikov
  */
 public class BlameScmResult extends ScmResult {

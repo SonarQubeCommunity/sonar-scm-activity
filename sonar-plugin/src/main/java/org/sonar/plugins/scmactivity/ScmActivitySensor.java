@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -58,8 +59,28 @@ public class ScmActivitySensor implements Sensor {
 
   protected void analyzeBlame(ExtScmManager scmManager, ScmRepository repository, File basedir, String filename, SensorContext context, Resource resource) throws ScmException {
     BlameScmResult result = scmManager.blame(repository, new ScmFileSet(basedir), filename);
-    Date lastActivity = getLastActivity(result);
+
+    Date lastActivity = null;
+
+    PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_AUTHORS_DATA);
+    PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_DATE_DATA);
+
+    for (int i = 1; i <= result.getAuthors().size(); i++) {
+      Date date = result.getDates().get(i - 1);
+      String author = result.getAuthors().get(i - 1);
+
+      authorsBuilder.add(i, author);
+      datesBuilder.add(i, formatLastActivity(date));
+
+      if (lastActivity == null || lastActivity.before(date)) {
+        lastActivity = date;
+      }
+    }
+
     if (lastActivity != null) {
+      context.saveMeasure(resource, authorsBuilder.build());
+      context.saveMeasure(resource, datesBuilder.build());
+
       Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, formatLastActivity(lastActivity));
       context.saveMeasure(resource, lastActivityMeasure);
     }
@@ -69,16 +90,6 @@ public class ScmActivitySensor implements Sensor {
     File basedir = file.getParentFile();
     String filename = file.getName();
     analyzeBlame(scmManager, repository, basedir, filename, context, resource);
-  }
-
-  private Date getLastActivity(BlameScmResult blame) {
-    Date result = null;
-    for (Date date : blame.getDates()) {
-      if (result == null || result.before(date)) {
-        result = date;
-      }
-    }
-    return result;
   }
 
   public static String formatLastActivity(Date lastActivity) {
