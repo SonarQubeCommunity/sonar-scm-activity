@@ -30,10 +30,10 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/scm-activity/sonar-plugin
+      scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/scm-activity
     </connection>
     <developerConnection>
-      scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity/sonar-plugin
+      scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity
     </developerConnection>
     <url>http://svn.sonar-plugins.codehaus.org</url>
   </scm>

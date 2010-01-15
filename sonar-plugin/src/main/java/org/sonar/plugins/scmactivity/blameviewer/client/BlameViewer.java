@@ -39,10 +39,10 @@ public class BlameViewer extends AbstractViewer {
   public static native void exportNativeJavascript(BlameViewer obj) /*-{
     $wnd.load_org_sonar_plugins_scmactivity_blameviewer_BlameViewer = function() {
       obj.@org.sonar.plugins.scmactivity.blameviewer.client.BlameViewer::loadContainer()();
-    }
+    };
     $wnd.on_resource_loaded_org_sonar_plugins_scmactivity_blameviewer_BlameViewer = function() {
       obj.@org.sonar.plugins.scmactivity.blameviewer.client.BlameViewer::onResourceLoaded()();
-    }
+    };
   }-*/;
 
   @Override
@@ -54,7 +54,8 @@ public class BlameViewer extends AbstractViewer {
 
   @Override
   protected boolean isForResource(Resource resource) {
-    return resource.getScope().equals(Resource.SCOPE_ENTITY) && resource.getQualifier().equals(Resource.QUALIFIER_CLASS);
+    return resource.getScope().equals(Resource.SCOPE_ENTITY)
+        && resource.getQualifier().equals(Resource.QUALIFIER_CLASS);
   }
 
   private static class BlameHeader extends AbstractViewerHeader {
@@ -66,12 +67,9 @@ public class BlameViewer extends AbstractViewer {
     protected void display(FlowPanel header, Resource resource) {
       HorizontalPanel panel = new HorizontalPanel();
       header.add(panel);
-
-      Measure measure = resource.getMeasure(BlamePanel.LAST_ACTIVITY);
-      if (measure == null) {
-        addBigCell(panel, "-");
-      } else {
-        addBigCell(panel, measure.getFormattedValue());
+      Measure m = resource.getMeasure(BlamePanel.LAST_ACTIVITY);
+      if (m != null) {
+        addCell(panel, m.getMetricName(), m.getData());
       }
     }
   }
