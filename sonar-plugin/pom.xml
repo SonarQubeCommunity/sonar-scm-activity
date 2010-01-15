@@ -9,7 +9,7 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins</groupId>
+  <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>sonar-scm-activity-plugin</artifactId>
   <packaging>jar</packaging>
   <version>0.1-SNAPSHOT</version>
@@ -42,6 +42,12 @@
       <artifactId>maven-project</artifactId>
       <version>2.0.9</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-container-default</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- GWT -->
@@ -63,9 +69,9 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
+      <classifier>tests</classifier>
       <version>${sonar.version}</version>
       <scope>test</scope>
-      <type>test-jar</type>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -94,9 +100,10 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
               <artifactSet>
                 <includes>
-                  <include>org.codehaus.sonar-plugins:sonar-scm-activity-plugin</include>
+                  <include>org.codehaus.sonar-plugins.scm-activity:sonar-scm-activity-plugin</include>
                   <include>org.codehaus.sonar-plugins.scm-activity:maven-scm-ext</include>
                   <include>org.apache.maven.scm:*</include>
                   <include>org.codehaus.plexus:plexus-utils</include>
