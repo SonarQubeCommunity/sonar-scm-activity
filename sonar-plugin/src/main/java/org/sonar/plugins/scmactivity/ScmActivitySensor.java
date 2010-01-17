@@ -2,6 +2,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
@@ -40,7 +41,7 @@ public class ScmActivitySensor implements Sensor {
 
     try {
       ExtScmManager scmManager = new ExtScmManager();
-      //Add all SCM providers we want to use
+      // Add all SCM providers we want to use
       scmManager.setScmProvider("svn", new SvnExeScmProvider());
       scmManager.setScmProvider("git", new GitExeScmProvider());
 
@@ -61,27 +62,39 @@ public class ScmActivitySensor implements Sensor {
 
   protected void analyzeBlame(ExtScmManager scmManager, ScmRepository repository, File basedir, String filename, SensorContext context, Resource resource) throws ScmException {
     BlameScmResult result = scmManager.blame(repository, new ScmFileSet(basedir), filename);
+    // TODO check result.isSuccess()
 
     Date lastActivity = null;
+    String lastRevision = null;
 
     PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_AUTHORS_DATA);
     PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_DATE_DATA);
+    PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_REVISION_DATA);
 
-    for (int i = 1; i <= result.getAuthors().size(); i++) {
-      Date date = result.getDates().get(i - 1);
-      String author = result.getAuthors().get(i - 1);
+    List<BlameLine> lines = result.getLines();
+    for (int i = 0; i < lines.size(); i++) {
+      BlameLine line = lines.get(i);
+      Date date = line.getDate();
+      String revision = line.getRevision();
+      String author = line.getAuthor();
 
-      authorsBuilder.add(i, author);
       datesBuilder.add(i, formatLastActivity(date));
+      revisionsBuilder.add(i, revision);
+      authorsBuilder.add(i, author);
 
       if (lastActivity == null || lastActivity.before(date)) {
         lastActivity = date;
+        lastRevision = revision;
       }
     }
 
     if (lastActivity != null) {
       context.saveMeasure(resource, authorsBuilder.build());
       context.saveMeasure(resource, datesBuilder.build());
+      context.saveMeasure(resource, revisionsBuilder.build());
+
+      Measure lastRevisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);
+      context.saveMeasure(resource, lastRevisionMeasure);
 
       Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, formatLastActivity(lastActivity));
       context.saveMeasure(resource, lastActivityMeasure);

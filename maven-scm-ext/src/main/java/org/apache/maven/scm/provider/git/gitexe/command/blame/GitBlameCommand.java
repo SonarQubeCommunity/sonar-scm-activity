@@ -27,7 +27,7 @@ public class GitBlameCommand extends AbstractBlameCommand implements GitCommand 
     if (exitCode != 0) {
       throw new UnsupportedOperationException();
     }
-    return new BlameScmResult(cl.toString(), consumer.getAuthors(), consumer.getDates());
+    return new BlameScmResult(cl.toString(), consumer.getLines());
   }
 
   public static Commandline createCommandLine(File workingDirectory, String filename) {

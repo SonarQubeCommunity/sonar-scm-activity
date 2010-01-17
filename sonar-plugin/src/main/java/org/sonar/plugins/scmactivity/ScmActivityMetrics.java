@@ -38,6 +38,19 @@ public class ScmActivityMetrics implements Metrics {
   );
 
   /**
+   * Revision.
+   */
+  public static final Metric REVISION = new Metric(
+      "revision",
+      "Revision",
+      "Revision",
+      Metric.ValueType.STRING,
+      Metric.DIRECTION_NONE,
+      false,
+      DOMAIN_SCM
+  );
+
+  /**
    * Blame authors information.
    */
   public static final Metric BLAME_AUTHORS_DATA = new Metric(
@@ -64,6 +77,19 @@ public class ScmActivityMetrics implements Metrics {
   );
 
   /**
+   * Blame revisions information.
+   */
+  public static final Metric BLAME_REVISION_DATA = new Metric(
+      "blame_revision_data",
+      "Blae revision data",
+      "Blae revision data",
+      Metric.ValueType.DATA,
+      Metric.DIRECTION_NONE,
+      false,
+      DOMAIN_SCM
+  );
+
+  /**
    * Number of commits.
    */
   public static final Metric COMMITS = new Metric(
@@ -83,8 +109,10 @@ public class ScmActivityMetrics implements Metrics {
   public List<Metric> getMetrics() {
     return Arrays.asList(
         LAST_ACTIVITY,
+        REVISION,
         BLAME_AUTHORS_DATA,
-        BLAME_DATE_DATA
+        BLAME_DATE_DATA,
+        BLAME_REVISION_DATA
     );
   }
 }

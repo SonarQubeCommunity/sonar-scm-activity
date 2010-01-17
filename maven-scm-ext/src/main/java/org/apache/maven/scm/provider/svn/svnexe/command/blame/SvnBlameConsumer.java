@@ -1,12 +1,11 @@
 package org.apache.maven.scm.provider.svn.svnexe.command.blame;
 
+import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.ScmLogger;
+import org.apache.maven.scm.util.AbstractConsumer;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,16 +13,15 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
-public class SvnBlameConsumer implements StreamConsumer {
+public class SvnBlameConsumer extends AbstractConsumer {
+  private static final String SVN_TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
   private static final String LINE_PATTERN = "line-number=\"(.*)\"";
   private static final String REVISION_PATTERN = "revision=\"(.*)\"";
   private static final String AUTHOR_PATTERN = "<author>(.*)</author>";
   private static final String DATE_PATTERN = "<date>(.*)T(.*)\\.(.*)Z</date>";
 
-  private ScmLogger logger;
-  private List<String> revisions = new ArrayList<String>();
-  private List<String> authors = new ArrayList<String>();
-  private List<Date> dates = new ArrayList<Date>();
+  private List<BlameLine> lines = new ArrayList<BlameLine>();
 
   /**
    * @see #LINE_PATTERN
@@ -46,7 +44,7 @@ public class SvnBlameConsumer implements StreamConsumer {
   private RE dateRegexp;
 
   public SvnBlameConsumer(ScmLogger logger) {
-    this.logger = logger;
+    super(logger);
 
     try {
       lineRegexp = new RE(LINE_PATTERN);
@@ -76,34 +74,15 @@ public class SvnBlameConsumer implements StreamConsumer {
     } else if (dateRegexp.match(line)) {
       String date = dateRegexp.getParen(1);
       String time = dateRegexp.getParen(2);
-
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-      Date dateTime;
-      try {
-        dateTime = sdf.parse(date + " " + time);
-      } catch (ParseException e) {
-        throw new RuntimeException("INTERNAL ERROR: Could not parse date");
-      }
-
-      revisions.add(revision);
-      authors.add(author);
-      dates.add(dateTime);
-
-      if (logger.isDebugEnabled()) {
-        logger.debug("Author of line " + lineNumber + ": " + author + " (" + date + ")");
+      Date dateTime = parseDate(date + " " + time, null, SVN_TIMESTAMP_PATTERN);
+      lines.add(new BlameLine(dateTime, revision, author));
+      if (getLogger().isDebugEnabled()) {
+        getLogger().debug("Author of line " + lineNumber + ": " + author + " (" + date + ")");
       }
     }
   }
 
-  public List<String> getRevisions() {
-    return revisions;
-  }
-
-  public List<String> getAuthors() {
-    return authors;
-  }
-
-  public List<Date> getDates() {
-    return dates;
+  public List<BlameLine> getLines() {
+    return lines;
   }
 }

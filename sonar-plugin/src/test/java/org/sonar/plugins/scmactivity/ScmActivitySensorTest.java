@@ -54,13 +54,14 @@ public class ScmActivitySensorTest {
     SensorContext context;
     context = mock(SensorContext.class);
 
+    List<String> revisions = Arrays.asList("2", "1");
     List<String> authors = Arrays.asList("godin", "godin");
     List<Date> dates = Arrays.asList(new Date(13), new Date(10));
     ExtScmManager scmManager = mock(ExtScmManager.class);
     when(
         scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any())
     ).thenReturn(
-        new BlameScmResult("fake", authors, dates)
+        new BlameScmResult("fake", authors, dates, revisions)
     );
 
     sensor.analyzeBlame(scmManager, null, new File("."), null, context, new JavaFile("org.example.HelloWorld"));
@@ -68,6 +69,10 @@ public class ScmActivitySensorTest {
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, "org.example.HelloWorld")),
         argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, ScmActivitySensor.formatLastActivity(new Date(13))))
+    );
+    verify(context).saveMeasure(
+        argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, "org.example.HelloWorld")),
+        argThat(new IsMeasure(ScmActivityMetrics.REVISION, "2"))
     );
   }
 } 

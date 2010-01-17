@@ -1,5 +1,7 @@
 <% if measure('last_commit') %>
   <div class="dashbox">
     <p><span><%= format_measure('last_commit', :prefix => 'Last commit: ') %></span></p>
+
+    <p><span><%= format_measure('revision', :prefix => 'Revision: ') %></span></p>
   </div>
 <% end %>

@@ -1,11 +1,10 @@
 package org.apache.maven.scm.provider.git.gitexe.command.blame;
 
+import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.ScmLogger;
+import org.apache.maven.scm.util.AbstractConsumer;
 import org.apache.regexp.RE;
-import org.codehaus.plexus.util.cli.StreamConsumer;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,13 +12,12 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
-public class GitBlameConsumer implements StreamConsumer {
+public class GitBlameConsumer extends AbstractConsumer {
+  private static final String GIT_TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+
   private static final String LINE_PATTERN = "(.*)\t\\((.*)\t(.*)\t.*\\)";
 
-  private List<String> revisions = new ArrayList<String>();
-  private List<String> authors = new ArrayList<String>();
-  private List<Date> dates = new ArrayList<Date>();
-  private ScmLogger logger;
+  private List<BlameLine> lines = new ArrayList<BlameLine>();
 
   /**
    * @see #LINE_PATTERN
@@ -27,7 +25,7 @@ public class GitBlameConsumer implements StreamConsumer {
   private RE lineRegexp;
 
   public GitBlameConsumer(ScmLogger logger) {
-    this.logger = logger;
+    super(logger);
 
     lineRegexp = new RE(LINE_PATTERN);
   }
@@ -38,33 +36,16 @@ public class GitBlameConsumer implements StreamConsumer {
       String author = lineRegexp.getParen(2);
       String dateTimeStr = lineRegexp.getParen(3);
 
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-      Date dateTime;
-      try {
-        dateTime = sdf.parse(dateTimeStr);
-      } catch (ParseException e) {
-        throw new RuntimeException("INTERNAL ERROR: Could not parse date");
-      }
+      Date dateTime = parseDate(dateTimeStr, null, GIT_TIMESTAMP_PATTERN);
+      lines.add(new BlameLine(dateTime, revision, author));
 
-      revisions.add(revision);
-      authors.add(author);
-      dates.add(dateTime);
-
-      if (logger.isDebugEnabled()) {
-        logger.debug(author + " " + dateTimeStr);
+      if (getLogger().isDebugEnabled()) {
+        getLogger().debug(author + " " + dateTimeStr);
       }
     }
   }
 
-  public List<String> getRevisions() {
-    return revisions;
-  }
-
-  public List<String> getAuthors() {
-    return authors;
-  }
-
-  public List<Date> getDates() {
-    return dates;
+  public List<BlameLine> getLines() {
+    return lines;
   }
 }

@@ -45,7 +45,7 @@ public class SvnBlameCommand extends AbstractBlameCommand implements SvnCommand 
       return new BlameScmResult(cl.toString(), "The svn command failed.", stderr.getOutput(), false);
     }
 
-    return new BlameScmResult(cl.toString(), consumer.getAuthors(), consumer.getDates());
+    return new BlameScmResult(cl.toString(), consumer.getLines());
   }
 
   public static Commandline createCommandLine(SvnScmProviderRepository repository, File workingDirectory, String filename) {

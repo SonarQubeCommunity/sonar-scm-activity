@@ -32,25 +32,39 @@ public class ProjectActivityDecorator implements Decorator {
       return;
     }
 
-    SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
     Date lastActivity = null;
-    for (Measure childMeasure : context.getChildrenMeasures(ScmActivityMetrics.LAST_ACTIVITY)) {
-      if (MeasureUtils.hasData(childMeasure)) {
-        String data = childMeasure.getData();
-        Date childLastActivity;
-        try {
-          childLastActivity = sdf.parse(data);
-        } catch (ParseException e) {
-          throw new RuntimeException(e);
-        }
+    String lastRevision = null;
+
+    for (DecoratorContext child : context.getChildren()) {
+      Measure lastActivityMeasure = child.getMeasure(ScmActivityMetrics.LAST_ACTIVITY);
+      Measure revisionMeasure = child.getMeasure(ScmActivityMetrics.REVISION);
+      if (MeasureUtils.hasData(lastActivityMeasure)) {
+        Date childLastActivity = convertStringMeasureToDate(lastActivityMeasure);
         if (lastActivity == null || lastActivity.before(childLastActivity)) {
           lastActivity = childLastActivity;
+          lastRevision = revisionMeasure.getData();
         }
       }
     }
+
     if (lastActivity != null) {
+      SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
+
       Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, sdf.format(lastActivity));
       context.saveMeasure(lastActivityMeasure);
+
+      Measure revisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);
+      context.saveMeasure(revisionMeasure);
+    }
+  }
+
+  private Date convertStringMeasureToDate(Measure date) {
+    String data = date.getData();
+    SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
+    try {
+      return sdf.parse(data);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
     }
   }
 }

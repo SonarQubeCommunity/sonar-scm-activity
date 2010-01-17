@@ -15,10 +15,13 @@ import java.util.Map;
 public class BlamePanel extends AbstractSourcePanel {
   public static final WSMetrics.Metric BLAME_AUTHORS_DATA = new WSMetrics.Metric("blame_authors_data");
   public static final WSMetrics.Metric BLAME_DATE_DATA = new WSMetrics.Metric("blame_date_data");
+  public static final WSMetrics.Metric BLAME_REVISIONS_DATA = new WSMetrics.Metric("blame_revision_data");
   public static final WSMetrics.Metric LAST_ACTIVITY = new WSMetrics.Metric("last_commit");
+  public static final WSMetrics.Metric REVISION = new WSMetrics.Metric("revision");
 
   private Map<Integer, String> authors = new HashMap<Integer, String>();
   private Map<Integer, String> dates = new HashMap<Integer, String>();
+  private Map<Integer, String> revisions = new HashMap<Integer, String>();
 
   public BlamePanel(Resource resource) {
     super(resource);
@@ -27,11 +30,12 @@ public class BlamePanel extends AbstractSourcePanel {
 
   private void loadBlame() {
     ResourcesQuery.get(getResource().getKey())
-        .setMetrics(Arrays.asList(BLAME_AUTHORS_DATA, BLAME_DATE_DATA))
+        .setMetrics(Arrays.asList(BLAME_AUTHORS_DATA, BLAME_DATE_DATA, BLAME_REVISIONS_DATA))
         .execute(new BaseQueryCallback<Resources>() {
           public void onResponse(Resources response, JavaScriptObject jsonRawResponse) {
             handleResponse(response, BLAME_AUTHORS_DATA, authors);
             handleResponse(response, BLAME_DATE_DATA, dates);
+            handleResponse(response, BLAME_REVISIONS_DATA, revisions);
             setStarted();
           }
         });
@@ -61,8 +65,9 @@ public class BlamePanel extends AbstractSourcePanel {
   protected List<Row> decorateLine(int index, String source) {
     String author = authors.get(index);
     String date = dates.get(index);
+    String revision = revisions.get(index);
     Row row = new Row(index, source);
-    row.setValue(date, "");
+    row.setValue(revision + " (" + date + ")", "");
     row.setValue2(author, "");
     return Arrays.asList(row);
   }

@@ -18,6 +18,6 @@ public class ScmActivityMetricsTest {
 
   @Test
   public void testGetMetrics() throws Exception {
-    assertEquals(metrics.getMetrics().size(), 3);
+    assertEquals(metrics.getMetrics().size(), 5);
   }
 }

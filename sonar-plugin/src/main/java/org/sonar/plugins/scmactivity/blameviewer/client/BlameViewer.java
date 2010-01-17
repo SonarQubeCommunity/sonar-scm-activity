@@ -48,6 +48,7 @@ public class BlameViewer extends AbstractViewer {
   @Override
   protected boolean isDefault(WSMetrics.Metric metric, Resource resource) {
     return metric.equals(BlamePanel.LAST_ACTIVITY)
+        || metric.equals(BlamePanel.REVISION)
         || metric.equals(BlamePanel.BLAME_AUTHORS_DATA)
         || metric.equals(BlamePanel.BLAME_DATE_DATA);
   }
@@ -60,14 +61,19 @@ public class BlameViewer extends AbstractViewer {
 
   private static class BlameHeader extends AbstractViewerHeader {
     public BlameHeader(Resource resource) {
-      super(resource, Arrays.asList(BlamePanel.LAST_ACTIVITY));
+      super(resource, Arrays.asList(BlamePanel.LAST_ACTIVITY, BlamePanel.REVISION));
     }
 
     @Override
     protected void display(FlowPanel header, Resource resource) {
       HorizontalPanel panel = new HorizontalPanel();
       header.add(panel);
-      Measure m = resource.getMeasure(BlamePanel.LAST_ACTIVITY);
+      Measure m;
+      m = resource.getMeasure(BlamePanel.LAST_ACTIVITY);
+      if (m != null) {
+        addCell(panel, m.getMetricName(), m.getData());
+      }
+      m = resource.getMeasure(BlamePanel.REVISION);
       if (m != null) {
         addCell(panel, m.getMetricName(), m.getData());
       }
