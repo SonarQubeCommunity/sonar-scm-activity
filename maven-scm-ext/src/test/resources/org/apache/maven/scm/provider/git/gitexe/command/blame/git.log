@@ -1,0 +1,12 @@
+c86e31d2	(Evgeny Mandrikov	2008-10-26 16:26:44 +0000	1)<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+c86e31d2	(Evgeny Mandrikov	2008-10-26 16:26:44 +0000	2)         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+c86e31d2	(Evgeny Mandrikov	2008-10-26 16:26:44 +0000	3)    <modelVersion>4.0.0</modelVersion>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	4)
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	5)    <distributionManagement>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	6)        <repository>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	7)            <id>localhost</id>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	8)            <name>dumping to target</name>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	9)            <url>file://${basedir}/target/repo/</url>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	10)        </repository>
+e66279a6	(Evgeny Mandrikov	2009-11-18 16:26:33 +0300	11)    </distributionManagement>
+1c9995a9	(Evgeny Mandrikov	2008-10-17 11:41:50 +0000	12)</project>

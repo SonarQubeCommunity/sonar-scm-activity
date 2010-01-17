@@ -16,10 +16,12 @@ import java.util.List;
  */
 public class SvnBlameConsumer implements StreamConsumer {
   private static final String LINE_PATTERN = "line-number=\"(.*)\"";
+  private static final String REVISION_PATTERN = "revision=\"(.*)\"";
   private static final String AUTHOR_PATTERN = "<author>(.*)</author>";
   private static final String DATE_PATTERN = "<date>(.*)T(.*)\\.(.*)Z</date>";
 
   private ScmLogger logger;
+  private List<String> revisions = new ArrayList<String>();
   private List<String> authors = new ArrayList<String>();
   private List<Date> dates = new ArrayList<Date>();
 
@@ -27,6 +29,11 @@ public class SvnBlameConsumer implements StreamConsumer {
    * @see #LINE_PATTERN
    */
   private RE lineRegexp;
+
+  /**
+   * @see #REVISION_PATTERN
+   */
+  private RE revisionRegexp;
 
   /**
    * @see #AUTHOR_PATTERN
@@ -43,6 +50,7 @@ public class SvnBlameConsumer implements StreamConsumer {
 
     try {
       lineRegexp = new RE(LINE_PATTERN);
+      revisionRegexp = new RE(REVISION_PATTERN);
       authorRegexp = new RE(AUTHOR_PATTERN);
       dateRegexp = new RE(DATE_PATTERN);
     }
@@ -54,12 +62,15 @@ public class SvnBlameConsumer implements StreamConsumer {
   }
 
   private int lineNumber;
+  private String revision;
   private String author;
 
   public void consumeLine(String line) {
     if (lineRegexp.match(line)) {
       String lineNumberStr = lineRegexp.getParen(1);
       lineNumber = Integer.parseInt(lineNumberStr);
+    } else if (revisionRegexp.match(line)) {
+      revision = revisionRegexp.getParen(1);
     } else if (authorRegexp.match(line)) {
       author = authorRegexp.getParen(1);
     } else if (dateRegexp.match(line)) {
@@ -74,6 +85,7 @@ public class SvnBlameConsumer implements StreamConsumer {
         throw new RuntimeException("INTERNAL ERROR: Could not parse date");
       }
 
+      revisions.add(revision);
       authors.add(author);
       dates.add(dateTime);
 
@@ -81,6 +93,10 @@ public class SvnBlameConsumer implements StreamConsumer {
         logger.debug("Author of line " + lineNumber + ": " + author + " (" + date + ")");
       }
     }
+  }
+
+  public List<String> getRevisions() {
+    return revisions;
   }
 
   public List<String> getAuthors() {

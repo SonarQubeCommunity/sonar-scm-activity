@@ -22,7 +22,7 @@ public class ScmActivityPlugin implements Plugin {
   }
 
   public String getDescription() {
-    return "SCM Activity"; // TODO
+    return "Collects information from SCM.";
   }
 
   public List<Class<? extends Extension>> getExtensions() {
