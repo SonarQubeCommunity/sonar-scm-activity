@@ -14,10 +14,6 @@ public class BlameScmResult extends ScmResult {
   private List<String> authors;
   private List<Date> dates;
 
-  public BlameScmResult(String commandLine, List<String> authors) {
-    this(commandLine, authors, null);
-  }
-
   public BlameScmResult(String commandLine, List<String> authors, List<Date> dates) {
     this(commandLine, null, null, true);
     this.authors = authors;

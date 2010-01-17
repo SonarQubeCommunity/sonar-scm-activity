@@ -4,6 +4,7 @@ import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
+import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.slf4j.Logger;
@@ -41,6 +42,7 @@ public class ScmActivitySensor implements Sensor {
       ExtScmManager scmManager = new ExtScmManager();
       //Add all SCM providers we want to use
       scmManager.setScmProvider("svn", new SvnExeScmProvider());
+      scmManager.setScmProvider("git", new GitExeScmProvider());
 
       String connectionUrl = project.getPom().getScm().getConnection();
       log.info("SCM connection URL: {}", connectionUrl);
