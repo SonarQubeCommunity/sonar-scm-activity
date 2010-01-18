@@ -51,12 +51,13 @@ public class ProjectActivityDecoratorTest {
   @Test
   public void testDecorate() {
     DecoratorContext context = mock(DecoratorContext.class);
-    List<Measure> childrenMeasures = Arrays.asList(
-        new Measure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02 09:00:00"),
-        new Measure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-01 10:00:00"),
-        new Measure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-01 11:00:00")
+
+    List<DecoratorContext> children = Arrays.asList(
+        mockChildContext("2010-01-02 09:00:00", "3"),
+        mockChildContext("2010-01-01 10:00:00", "1"),
+        mockChildContext("2010-01-01 11:00:00", "2")
     );
-    when(context.getChildrenMeasures(ScmActivityMetrics.LAST_ACTIVITY)).thenReturn(childrenMeasures);
+    when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(new MavenProject()), context);
     verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02 09:00:00")));
   }
@@ -64,21 +65,36 @@ public class ProjectActivityDecoratorTest {
   @Test
   public void testNoData() {
     DecoratorContext context = mock(DecoratorContext.class);
-    List<Measure> childrenMeasures = Arrays.asList(
-        null,
-        new Measure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02 09:00:00")
+    List<DecoratorContext> children = Arrays.asList(
+        mockChildContext(null, null),
+        mockChildContext("2010-01-02 09:00:00", "1")
     );
-    when(context.getChildrenMeasures(ScmActivityMetrics.LAST_ACTIVITY)).thenReturn(childrenMeasures);
+    when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(new MavenProject()), context);
     verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02 09:00:00")));
 
     reset(context);
-    childrenMeasures = Arrays.asList(
-        null,
-        null
+    children = Arrays.asList(
+        mockChildContext(null, null),
+        mockChildContext(null, null)
     );
-    when(context.getChildrenMeasures(ScmActivityMetrics.LAST_ACTIVITY)).thenReturn(childrenMeasures);
+    when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(new MavenProject()), context);
     verify(context, never()).saveMeasure((Measure) any());
+  }
+
+  private DecoratorContext mockChildContext(String lastActivity, String revision) {
+    DecoratorContext context = mock(DecoratorContext.class);
+    when(
+        context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY)
+    ).thenReturn(
+        new Measure(ScmActivityMetrics.LAST_ACTIVITY, lastActivity)
+    );
+    when(
+        context.getMeasure(ScmActivityMetrics.REVISION)
+    ).thenReturn(
+        new Measure(ScmActivityMetrics.REVISION, revision)
+    );
+    return context;
   }
 }
