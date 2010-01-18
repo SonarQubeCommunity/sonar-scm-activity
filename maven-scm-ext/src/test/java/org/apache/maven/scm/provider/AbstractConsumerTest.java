@@ -28,8 +28,6 @@ public abstract class AbstractConsumerTest {
   protected void consume(String resouce, StreamConsumer consumer) {
     InputStream is = getClass().getResourceAsStream(resouce);
     StreamPumper pumper = new StreamPumper(is, consumer);
-    pumper.start();
-    while (!pumper.isDone()) {
-    }
+    pumper.run();
   }
 }
