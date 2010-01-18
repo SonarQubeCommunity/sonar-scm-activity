@@ -48,19 +48,21 @@ import static org.sonar.api.resources.Resource.SCOPE_ENTITY;
  */
 public class ScmActivitySensorTest {
   private ScmActivitySensor sensor;
-  private Project project;
 
   @Before
   public void setUp() {
     sensor = new ScmActivitySensor();
-    project = mock(Project.class);
-    MavenProject mavenProject = mock(MavenProject.class);
-    when(project.getPom()).thenReturn(mavenProject);
-    when(mavenProject.getScm()).thenReturn(null).thenReturn(new Scm());
   }
 
   @Test
   public void testShouldExecuteOnProject() throws Exception {
+    Project project = mock(Project.class);
+    MavenProject mavenProject = mock(MavenProject.class);
+    when(project.getProperty(ScmActivitySensor.PROP_ENABLED)).thenReturn(true, false, true);
+    when(project.getPom()).thenReturn(mavenProject);
+    when(mavenProject.getScm()).thenReturn(null).thenReturn(new Scm());
+
+    assertFalse(sensor.shouldExecuteOnProject(project));
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(project));
   }

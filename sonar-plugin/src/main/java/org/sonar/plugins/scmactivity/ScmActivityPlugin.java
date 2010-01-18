@@ -18,6 +18,8 @@ package org.sonar.plugins.scmactivity;
 
 import org.sonar.api.Extension;
 import org.sonar.api.Plugin;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
 import org.sonar.plugins.scmactivity.blameviewer.BlameViewerDefinition;
 
 import java.util.Arrays;
@@ -26,6 +28,17 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
+@Properties(
+    @Property(
+        key = ScmActivitySensor.PROP_ENABLED,
+        defaultValue = "false",
+        name = "Enabled",
+        description = "",
+        module = true,
+        project = true,
+        global = false
+    )
+)
 public class ScmActivityPlugin implements Plugin {
   public static final String KEY = "scm-activity";
 

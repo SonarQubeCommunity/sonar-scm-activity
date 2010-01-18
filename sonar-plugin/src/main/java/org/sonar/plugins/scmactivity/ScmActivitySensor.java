@@ -44,9 +44,11 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public class ScmActivitySensor implements Sensor {
+  public static final String PROP_ENABLED = "sonar.scm-activity.enabled";
+
   public boolean shouldExecuteOnProject(Project project) {
-    // this sensor is executed if scm connection is defined
-    return project.getPom().getScm() != null;
+    // this sensor is executed if enabled and scm connection is defined
+    return Boolean.TRUE.equals(project.getProperty(PROP_ENABLED)) && project.getPom().getScm() != null;
   }
 
   public void analyse(Project project, SensorContext context) {
