@@ -16,6 +16,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.configuration.Configuration;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.scm.ScmFileSet;
@@ -58,11 +60,14 @@ public class ScmActivitySensorTest {
   public void testShouldExecuteOnProject() throws Exception {
     Project project = mock(Project.class);
     MavenProject mavenProject = mock(MavenProject.class);
-    when(project.getProperty(ScmActivitySensor.ENABLED_PROPERTY)).thenReturn(true, false, true);
+    Configuration configuration = new BaseConfiguration();
+    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, false);
+    when(project.getConfiguration()).thenReturn(configuration);
     when(project.getPom()).thenReturn(mavenProject);
     when(mavenProject.getScm()).thenReturn(null).thenReturn(new Scm());
 
     assertFalse(sensor.shouldExecuteOnProject(project));
+    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(project));
   }
