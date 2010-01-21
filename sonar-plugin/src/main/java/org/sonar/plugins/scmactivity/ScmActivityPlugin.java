@@ -30,8 +30,8 @@ import java.util.List;
  */
 @Properties(
     @Property(
-        key = ScmActivitySensor.PROP_ENABLED,
-        defaultValue = "false",
+        key = ScmActivitySensor.ENABLED_PROPERTY,
+        defaultValue = ScmActivitySensor.ENABLED_DEFAULT_VALUE + "",
         name = "Enabled",
         description = "",
         module = true,

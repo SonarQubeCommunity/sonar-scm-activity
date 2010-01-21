@@ -58,7 +58,7 @@ public class ScmActivitySensorTest {
   public void testShouldExecuteOnProject() throws Exception {
     Project project = mock(Project.class);
     MavenProject mavenProject = mock(MavenProject.class);
-    when(project.getProperty(ScmActivitySensor.PROP_ENABLED)).thenReturn(true, false, true);
+    when(project.getProperty(ScmActivitySensor.ENABLED_PROPERTY)).thenReturn(true, false, true);
     when(project.getPom()).thenReturn(mavenProject);
     when(mavenProject.getScm()).thenReturn(null).thenReturn(new Scm());
 
