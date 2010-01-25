@@ -53,13 +53,13 @@ public class ProjectActivityDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
 
     List<DecoratorContext> children = Arrays.asList(
-        mockChildContext("2010-01-02 09:00:00", "3"),
-        mockChildContext("2010-01-01 10:00:00", "1"),
-        mockChildContext("2010-01-01 11:00:00", "2")
+        mockChildContext("2010-01-02", "3"),
+        mockChildContext("2010-01-01", "1"),
+        mockChildContext("2010-01-01", "2")
     );
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(new MavenProject()), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02 09:00:00")));
+    verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
   }
 
   @Test
@@ -67,11 +67,11 @@ public class ProjectActivityDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     List<DecoratorContext> children = Arrays.asList(
         mockChildContext(null, null),
-        mockChildContext("2010-01-02 09:00:00", "1")
+        mockChildContext("2010-01-02", "1")
     );
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(new MavenProject()), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02 09:00:00")));
+    verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
 
     reset(context);
     children = Arrays.asList(

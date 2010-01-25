@@ -98,9 +98,10 @@ public class ScmActivitySensor implements Sensor {
       String revision = line.getRevision();
       String author = line.getAuthor();
 
-      datesBuilder.add(i, formatLastActivity(date));
-      revisionsBuilder.add(i, revision);
-      authorsBuilder.add(i, author);
+      int lineNumber = i + 1;
+      datesBuilder.add(lineNumber, formatLastActivity(date));
+      revisionsBuilder.add(lineNumber, revision);
+      authorsBuilder.add(lineNumber, author);
 
       if (lastActivity == null || lastActivity.before(date)) {
         lastActivity = date;

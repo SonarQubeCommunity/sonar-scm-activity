@@ -86,11 +86,11 @@ public class BlameViewer extends AbstractViewer {
       header.add(panel);
       Measure m;
       m = resource.getMeasure(BlamePanel.LAST_ACTIVITY);
-      if (m != null) {
+      if (m == null) {
+        addBigCell(panel, "No data available");
+      } else {
         addCell(panel, m.getMetricName(), m.getData());
-      }
-      m = resource.getMeasure(BlamePanel.REVISION);
-      if (m != null) {
+        m = resource.getMeasure(BlamePanel.REVISION);
         addCell(panel, m.getMetricName(), m.getData());
       }
     }

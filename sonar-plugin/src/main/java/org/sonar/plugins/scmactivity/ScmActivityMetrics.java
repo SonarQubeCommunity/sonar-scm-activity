@@ -38,7 +38,7 @@ public class ScmActivityMetrics implements Metrics {
 
   public static final String DOMAIN_SCM = "SCM";
 
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
 
   /**
    * Date of the last commit.

@@ -44,7 +44,10 @@ public class ProjectActivityDecorator implements Decorator {
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (ResourceUtils.isEntity(resource) || context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY) != null) {
+    if (ResourceUtils.isEntity(resource) ||
+        resource.getQualifier().equals(Resource.QUALIFIER_VIEW) ||
+        resource.getQualifier().equals(Resource.QUALIFIER_SUBVIEW) ||
+        context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY) != null) {
       return;
     }
 

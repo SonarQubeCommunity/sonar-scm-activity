@@ -83,8 +83,10 @@ public class BlamePanel extends AbstractSourcePanel {
     String date = dates.get(index);
     String revision = revisions.get(index);
     Row row = new Row(index, source);
-    row.setValue(revision + " (" + date + ")", "");
-    row.setValue2(author, "");
+    if (author != null && revision != null && date != null) {
+      row.setValue(revision + " (" + date + ")", "");
+      row.setValue2(author, "");
+    }
     return Arrays.asList(row);
   }
 }
