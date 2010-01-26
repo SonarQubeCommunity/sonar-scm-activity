@@ -11,7 +11,7 @@
   <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
 
   <name>Sonar SCM Activity Plugin :: Parent</name>
 
@@ -37,12 +37,12 @@
 
   <scm>
     <connection>
-      scm:svn:http://svn.codehaus.org/sonar-plugins/tags/scm-activity-0.1
+      scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/scm-activity
     </connection>
     <developerConnection>
-      scm:svn:https://svn.codehaus.org/sonar-plugins/tags/scm-activity-0.1
+      scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity
     </developerConnection>
-    <url>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/scm-activity-0.1</url>
+    <url>http://svn.sonar-plugins.codehaus.org</url>
   </scm>
 
   <issueManagement>
