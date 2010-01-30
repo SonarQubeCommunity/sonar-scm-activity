@@ -30,7 +30,7 @@ public class CvsJavaBlameCommandTest extends CvsBlameCommandTest {
   }
 
   @Test
-  public void test() {
-    // TODO disabled
+  public void test() throws Exception {
+    // FIXME super.test();
   }
 }

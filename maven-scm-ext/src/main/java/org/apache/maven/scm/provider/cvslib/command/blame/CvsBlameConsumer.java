@@ -44,17 +44,19 @@ public class CvsBlameConsumer extends AbstractBlameConsumer {
   }
 
   public void consumeLine(String line) {
-    String annotation = line.substring(0, line.indexOf(':'));
-    if (lineRegexp.match(annotation)) {
-      String revision = lineRegexp.getParen(1).trim();
-      String author = lineRegexp.getParen(2).trim();
-      String dateTimeStr = lineRegexp.getParen(3).trim();
+    if (line.contains(":")) {
+      String annotation = line.substring(0, line.indexOf(':'));
+      if (lineRegexp.match(annotation)) {
+        String revision = lineRegexp.getParen(1).trim();
+        String author = lineRegexp.getParen(2).trim();
+        String dateTimeStr = lineRegexp.getParen(3).trim();
 
-      Date dateTime = parseDate(dateTimeStr, null, CVS_TIMESTAMP_PATTERN);
-      getLines().add(new BlameLine(dateTime, revision, author));
+        Date dateTime = parseDate(dateTimeStr, null, CVS_TIMESTAMP_PATTERN);
+        getLines().add(new BlameLine(dateTime, revision, author));
 
-      if (getLogger().isDebugEnabled()) {
-        getLogger().debug(author + " " + dateTimeStr);
+        if (getLogger().isDebugEnabled()) {
+          getLogger().debug(author + " " + dateTimeStr);
+        }
       }
     }
   }

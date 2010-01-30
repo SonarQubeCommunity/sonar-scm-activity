@@ -16,51 +16,58 @@
 
 package org.apache.maven.scm.provider.cvslib.command.blame;
 
+import org.apache.maven.scm.ScmTckTestCase;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.manager.ExtScmManagerFactory;
-import org.apache.maven.scm.provider.cvslib.AbstractCvsScmTest;
 import org.apache.maven.scm.provider.cvslib.CvsScmTestUtils;
-import org.codehaus.plexus.PlexusTestCase;
 
-import java.io.File;
 import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
  */
-public abstract class CvsBlameCommandTest extends AbstractCvsScmTest {
+public abstract class CvsBlameCommandTest extends ScmTckTestCase {
   @Override
-  protected String getModule() {
-    return "test-repo/blame/";
+  public String getScmUrl() throws Exception {
+    return CvsScmTestUtils.getScmUrl(getRepositoryRoot(), getModule());
   }
 
   @Override
-  protected File getRepository() {
-    return PlexusTestCase.getTestFile("/src/test/cvs-repository");
+  protected String getModule() {
+    return "test-repo/module";
+  }
+
+  @Override
+  public void initRepo() throws Exception {
+    CvsScmTestUtils.initRepo("src/test/tck-repository", getRepositoryRoot(), getWorkingDirectory());
   }
 
   protected abstract ExtScmManagerFactory getScmManagerFactory();
 
+  private ExtScmManager manager;
+
+  protected ExtScmManager getScmManager() {
+    if (manager == null) {
+      manager = getScmManagerFactory().getScmManager();
+    }
+    return manager;
+  }
+
   public void test() throws Exception {
-    ExtScmManager scmManager = getScmManagerFactory().getScmManager();
-    CvsScmTestUtils.executeCVS(
-        getWorkingDirectory(),
-        "-f -d " + getTestFile("src/test/cvs-repository/") + " co " + getModule()
-    );
-    BlameScmResult result = scmManager.blame(
+    BlameScmResult result = getScmManager().blame(
         getScmRepository(),
         getScmFileSet(),
-        getModule() + "src/java/org/apache/maven/MavenUtils.java"
+        "pom.xml"
     );
     assertResultIsSuccess(result);
 
     List<BlameLine> lines = result.getLines();
     int size = lines.size();
-    assertEquals(1110, size);
-    assertEquals("1.3", lines.get(size - 1).getRevision());
-    assertEquals("brekke", lines.get(size - 1).getAuthor());
+    assertEquals(1, size);
+    assertEquals("1.1", lines.get(0).getRevision());
+    assertEquals("Brett", lines.get(0).getAuthor());
   }
 
 }
