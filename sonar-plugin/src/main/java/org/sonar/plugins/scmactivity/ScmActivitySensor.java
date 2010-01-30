@@ -23,6 +23,7 @@ import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,8 @@ import java.util.List;
 public class ScmActivitySensor implements Sensor {
   public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
+  public static final String USE_SVNKIT_PROPERTY = "sonar.scm-sctivity.use_svnkit";
+  public static final boolean USE_SVNKIT_DEFAULT_VALUE = true;
 
   public boolean shouldExecuteOnProject(Project project) {
     // this sensor is executed if enabled and scm connection is defined
@@ -62,7 +65,8 @@ public class ScmActivitySensor implements Sensor {
     try {
       ExtScmManager scmManager = new ExtScmManager();
       // Add all SCM providers we want to use
-      scmManager.setScmProvider("svn", new SvnExeScmProvider());
+      boolean useSvnKit = project.getConfiguration().getBoolean(USE_SVNKIT_PROPERTY, USE_SVNKIT_DEFAULT_VALUE);
+      scmManager.setScmProvider("svn", useSvnKit ? new SvnJavaScmProvider() : new SvnExeScmProvider());
       scmManager.setScmProvider("git", new GitExeScmProvider());
 
       String connectionUrl = project.getPom().getScm().getConnection();

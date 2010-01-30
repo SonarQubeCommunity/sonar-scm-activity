@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
-@Properties(
+@Properties({
     @Property(
         key = ScmActivitySensor.ENABLED_PROPERTY,
         defaultValue = ScmActivitySensor.ENABLED_DEFAULT_VALUE + "",
@@ -37,8 +37,17 @@ import java.util.List;
         module = true,
         project = true,
         global = false
+    ),
+    @Property(
+        key = ScmActivitySensor.USE_SVNKIT_PROPERTY,
+        defaultValue = ScmActivitySensor.USE_SVNKIT_DEFAULT_VALUE + "",
+        name = "Use SVNKit",
+        description = "",
+        module = true, // TODO
+        project = true,
+        global = true
     )
-)
+})
 public class ScmActivityPlugin implements Plugin {
   public static final String KEY = "scm-activity";
 

@@ -29,8 +29,8 @@ import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameCommand;
 import org.apache.maven.scm.provider.git.repository.GitScmProviderRepository;
 import org.apache.maven.scm.provider.hg.command.blame.HgBlameCommand;
 import org.apache.maven.scm.provider.hg.repository.HgScmProviderRepository;
-import org.apache.maven.scm.provider.svn.repository.SvnScmProviderRepository;
-import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
+import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
+import org.apache.maven.scm.provider.svn.svnjava.repository.SvnJavaScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 
 /**
@@ -53,8 +53,8 @@ public class ExtScmManager extends AbstractScmManager {
   }
 
   protected AbstractBlameCommand getBlameCommand(ScmProviderRepository providerRepository) throws ScmException {
-    if (providerRepository instanceof SvnScmProviderRepository) {
-      return new SvnBlameCommand();
+    if (providerRepository instanceof SvnJavaScmProviderRepository) {
+      return new SvnJavaBlameCommand();
     } else if (providerRepository instanceof GitScmProviderRepository) {
       return new GitBlameCommand();
     } else if (providerRepository instanceof HgScmProviderRepository) {
