@@ -27,14 +27,14 @@ import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 /**
  * @author Evgeny Mandrikov
  */
-public class ExtScmManagerFactory {
-  private boolean pureJava;
-
-  public ExtScmManagerFactory(boolean pureJava) {
-    this.pureJava = pureJava;
+public final class ExtScmManagerFactory {
+  /**
+   * Hide utility-class constructor.
+   */
+  private ExtScmManagerFactory() {
   }
 
-  public ExtScmManager getScmManager() {
+  public static ExtScmManager getScmManager(boolean pureJava) {
     ExtScmManager scmManager = new ExtScmManager();
     scmManager.setScmProvider("svn", pureJava ? new SvnJavaScmProvider() : new SvnExeScmProvider());
     scmManager.setScmProvider("git", new GitExeScmProvider());
@@ -42,9 +42,5 @@ public class ExtScmManagerFactory {
     scmManager.setScmProvider("hg", new HgScmProvider());
     scmManager.setScmProvider("bazaar", new BazaarScmProvider());
     return scmManager;
-  }
-
-  public static ExtScmManager getScmManager(boolean pureJava) {
-    return new ExtScmManagerFactory(pureJava).getScmManager();
   }
 }
