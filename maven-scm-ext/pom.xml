@@ -55,6 +55,12 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-cvsjava</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
     <!-- Mercurial -->
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
@@ -62,6 +68,14 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
+    <!-- Bazaar -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-bazaar</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
+    <!-- Unit tests -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

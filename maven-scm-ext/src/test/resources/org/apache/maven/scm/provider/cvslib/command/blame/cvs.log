@@ -1,0 +1,8 @@
+1.1          (tor      24-Mar-03): /*
+1.1          (tor      24-Mar-03):  * Copyright 2003 Sun Microsystems, Inc. All rights reserved.
+1.1          (tor      24-Mar-03):  * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+1.1          (tor      24-Mar-03):  */
+1.1          (tor      24-Mar-03):
+1.1          (tor      24-Mar-03): package foo.bar;
+1.1          (tor      24-Mar-03):
+1.1          (tor      24-Mar-03): import java.awt.geom.Rectangle2D;

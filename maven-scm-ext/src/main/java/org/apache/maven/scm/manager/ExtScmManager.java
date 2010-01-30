@@ -22,15 +22,20 @@ import org.apache.maven.scm.command.blame.AbstractBlameCommand;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.log.DefaultLog;
 import org.apache.maven.scm.log.ScmLogger;
+import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
-import org.apache.maven.scm.provider.cvslib.repository.CvsScmProviderRepository;
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsjava.command.blame.CvsJavaBlameCommand;
+import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameCommand;
-import org.apache.maven.scm.provider.git.repository.GitScmProviderRepository;
+import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.hg.command.blame.HgBlameCommand;
-import org.apache.maven.scm.provider.hg.repository.HgScmProviderRepository;
+import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
+import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
-import org.apache.maven.scm.provider.svn.svnjava.repository.SvnJavaScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 
 /**
@@ -52,23 +57,28 @@ public class ExtScmManager extends AbstractScmManager {
     return logger;
   }
 
-  protected AbstractBlameCommand getBlameCommand(ScmProviderRepository providerRepository) throws ScmException {
-    if (providerRepository instanceof SvnJavaScmProviderRepository) {
+  protected AbstractBlameCommand getBlameCommand(ScmProvider provider) throws ScmException {
+    if (provider instanceof SvnJavaScmProvider) {
       return new SvnJavaBlameCommand();
-    } else if (providerRepository instanceof GitScmProviderRepository) {
+    } else if (provider instanceof SvnExeScmProvider) {
+      return new SvnBlameCommand();
+    } else if (provider instanceof GitExeScmProvider) {
       return new GitBlameCommand();
-    } else if (providerRepository instanceof HgScmProviderRepository) {
-      return new HgBlameCommand();
-    } else if (providerRepository instanceof CvsScmProviderRepository) {
+    } else if (provider instanceof CvsExeScmProvider) {
       return new CvsExeBlameCommand();
+    } else if (provider instanceof CvsJavaScmProvider) {
+      return new CvsJavaBlameCommand();
+    } else if (provider instanceof HgScmProvider) {
+      return new HgBlameCommand();
     } else {
-      throw new ScmException("Unsupported repository provider: " + providerRepository.toString());
+      throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }
   }
 
   public BlameScmResult blame(ScmRepository repository, ScmFileSet workingDirectory, String filename) throws ScmException {
     ScmProviderRepository providerRepository = repository.getProviderRepository();
-    AbstractBlameCommand blameCommand = getBlameCommand(providerRepository);
+    ScmProvider provider = getProviderByRepository(repository);
+    AbstractBlameCommand blameCommand = getBlameCommand(provider);
     blameCommand.setLogger(getScmLogger());
     return blameCommand.executeBlameCommand(providerRepository, workingDirectory, filename);
   }

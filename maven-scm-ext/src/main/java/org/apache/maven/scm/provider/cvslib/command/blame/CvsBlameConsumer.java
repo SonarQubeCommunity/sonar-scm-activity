@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.maven.scm.provider.git.gitexe.command.blame;
+package org.apache.maven.scm.provider.cvslib.command.blame;
 
 import org.apache.maven.scm.command.blame.AbstractBlameConsumer;
 import org.apache.maven.scm.command.blame.BlameLine;
@@ -26,17 +26,18 @@ import java.util.Date;
 /**
  * @author Evgeny Mandrikov
  */
-public class GitBlameConsumer extends AbstractBlameConsumer {
-  private static final String GIT_TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
+public class CvsBlameConsumer extends AbstractBlameConsumer {
+  private static final String CVS_TIMESTAMP_PATTERN = "dd-MMM-yy";
 
-  private static final String LINE_PATTERN = "(.*)\t\\((.*)\t(.*)\t.*\\)";
+  /* 1.1          (tor      24-Mar-03): */
+  private static final String LINE_PATTERN = "(.*)\\((.*)\\s+(.*)\\)";
 
   /**
    * @see #LINE_PATTERN
    */
   private RE lineRegexp;
 
-  public GitBlameConsumer(ScmLogger logger) {
+  public CvsBlameConsumer(ScmLogger logger) {
     super(logger);
 
     lineRegexp = new RE(LINE_PATTERN);
@@ -44,11 +45,11 @@ public class GitBlameConsumer extends AbstractBlameConsumer {
 
   public void consumeLine(String line) {
     if (lineRegexp.match(line)) {
-      String revision = lineRegexp.getParen(1);
-      String author = lineRegexp.getParen(2);
-      String dateTimeStr = lineRegexp.getParen(3);
+      String revision = lineRegexp.getParen(1).trim();
+      String author = lineRegexp.getParen(2).trim();
+      String dateTimeStr = lineRegexp.getParen(3).trim();
 
-      Date dateTime = parseDate(dateTimeStr, null, GIT_TIMESTAMP_PATTERN);
+      Date dateTime = parseDate(dateTimeStr, null, CVS_TIMESTAMP_PATTERN);
       getLines().add(new BlameLine(dateTime, revision, author));
 
       if (getLogger().isDebugEnabled()) {

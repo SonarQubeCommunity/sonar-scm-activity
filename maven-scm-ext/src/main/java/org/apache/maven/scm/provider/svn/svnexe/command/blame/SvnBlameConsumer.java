@@ -16,28 +16,24 @@
 
 package org.apache.maven.scm.provider.svn.svnexe.command.blame;
 
+import org.apache.maven.scm.command.blame.AbstractBlameConsumer;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.ScmLogger;
-import org.apache.maven.scm.util.AbstractConsumer;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class SvnBlameConsumer extends AbstractConsumer {
+public class SvnBlameConsumer extends AbstractBlameConsumer {
   private static final String SVN_TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
   private static final String LINE_PATTERN = "line-number=\"(.*)\"";
   private static final String REVISION_PATTERN = "revision=\"(.*)\"";
   private static final String AUTHOR_PATTERN = "<author>(.*)</author>";
   private static final String DATE_PATTERN = "<date>(.*)T(.*)\\.(.*)Z</date>";
-
-  private List<BlameLine> lines = new ArrayList<BlameLine>();
 
   /**
    * @see #LINE_PATTERN
@@ -91,14 +87,10 @@ public class SvnBlameConsumer extends AbstractConsumer {
       String date = dateRegexp.getParen(1);
       String time = dateRegexp.getParen(2);
       Date dateTime = parseDate(date + " " + time, null, SVN_TIMESTAMP_PATTERN);
-      lines.add(new BlameLine(dateTime, revision, author));
+      getLines().add(new BlameLine(dateTime, revision, author));
       if (getLogger().isDebugEnabled()) {
         getLogger().debug("Author of line " + lineNumber + ": " + author + " (" + date + ")");
       }
     }
-  }
-
-  public List<BlameLine> getLines() {
-    return lines;
   }
 }

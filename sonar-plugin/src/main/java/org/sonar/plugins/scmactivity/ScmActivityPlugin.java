@@ -38,7 +38,7 @@ import java.util.List;
         project = true,
         global = false
     ),
-    @Property(
+    @Property( // TODO rename to something like preffer_pure_java
         key = ScmActivitySensor.USE_SVNKIT_PROPERTY,
         defaultValue = ScmActivitySensor.USE_SVNKIT_DEFAULT_VALUE + "",
         name = "Use SVNKit",

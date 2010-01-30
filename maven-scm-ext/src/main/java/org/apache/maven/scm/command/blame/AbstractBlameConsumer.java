@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-package org.apache.maven.scm.provider.cvslib.cvsexe.command.blame;
+package org.apache.maven.scm.command.blame;
+
+import org.apache.maven.scm.log.ScmLogger;
+import org.apache.maven.scm.util.AbstractConsumer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class CvsBlameConsumer {
+public abstract class AbstractBlameConsumer extends AbstractConsumer {
+  private List<BlameLine> lines = new ArrayList<BlameLine>();
+
+  public AbstractBlameConsumer(ScmLogger logger) {
+    super(logger);
+  }
+
+  public List<BlameLine> getLines() {
+    return lines;
+  }
 }
