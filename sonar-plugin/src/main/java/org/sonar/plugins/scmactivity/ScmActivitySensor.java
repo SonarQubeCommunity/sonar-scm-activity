@@ -69,8 +69,7 @@ public class ScmActivitySensor implements Sensor {
       String password = configuration.getString(PASSWORD_PROPERTY);
       boolean pureJava = project.getConfiguration().getBoolean(PREFER_PURE_JAVA_PROPERTY, PREFER_PURE_JAVA_DEFAULT_VALUE);
 
-      ExtScmManagerFactory scmManagerFactory = new ExtScmManagerFactory(pureJava);
-      ExtScmManager scmManager = scmManagerFactory.getScmManager();
+      ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(pureJava);
 
       String connectionUrl = project.getPom().getScm().getConnection();
       log.info("SCM connection URL: {}", connectionUrl);

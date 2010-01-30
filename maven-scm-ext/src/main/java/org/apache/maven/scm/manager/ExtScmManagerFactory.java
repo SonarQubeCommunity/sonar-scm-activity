@@ -43,4 +43,8 @@ public class ExtScmManagerFactory {
     scmManager.setScmProvider("bazaar", new BazaarScmProvider());
     return scmManager;
   }
+
+  public static ExtScmManager getScmManager(boolean pureJava) {
+    return new ExtScmManagerFactory(pureJava).getScmManager();
+  }
 }

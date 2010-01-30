@@ -44,18 +44,18 @@ public abstract class CvsBlameCommandTest extends ScmTckTestCase {
     CvsScmTestUtils.initRepo("src/test/tck-repository", getRepositoryRoot(), getWorkingDirectory());
   }
 
-  protected abstract ExtScmManagerFactory getScmManagerFactory();
+  protected abstract boolean isPureJava();
 
   private ExtScmManager manager;
 
   protected ExtScmManager getScmManager() {
     if (manager == null) {
-      manager = getScmManagerFactory().getScmManager();
+      manager = ExtScmManagerFactory.getScmManager(isPureJava());
     }
     return manager;
   }
 
-  public void test() throws Exception {
+  protected void testBlameCommand() throws Exception {
     BlameScmResult result = getScmManager().blame(
         getScmRepository(),
         getScmFileSet(),

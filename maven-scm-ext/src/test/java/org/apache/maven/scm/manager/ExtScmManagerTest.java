@@ -34,7 +34,7 @@ import org.junit.Test;
 public class ExtScmManagerTest {
   @Test
   public void testPureJava() throws Exception {
-    ExtScmManager scmManager = new ExtScmManagerFactory(true).getScmManager();
+    ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(true);
 
     Assert.assertTrue(getBlameCommand(scmManager, "scm:svn:http://localhost") instanceof SvnJavaBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:cvs:local:/cvs:module") instanceof CvsJavaBlameCommand);
@@ -42,7 +42,7 @@ public class ExtScmManagerTest {
 
   @Test
   public void testExe() throws Exception {
-    ExtScmManager scmManager = new ExtScmManagerFactory(false).getScmManager();
+    ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(false);
 
     Assert.assertTrue(getBlameCommand(scmManager, "scm:svn:http://host/") instanceof SvnBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:git:git://host/") instanceof GitBlameCommand);

@@ -16,21 +16,20 @@
 
 package org.apache.maven.scm.provider.cvslib.cvsjava.command.blame;
 
-import org.apache.maven.scm.manager.ExtScmManagerFactory;
 import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameCommandTest;
-import org.junit.Test;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class CvsJavaBlameCommandTest extends CvsBlameCommandTest {
   @Override
-  protected ExtScmManagerFactory getScmManagerFactory() {
-    return new ExtScmManagerFactory(true);
+  protected boolean isPureJava() {
+    // FIXME
+    return false;
   }
 
-  @Test
-  public void test() throws Exception {
-    // FIXME super.test();
+  @Override
+  public void testBlameCommand() throws Exception {
+    // FIXME super.testBlameCommand();
   }
 }
