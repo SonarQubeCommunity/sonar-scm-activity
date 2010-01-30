@@ -34,7 +34,10 @@ public abstract class AbsrtactCvsBlameCommand extends AbstractBlameCommand imple
   @Override
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet fileSet, String filename) throws ScmException {
     CvsScmProviderRepository repository = (CvsScmProviderRepository) repo;
-    Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet, false);
+//    Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet, false);
+
+    Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet);
+    cl.createArg().setValue(filename);
 
     if (getLogger().isInfoEnabled()) {
       getLogger().info("Executing: " + cl);
@@ -44,5 +47,5 @@ public abstract class AbsrtactCvsBlameCommand extends AbstractBlameCommand imple
     return executeCvsCommand(cl, repository);
   }
 
-  protected abstract BlameScmResult executeCvsCommand(Commandline cl, CvsScmProviderRepository repository);
+  protected abstract BlameScmResult executeCvsCommand(Commandline cl, CvsScmProviderRepository repository) throws ScmException;
 }

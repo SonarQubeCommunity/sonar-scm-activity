@@ -24,6 +24,8 @@ import org.apache.maven.scm.log.DefaultLog;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
+import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
@@ -57,7 +59,8 @@ public class ExtScmManager extends AbstractScmManager {
     return logger;
   }
 
-  protected AbstractBlameCommand getBlameCommand(ScmProvider provider) throws ScmException {
+  protected AbstractBlameCommand getBlameCommand(ScmRepository repository) throws ScmException {
+    ScmProvider provider = getProviderByRepository(repository);
     if (provider instanceof SvnJavaScmProvider) {
       return new SvnJavaBlameCommand();
     } else if (provider instanceof SvnExeScmProvider) {
@@ -70,6 +73,8 @@ public class ExtScmManager extends AbstractScmManager {
       return new CvsJavaBlameCommand();
     } else if (provider instanceof HgScmProvider) {
       return new HgBlameCommand();
+    } else if (provider instanceof BazaarScmProvider) {
+      return new BazaarBlameCommand();
     } else {
       throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }
@@ -77,8 +82,7 @@ public class ExtScmManager extends AbstractScmManager {
 
   public BlameScmResult blame(ScmRepository repository, ScmFileSet workingDirectory, String filename) throws ScmException {
     ScmProviderRepository providerRepository = repository.getProviderRepository();
-    ScmProvider provider = getProviderByRepository(repository);
-    AbstractBlameCommand blameCommand = getBlameCommand(provider);
+    AbstractBlameCommand blameCommand = getBlameCommand(repository);
     blameCommand.setLogger(getScmLogger());
     return blameCommand.executeBlameCommand(providerRepository, workingDirectory, filename);
   }

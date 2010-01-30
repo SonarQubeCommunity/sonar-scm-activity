@@ -44,7 +44,8 @@ public class CvsBlameConsumer extends AbstractBlameConsumer {
   }
 
   public void consumeLine(String line) {
-    if (lineRegexp.match(line)) {
+    String annotation = line.substring(0, line.indexOf(':'));
+    if (lineRegexp.match(annotation)) {
       String revision = lineRegexp.getParen(1).trim();
       String author = lineRegexp.getParen(2).trim();
       String dateTimeStr = lineRegexp.getParen(3).trim();

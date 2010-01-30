@@ -21,11 +21,7 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
-import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
-import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
-import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
-import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
+import org.apache.maven.scm.manager.ExtScmManagerFactory;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,12 +61,9 @@ public class ScmActivitySensor implements Sensor {
     List<File> sourceDirs = fileSystem.getSourceDirs();
 
     try {
-      ExtScmManager scmManager = new ExtScmManager();
-      // Add all SCM providers we want to use
       boolean useSvnKit = project.getConfiguration().getBoolean(USE_SVNKIT_PROPERTY, USE_SVNKIT_DEFAULT_VALUE);
-      scmManager.setScmProvider("svn", useSvnKit ? new SvnJavaScmProvider() : new SvnExeScmProvider());
-      scmManager.setScmProvider("git", new GitExeScmProvider());
-      scmManager.setScmProvider("cvs", useSvnKit ? new CvsJavaScmProvider() : new CvsExeScmProvider());
+      ExtScmManagerFactory scmManagerFactory = new ExtScmManagerFactory(useSvnKit);
+      ExtScmManager scmManager = scmManagerFactory.getScmManager();
 
       String connectionUrl = project.getPom().getScm().getConnection();
       log.info("SCM connection URL: {}", connectionUrl);

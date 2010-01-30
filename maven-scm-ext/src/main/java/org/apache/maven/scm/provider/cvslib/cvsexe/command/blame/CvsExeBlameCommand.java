@@ -16,9 +16,13 @@
 
 package org.apache.maven.scm.provider.cvslib.cvsexe.command.blame;
 
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.provider.cvslib.command.blame.AbsrtactCvsBlameCommand;
+import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameConsumer;
 import org.apache.maven.scm.provider.cvslib.repository.CvsScmProviderRepository;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 
 /**
@@ -26,8 +30,18 @@ import org.codehaus.plexus.util.cli.Commandline;
  */
 public class CvsExeBlameCommand extends AbsrtactCvsBlameCommand {
   @Override
-  protected BlameScmResult executeCvsCommand(Commandline cl, CvsScmProviderRepository repository) {
-    // TODO
-    return null;
+  protected BlameScmResult executeCvsCommand(Commandline cl, CvsScmProviderRepository repository) throws ScmException {
+    CvsBlameConsumer consumer = new CvsBlameConsumer(getLogger());
+    CommandLineUtils.StringStreamConsumer stderr = new CommandLineUtils.StringStreamConsumer();
+    int exitCode;
+    try {
+      exitCode = CommandLineUtils.executeCommandLine(cl, consumer, stderr);
+    } catch (CommandLineException ex) {
+      throw new ScmException("Error while executing cvs command.", ex);
+    }
+    if (exitCode != 0) {
+      return new BlameScmResult(cl.toString(), "The cvs command failed.", stderr.getOutput(), false);
+    }
+    return new BlameScmResult(cl.toString(), consumer.getLines());
   }
 }
