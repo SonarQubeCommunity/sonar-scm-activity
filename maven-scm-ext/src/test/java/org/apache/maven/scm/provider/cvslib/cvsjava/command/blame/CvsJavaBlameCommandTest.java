@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.maven.scm.provider.cvslib.cvsexe.command.blame;
+package org.apache.maven.scm.provider.cvslib.cvsjava.command.blame;
 
 import org.apache.maven.scm.manager.ExtScmManagerFactory;
 import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameCommandTest;
@@ -23,14 +23,14 @@ import org.junit.Test;
 /**
  * @author Evgeny Mandrikov
  */
-public class CvsExeBlameCommandTest extends CvsBlameCommandTest {
+public class CvsJavaBlameCommandTest extends CvsBlameCommandTest {
   @Override
   protected ExtScmManagerFactory getScmManagerFactory() {
-    return new ExtScmManagerFactory(false);
+    return new ExtScmManagerFactory(true);
   }
 
   @Test
-  public void test() throws Exception {
-    super.test();
+  public void test() {
+    // TODO disabled
   }
 }

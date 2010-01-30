@@ -34,7 +34,6 @@ public abstract class AbsrtactCvsBlameCommand extends AbstractBlameCommand imple
   @Override
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet fileSet, String filename) throws ScmException {
     CvsScmProviderRepository repository = (CvsScmProviderRepository) repo;
-//    Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet, false);
 
     Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet);
     cl.createArg().setValue(filename);
