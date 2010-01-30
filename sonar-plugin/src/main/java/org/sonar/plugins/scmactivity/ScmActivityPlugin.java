@@ -38,12 +38,30 @@ import java.util.List;
         project = true,
         global = false
     ),
-    @Property( // TODO rename to something like preffer_pure_java
-        key = ScmActivitySensor.USE_SVNKIT_PROPERTY,
-        defaultValue = ScmActivitySensor.USE_SVNKIT_DEFAULT_VALUE + "",
-        name = "Use SVNKit",
+    @Property(
+        key = ScmActivitySensor.USER_PROPERTY,
+        defaultValue = "",
+        name = "User",
         description = "",
-        module = true, // TODO
+        module = false,
+        project = true,
+        global = true
+    ),
+    @Property(
+        key = ScmActivitySensor.PASSWORD_PROPERTY,
+        defaultValue = "",
+        name = "Password",
+        description = "",
+        module = false,
+        project = true,
+        global = true
+    ),
+    @Property(
+        key = ScmActivitySensor.PREFER_PURE_JAVA_PROPERTY,
+        defaultValue = ScmActivitySensor.PREFER_PURE_JAVA_DEFAULT_VALUE + "",
+        name = "Prefer pure Java implementations",
+        description = "",
+        module = false,
         project = true,
         global = true
     )

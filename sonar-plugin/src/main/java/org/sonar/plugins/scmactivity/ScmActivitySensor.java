@@ -16,6 +16,7 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
@@ -45,8 +46,10 @@ import java.util.List;
 public class ScmActivitySensor implements Sensor {
   public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
-  public static final String USE_SVNKIT_PROPERTY = "sonar.scm-sctivity.use_svnkit";
-  public static final boolean USE_SVNKIT_DEFAULT_VALUE = true;
+  public static final String USER_PROPERTY = "sonar.scm-activity.user.secured";
+  public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
+  public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-sctivity.use_svnkit";
+  public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
 
   public boolean shouldExecuteOnProject(Project project) {
     // this sensor is executed if enabled and scm connection is defined
@@ -61,13 +64,19 @@ public class ScmActivitySensor implements Sensor {
     List<File> sourceDirs = fileSystem.getSourceDirs();
 
     try {
-      boolean useSvnKit = project.getConfiguration().getBoolean(USE_SVNKIT_PROPERTY, USE_SVNKIT_DEFAULT_VALUE);
-      ExtScmManagerFactory scmManagerFactory = new ExtScmManagerFactory(useSvnKit);
+      Configuration configuration = project.getConfiguration();
+      String user = configuration.getString(USER_PROPERTY);
+      String password = configuration.getString(PASSWORD_PROPERTY);
+      boolean pureJava = project.getConfiguration().getBoolean(PREFER_PURE_JAVA_PROPERTY, PREFER_PURE_JAVA_DEFAULT_VALUE);
+
+      ExtScmManagerFactory scmManagerFactory = new ExtScmManagerFactory(pureJava);
       ExtScmManager scmManager = scmManagerFactory.getScmManager();
 
       String connectionUrl = project.getPom().getScm().getConnection();
       log.info("SCM connection URL: {}", connectionUrl);
       ScmRepository repository = scmManager.makeScmRepository(connectionUrl);
+      repository.getProviderRepository().setUser(user);
+      repository.getProviderRepository().setPassword(password);
 
       List<File> files = fileSystem.getJavaSourceFiles();
       for (File file : files) {
