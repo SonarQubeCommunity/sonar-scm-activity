@@ -36,7 +36,7 @@ import java.util.List;
         description = "",
         module = true,
         project = true,
-        global = false
+        global = true
     ),
     @Property(
         key = ScmActivitySensor.USER_PROPERTY,

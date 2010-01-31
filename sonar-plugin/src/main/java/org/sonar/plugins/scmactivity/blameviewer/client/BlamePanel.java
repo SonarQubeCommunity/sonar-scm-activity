@@ -39,6 +39,8 @@ public class BlamePanel extends AbstractSourcePanel {
   private Map<Integer, String> dates = new HashMap<Integer, String>();
   private Map<Integer, String> revisions = new HashMap<Integer, String>();
 
+  private boolean blameLoaded = false;
+
   public BlamePanel(Resource resource) {
     super(resource);
     loadBlame();
@@ -52,6 +54,9 @@ public class BlamePanel extends AbstractSourcePanel {
             handleResponse(response, BLAME_AUTHORS_DATA, authors);
             handleResponse(response, BLAME_DATE_DATA, dates);
             handleResponse(response, BLAME_REVISIONS_DATA, revisions);
+            if (!authors.isEmpty() && !dates.isEmpty() && !revisions.isEmpty()) {
+              blameLoaded = true;
+            }
             setStarted();
           }
         });
@@ -74,7 +79,7 @@ public class BlamePanel extends AbstractSourcePanel {
 
   @Override
   protected boolean shouldDecorateLine(int index) {
-    return index > 0;
+    return blameLoaded && index > 0;
   }
 
   @Override
