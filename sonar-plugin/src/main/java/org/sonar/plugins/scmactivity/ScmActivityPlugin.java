@@ -42,7 +42,7 @@ import java.util.List;
         key = ScmActivitySensor.USER_PROPERTY,
         defaultValue = "",
         name = "User",
-        description = "",
+        description = "User to connect with SCM. Leave blank for anonymous.",
         module = false,
         project = true,
         global = true
@@ -51,7 +51,7 @@ import java.util.List;
         key = ScmActivitySensor.PASSWORD_PROPERTY,
         defaultValue = "",
         name = "Password",
-        description = "",
+        description = "Password to connect with SCM. Leave blank for anonymous.",
         module = false,
         project = true,
         global = true

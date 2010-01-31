@@ -17,6 +17,7 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
@@ -74,8 +75,10 @@ public class ScmActivitySensor implements Sensor {
       String connectionUrl = project.getPom().getScm().getConnection();
       log.info("SCM connection URL: {}", connectionUrl);
       ScmRepository repository = scmManager.makeScmRepository(connectionUrl);
-      repository.getProviderRepository().setUser(user);
-      repository.getProviderRepository().setPassword(password);
+      if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
+        repository.getProviderRepository().setUser(user);
+        repository.getProviderRepository().setPassword(password);
+      }
 
       List<File> files = fileSystem.getJavaSourceFiles();
       for (File file : files) {
