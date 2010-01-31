@@ -28,6 +28,7 @@ import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
@@ -60,12 +61,16 @@ public class ScmActivitySensorTest {
   public void testShouldExecuteOnProject() throws Exception {
     Project project = mock(Project.class);
     MavenProject mavenProject = mock(MavenProject.class);
+    Snapshot snapshot = mock(Snapshot.class);
+    when(snapshot.getLast()).thenReturn(false, true);
     Configuration configuration = new BaseConfiguration();
     configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, false);
+    when(project.getSnapshot()).thenReturn(snapshot);
     when(project.getConfiguration()).thenReturn(configuration);
     when(project.getPom()).thenReturn(mavenProject);
     when(mavenProject.getScm()).thenReturn(null).thenReturn(new Scm());
 
+    assertFalse(sensor.shouldExecuteOnProject(project));
     assertFalse(sensor.shouldExecuteOnProject(project));
     configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
     assertFalse(sensor.shouldExecuteOnProject(project));

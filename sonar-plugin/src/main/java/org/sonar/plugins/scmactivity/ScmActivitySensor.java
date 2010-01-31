@@ -54,7 +54,8 @@ public class ScmActivitySensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     // this sensor is executed if enabled and scm connection is defined
-    return project.getConfiguration().getBoolean(ENABLED_PROPERTY, ENABLED_DEFAULT_VALUE)
+    return project.getSnapshot().getLast()
+        && project.getConfiguration().getBoolean(ENABLED_PROPERTY, ENABLED_DEFAULT_VALUE)
         && project.getPom().getScm() != null;
   }
 
