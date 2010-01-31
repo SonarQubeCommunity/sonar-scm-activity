@@ -40,7 +40,6 @@ public class BazaarBlameConsumer extends BazaarConsumer {
   public void doConsume(ScmFileStatus status, String trimmedLine) {
     /*1   godin@godin 20100131*/
     String annotation = trimmedLine.substring(0, trimmedLine.indexOf('|')).trim();
-    System.out.println(annotation);
 
     String dateStr = annotation.substring(annotation.lastIndexOf(' ') + 1);
     annotation = annotation.substring(0, annotation.lastIndexOf(' '));
