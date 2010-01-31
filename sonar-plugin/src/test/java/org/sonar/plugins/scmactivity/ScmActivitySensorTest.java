@@ -21,6 +21,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
@@ -35,7 +36,6 @@ import org.sonar.api.test.IsResource;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -77,14 +77,14 @@ public class ScmActivitySensorTest {
     SensorContext context;
     context = mock(SensorContext.class);
 
-    List<String> revisions = Arrays.asList("2", "1");
-    List<String> authors = Arrays.asList("godin", "godin");
-    List<Date> dates = Arrays.asList(new Date(13), new Date(10));
     ExtScmManager scmManager = mock(ExtScmManager.class);
     when(
         scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any())
     ).thenReturn(
-        new BlameScmResult("fake", authors, dates, revisions)
+        new BlameScmResult("fake", Arrays.asList(
+            new BlameLine(new Date(13), "2", "godin"),
+            new BlameLine(new Date(10), "1", "godin")
+        ))
     );
 
     sensor.analyzeBlame(scmManager, null, new File("."), null, context, new JavaFile("org.example.HelloWorld"));

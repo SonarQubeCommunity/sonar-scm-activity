@@ -17,19 +17,22 @@
 package org.apache.maven.scm.provider.cvslib.cvsjava.command.blame;
 
 import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameCommandTest;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * @author Evgeny Mandrikov
  */
+@Ignore("not ready yet")
 public class CvsJavaBlameCommandTest extends CvsBlameCommandTest {
   @Override
   protected boolean isPureJava() {
-    // FIXME
-    return false;
+    return true;
   }
 
+  @Test
   @Override
   public void testBlameCommand() throws Exception {
-    // FIXME super.testBlameCommand();
+    super.testBlameCommand();
   }
 }

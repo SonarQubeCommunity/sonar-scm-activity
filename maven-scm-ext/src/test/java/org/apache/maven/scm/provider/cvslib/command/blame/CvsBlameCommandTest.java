@@ -16,11 +16,9 @@
 
 package org.apache.maven.scm.provider.cvslib.command.blame;
 
-import org.apache.maven.scm.ScmTckTestCase;
+import org.apache.maven.scm.ExtScmTckTestCase;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ExtScmManager;
-import org.apache.maven.scm.manager.ExtScmManagerFactory;
 import org.apache.maven.scm.provider.cvslib.CvsScmTestUtils;
 
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
-public abstract class CvsBlameCommandTest extends ScmTckTestCase {
+public abstract class CvsBlameCommandTest extends ExtScmTckTestCase {
   @Override
   public String getScmUrl() throws Exception {
     return CvsScmTestUtils.getScmUrl(getRepositoryRoot(), getModule());
@@ -41,18 +39,7 @@ public abstract class CvsBlameCommandTest extends ScmTckTestCase {
 
   @Override
   public void initRepo() throws Exception {
-    CvsScmTestUtils.initRepo("src/test/tck-repository", getRepositoryRoot(), getWorkingDirectory());
-  }
-
-  protected abstract boolean isPureJava();
-
-  private ExtScmManager manager;
-
-  protected ExtScmManager getScmManager() {
-    if (manager == null) {
-      manager = ExtScmManagerFactory.getScmManager(isPureJava());
-    }
-    return manager;
+    CvsScmTestUtils.initRepo("src/test/tck-repository/", getRepositoryRoot(), getWorkingDirectory());
   }
 
   protected void testBlameCommand() throws Exception {
