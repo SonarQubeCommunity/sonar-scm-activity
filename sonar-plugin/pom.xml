@@ -26,6 +26,15 @@
     <skipGwt>true</skipGwt>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <properties>
+        <skipGwt>false</skipGwt>
+      </properties>
+    </profile>
+  </profiles>
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
@@ -134,6 +143,15 @@
               <Plugin-Class>${sonar.plugin.class}</Plugin-Class>
             </manifestEntries>
           </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <!-- During release:perform, enable the "release" profile -->
+          <releaseProfiles>release</releaseProfiles>
         </configuration>
       </plugin>
 
