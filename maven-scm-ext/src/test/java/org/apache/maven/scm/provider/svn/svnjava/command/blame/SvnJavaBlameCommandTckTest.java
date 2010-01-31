@@ -29,6 +29,6 @@ public class SvnJavaBlameCommandTckTest extends SvnBlameCommandTckTest {
 
   @Override
   public void testBlameCommand() throws Exception {
-    // FIXME super.testBlameCommand();
+    super.testBlameCommand();
   }
 }

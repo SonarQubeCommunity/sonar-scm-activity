@@ -71,7 +71,12 @@ public class SvnJavaBlameCommand extends AbstractBlameCommand implements SvnComm
     public void handleLine(Date date, long revision, String author, String line, Date mergedDate,
                            long mergedRevision, String mergedAuthor, String mergedPath, int lineNumber)
         throws SVNException {
-      lines.add(new BlameLine(date, Long.toString(revision), author));
+      BlameLine blameLine = new BlameLine(date, Long.toString(revision), author);
+      if (lines.size() > lineNumber) {
+        lines.set(lineNumber, blameLine);
+      } else {
+        lines.add(blameLine);
+      }
     }
 
     public boolean handleRevision(Date arg0, long arg1, String arg2, File arg3) throws SVNException {
