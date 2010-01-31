@@ -23,6 +23,7 @@
 
     <sonarVersion>1.12</sonarVersion>
     <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
+    <skipGwt>true</skipGwt>
   </properties>
 
   <dependencies>
