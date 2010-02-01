@@ -37,6 +37,11 @@ public class BlameScmResult extends ScmResult {
     super(commandLine, providerMessage, commandOutput, success);
   }
 
+  public BlameScmResult(List<BlameLine> lines, ScmResult scmResult) {
+    super(scmResult);
+    this.lines = lines;
+  }
+
   public List<BlameLine> getLines() {
     return lines;
   }

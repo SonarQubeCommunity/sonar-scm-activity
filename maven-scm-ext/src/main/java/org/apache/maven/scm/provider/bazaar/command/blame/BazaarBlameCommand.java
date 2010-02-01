@@ -29,14 +29,18 @@ import org.apache.maven.scm.provider.bazaar.BazaarUtils;
  * @author Evgeny Mandrikov
  */
 public class BazaarBlameCommand extends AbstractBlameCommand implements Command {
+  public static final String BLAME_CMD = "blame";
+
   @Override
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename) throws ScmException {
-    String[] cmd = new String[]{"blame", "--all", "--long", filename};
+    String[] cmd = new String[]{
+        BLAME_CMD,
+        "--all",  // Show annotations on all lines
+        "--long", // Show commit date in annotations
+        filename
+    };
     BazaarBlameConsumer consumer = new BazaarBlameConsumer(getLogger());
     ScmResult result = BazaarUtils.execute(consumer, getLogger(), workingDirectory.getBasedir(), cmd);
-    if (!result.isSuccess()) {
-      return new BlameScmResult(result.getCommandLine(), result.getProviderMessage(), result.getCommandOutput(), false);
-    }
-    return new BlameScmResult(result.getCommandLine(), consumer.getLines());
+    return new BlameScmResult(consumer.getLines(), result);
   }
 }

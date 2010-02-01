@@ -28,14 +28,19 @@ import org.apache.maven.scm.provider.hg.HgUtils;
  * @author Evgeny Mandrikov
  */
 public class HgBlameCommand extends AbstractBlameCommand {
+  public static final String BLAME_CMD = "blame";
+
   @Override
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename) throws ScmException {
-    String[] cmd = new String[]{"blame", "-u", "-d", "-n", filename};
+    String[] cmd = new String[]{
+        BLAME_CMD,
+        "--user",   // list the author
+        "--date",   // list the date 
+        "--number", // list the revision number
+        filename
+    };
     HgBlameConsumer consumer = new HgBlameConsumer(getLogger());
     ScmResult result = HgUtils.execute(consumer, getLogger(), workingDirectory.getBasedir(), cmd);
-    if (!result.isSuccess()) {
-      return new BlameScmResult(result.getCommandLine(), result.getProviderMessage(), result.getCommandOutput(), false);
-    }
-    return new BlameScmResult(result.getCommandLine(), consumer.getLines());
+    return new BlameScmResult(consumer.getLines(), result);
   }
 }
