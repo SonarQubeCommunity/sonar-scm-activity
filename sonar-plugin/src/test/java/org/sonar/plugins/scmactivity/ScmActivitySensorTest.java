@@ -24,6 +24,7 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
+import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +39,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -50,6 +50,10 @@ import static org.sonar.api.resources.Resource.SCOPE_ENTITY;
  * @author Evgeny Mandrikov
  */
 public class ScmActivitySensorTest {
+  private static final String SCM_CONNECTION = "scm:svn:https://localhost";
+  private static final String SCM_USER = "godin";
+  private static final String SCM_PASSWORD = "secretpassword";
+
   private ScmActivitySensor sensor;
 
   @Before
@@ -75,6 +79,36 @@ public class ScmActivitySensorTest {
     configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
     assertFalse(sensor.shouldExecuteOnProject(project));
     assertTrue(sensor.shouldExecuteOnProject(project));
+  }
+
+  @Test
+  public void testGetRepositorySecured() throws Exception {
+    ExtScmManager scmManager = mock(ExtScmManager.class);
+    Scm scm = mock(Scm.class);
+    ScmRepository repository = mock(ScmRepository.class);
+    ScmProviderRepository providerRepository = mock(ScmProviderRepository.class);
+    when(scm.getDeveloperConnection()).thenReturn(SCM_CONNECTION);
+    when(repository.getProviderRepository()).thenReturn(providerRepository);
+    when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
+
+    ScmRepository actual = sensor.getRepository(scmManager, scm, SCM_USER, SCM_PASSWORD);
+
+    assertSame(repository, actual);
+    verify(providerRepository).setUser(SCM_USER);
+    verify(providerRepository).setPassword(SCM_PASSWORD);
+  }
+
+  @Test
+  public void testGetRepositoryUnsecured() throws Exception {
+    ExtScmManager scmManager = mock(ExtScmManager.class);
+    Scm scm = mock(Scm.class);
+    ScmRepository repository = mock(ScmRepository.class);
+    when(scm.getConnection()).thenReturn(SCM_CONNECTION);
+    when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
+
+    ScmRepository actual = sensor.getRepository(scmManager, scm, null, null);
+
+    assertSame(repository, actual);
   }
 
   @Test

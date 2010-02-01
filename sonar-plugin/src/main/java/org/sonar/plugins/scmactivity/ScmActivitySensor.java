@@ -18,13 +18,16 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.model.Scm;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.manager.ExtScmManagerFactory;
+import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -60,8 +63,6 @@ public class ScmActivitySensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    Logger log = LoggerFactory.getLogger(getClass());
-
     ProjectFileSystem fileSystem = project.getFileSystem();
     List<File> sourceDirs = fileSystem.getSourceDirs();
 
@@ -72,24 +73,38 @@ public class ScmActivitySensor implements Sensor {
       boolean pureJava = project.getConfiguration().getBoolean(PREFER_PURE_JAVA_PROPERTY, PREFER_PURE_JAVA_DEFAULT_VALUE);
 
       ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(pureJava);
-
-      String connectionUrl = project.getPom().getScm().getConnection();
-      log.info("SCM connection URL: {}", connectionUrl);
-      ScmRepository repository = scmManager.makeScmRepository(connectionUrl);
-      if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
-        repository.getProviderRepository().setUser(user);
-        repository.getProviderRepository().setPassword(password);
-      }
+      ScmRepository repository = getRepository(scmManager, project.getPom().getScm(), user, password);
 
       List<File> files = fileSystem.getJavaSourceFiles();
       for (File file : files) {
-        log.info("Analyzing {}", file.getAbsolutePath());
+        getLog().info("Analyzing {}", file.getAbsolutePath());
         Resource resource = JavaFile.fromIOFile(file, sourceDirs, false);
         analyzeBlame(scmManager, repository, file, context, resource);
       }
     } catch (ScmException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  protected Logger getLog() {
+    return LoggerFactory.getLogger(getClass());
+  }
+
+  protected ScmRepository getRepository(ExtScmManager scmManager, Scm scm, String user, String password)
+      throws NoSuchScmProviderException, ScmRepositoryException {
+    ScmRepository repository;
+    String connectionUrl;
+    if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
+      connectionUrl = scm.getDeveloperConnection();
+      repository = scmManager.makeScmRepository(connectionUrl);
+      repository.getProviderRepository().setUser(user);
+      repository.getProviderRepository().setPassword(password);
+    } else {
+      connectionUrl = scm.getConnection();
+      repository = scmManager.makeScmRepository(connectionUrl);
+    }
+    getLog().info("SCM connection URL: {}", connectionUrl);
+    return repository;
   }
 
   protected void analyzeBlame(ExtScmManager scmManager, ScmRepository repository, File basedir, String filename, SensorContext context, Resource resource) throws ScmException {
