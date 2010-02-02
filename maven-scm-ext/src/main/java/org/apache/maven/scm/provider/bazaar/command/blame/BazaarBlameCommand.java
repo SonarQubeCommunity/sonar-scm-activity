@@ -19,7 +19,6 @@ package org.apache.maven.scm.provider.bazaar.command.blame;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmResult;
-import org.apache.maven.scm.command.Command;
 import org.apache.maven.scm.command.blame.AbstractBlameCommand;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.provider.ScmProviderRepository;
@@ -28,7 +27,7 @@ import org.apache.maven.scm.provider.bazaar.BazaarUtils;
 /**
  * @author Evgeny Mandrikov
  */
-public class BazaarBlameCommand extends AbstractBlameCommand implements Command {
+public class BazaarBlameCommand extends AbstractBlameCommand {
   public static final String BLAME_CMD = "blame";
 
   @Override

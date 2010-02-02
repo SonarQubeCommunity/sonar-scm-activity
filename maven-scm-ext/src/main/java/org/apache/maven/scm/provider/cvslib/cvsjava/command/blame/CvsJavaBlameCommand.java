@@ -51,7 +51,7 @@ public class CvsJavaBlameCommand extends AbsrtactCvsBlameCommand {
         consumer.consumeLine(line);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      getLogger().error(e);
       return new BlameScmResult(cl.toString(), "The cvs command failed.", logListener.getStdout().toString(), false);
     }
 

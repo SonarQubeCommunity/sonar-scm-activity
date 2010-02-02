@@ -51,6 +51,7 @@ public class ExtScmManager extends AbstractScmManager {
   }
 
   public ExtScmManager(ScmLogger logger) {
+    super();
     this.logger = logger;
   }
 

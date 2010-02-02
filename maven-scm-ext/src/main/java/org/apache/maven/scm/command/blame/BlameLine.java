@@ -28,9 +28,9 @@ public class BlameLine implements Serializable {
   private String author;
 
   public BlameLine(Date date, String revision, String author) {
-    this.date = date;
-    this.revision = revision;
-    this.author = author;
+    setDate(date);
+    setRevision(revision);
+    setAuthor(author);
   }
 
   public String getRevision() {
@@ -50,10 +50,17 @@ public class BlameLine implements Serializable {
   }
 
   public Date getDate() {
-    return date;
+    if (date != null) {
+      return (Date) date.clone();
+    }
+    return null;
   }
 
   public void setDate(Date date) {
-    this.date = date;
+    if (date != null) {
+      this.date = new Date(date.getTime());
+    } else {
+      this.date = null;
+    }
   }
 }
