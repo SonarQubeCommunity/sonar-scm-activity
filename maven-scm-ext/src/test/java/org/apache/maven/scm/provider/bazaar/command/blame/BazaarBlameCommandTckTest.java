@@ -43,6 +43,11 @@ public class BazaarBlameCommandTckTest extends BlameTckTest {
   }
 
   @Override
+  protected boolean isTestDateTime() {
+    return false;
+  }
+
+  @Override
   protected void verifyResult(BlameScmResult result) {
     List<BlameLine> lines = result.getLines();
     assertEquals("Expected 1 line in blame", 1, lines.size());

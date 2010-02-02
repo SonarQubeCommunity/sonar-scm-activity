@@ -22,7 +22,10 @@ import org.apache.maven.scm.log.ScmLogger;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Evgeny Mandrikov
@@ -55,8 +58,13 @@ public class SvnBlameConsumer extends AbstractBlameConsumer {
    */
   private RE dateRegexp;
 
+  private SimpleDateFormat dateFormat;
+
   public SvnBlameConsumer(ScmLogger logger) {
     super(logger);
+
+    dateFormat = new SimpleDateFormat(SVN_TIMESTAMP_PATTERN);
+    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     try {
       lineRegexp = new RE(LINE_PATTERN);
@@ -86,11 +94,20 @@ public class SvnBlameConsumer extends AbstractBlameConsumer {
     } else if (dateRegexp.match(line)) {
       String date = dateRegexp.getParen(1);
       String time = dateRegexp.getParen(2);
-      Date dateTime = parseDate(date + " " + time, null, SVN_TIMESTAMP_PATTERN);
+      Date dateTime = parseDateTime(date + " " + time);
       getLines().add(new BlameLine(dateTime, revision, author));
       if (getLogger().isDebugEnabled()) {
         getLogger().debug("Author of line " + lineNumber + ": " + author + " (" + date + ")");
       }
+    }
+  }
+
+  protected Date parseDateTime(String dateTimeStr) {
+    try {
+      return dateFormat.parse(dateTimeStr);
+    } catch (ParseException e) {
+      getLogger().error("skip ParseException: " + e.getMessage() + " during parsing date " + dateTimeStr, e);
+      return null;
     }
   }
 }
