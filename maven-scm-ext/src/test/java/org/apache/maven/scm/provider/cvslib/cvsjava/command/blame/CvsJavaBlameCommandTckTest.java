@@ -16,7 +16,7 @@
 
 package org.apache.maven.scm.provider.cvslib.cvsjava.command.blame;
 
-import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameCommandTest;
+import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameCommandTckTest;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ import org.junit.Test;
  * @author Evgeny Mandrikov
  */
 @Ignore("not ready yet")
-public class CvsJavaBlameCommandTest extends CvsBlameCommandTest {
+public class CvsJavaBlameCommandTckTest extends CvsBlameCommandTckTest {
   @Override
   protected boolean isPureJava() {
     return true;

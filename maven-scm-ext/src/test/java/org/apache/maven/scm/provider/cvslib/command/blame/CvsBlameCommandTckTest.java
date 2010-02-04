@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
-public abstract class CvsBlameCommandTest extends ExtScmTckTestCase {
+public abstract class CvsBlameCommandTckTest extends ExtScmTckTestCase {
   @Override
   public String getScmUrl() throws Exception {
     return CvsScmTestUtils.getScmUrl(getRepositoryRoot(), getModule());
