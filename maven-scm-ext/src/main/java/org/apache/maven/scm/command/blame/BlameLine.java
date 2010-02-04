@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * @author Evgeny Mandrikov
  */
-public class BlameLine implements Serializable {
+public final class BlameLine implements Serializable {
   private Date date;
   private String revision;
   private String author;

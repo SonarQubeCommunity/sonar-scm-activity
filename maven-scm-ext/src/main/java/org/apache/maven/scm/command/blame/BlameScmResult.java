@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author Evgeny Mandrikov
  */
-public class BlameScmResult extends ScmResult {
+public final class BlameScmResult extends ScmResult {
   private List<BlameLine> lines;
 
   public BlameScmResult(String commandLine, List<BlameLine> lines) {
