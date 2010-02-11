@@ -52,7 +52,7 @@ public class ScmActivitySensor implements Sensor {
   public static final boolean ENABLED_DEFAULT_VALUE = false;
   public static final String USER_PROPERTY = "sonar.scm-activity.user.secured";
   public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
-  public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-sctivity.prefer_pure_java";
+  public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-activity.prefer_pure_java";
   public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
 
   public boolean shouldExecuteOnProject(Project project) {
