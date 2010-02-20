@@ -56,8 +56,9 @@ public class ScmActivitySensor implements Sensor {
   public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
 
   public boolean shouldExecuteOnProject(Project project) {
-    // this sensor is executed if enabled and scm connection is defined
-    return project.getConfiguration().getBoolean(ENABLED_PROPERTY, ENABLED_DEFAULT_VALUE) &&
+    // this sensor is executed only for latest analysis and if plugin enabled and scm connection is defined
+    return project.isLatestAnalysis() &&
+        project.getConfiguration().getBoolean(ENABLED_PROPERTY, ENABLED_DEFAULT_VALUE) &&
         project.getPom().getScm() != null;
   }
 

@@ -29,7 +29,6 @@ import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
@@ -61,23 +60,52 @@ public class ScmActivitySensorTest {
     sensor = new ScmActivitySensor();
   }
 
+  /**
+   * See SONARPLUGINS-350
+   */
   @Test
-  public void testShouldExecuteOnProject() throws Exception {
-    Project project = mock(Project.class);
-    MavenProject mavenProject = mock(MavenProject.class);
-    Snapshot snapshot = mock(Snapshot.class);
-    when(snapshot.getLast()).thenReturn(false, true);
-    Configuration configuration = new BaseConfiguration();
-    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, false);
-    when(project.getSnapshot()).thenReturn(snapshot);
-    when(project.getConfiguration()).thenReturn(configuration);
-    when(project.getPom()).thenReturn(mavenProject);
-    when(mavenProject.getScm()).thenReturn(null).thenReturn(new Scm());
+  public void noExecutionIfNotLatestAnalysis() {
+    Project project = new Project("")
+        .setLatestAnalysis(false);
 
     assertFalse(sensor.shouldExecuteOnProject(project));
+  }
+
+  @Test
+  public void noExecutionIfDisabled() {
+    Configuration configuration = new BaseConfiguration();
+    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, false);
+    Project project = new Project("")
+        .setLatestAnalysis(true)
+        .setConfiguration(configuration);
+
     assertFalse(sensor.shouldExecuteOnProject(project));
+  }
+
+  @Test
+  public void noExecutionIfScmNotDefined() {
+    Configuration configuration = new BaseConfiguration();
     configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
+    MavenProject pom = new MavenProject();
+    Project project = new Project("")
+        .setLatestAnalysis(true)
+        .setPom(pom)
+        .setConfiguration(configuration);
+
     assertFalse(sensor.shouldExecuteOnProject(project));
+  }
+
+  @Test
+  public void shouldExecuteOnProject() {
+    Configuration configuration = new BaseConfiguration();
+    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
+    MavenProject pom = new MavenProject();
+    pom.setScm(new Scm());
+    Project project = new Project("")
+        .setLatestAnalysis(true)
+        .setPom(pom)
+        .setConfiguration(configuration);
+
     assertTrue(sensor.shouldExecuteOnProject(project));
   }
 

@@ -58,7 +58,7 @@ public class ProjectActivityDecoratorTest {
         mockChildContext("2010-01-01", "2")
     );
     when(context.getChildren()).thenReturn(children);
-    decorator.decorate(new Project(new MavenProject()), context);
+    decorator.decorate(new Project(""), context);
     verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
   }
 
@@ -70,7 +70,7 @@ public class ProjectActivityDecoratorTest {
         mockChildContext("2010-01-02", "1")
     );
     when(context.getChildren()).thenReturn(children);
-    decorator.decorate(new Project(new MavenProject()), context);
+    decorator.decorate(new Project("").setPom(new MavenProject()), context);
     verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
 
     reset(context);
@@ -79,7 +79,7 @@ public class ProjectActivityDecoratorTest {
         mockChildContext(null, null)
     );
     when(context.getChildren()).thenReturn(children);
-    decorator.decorate(new Project(new MavenProject()), context);
+    decorator.decorate(new Project("").setPom(new MavenProject()), context);
     verify(context, never()).saveMeasure((Measure) any());
   }
 

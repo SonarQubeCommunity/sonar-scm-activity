@@ -16,9 +16,12 @@
 
 package org.sonar.plugins.scmactivity.blameviewer.client;
 
-import com.google.gwt.core.client.JavaScriptObject;
-import org.sonar.api.web.gwt.client.webservices.*;
-import org.sonar.api.web.gwt.client.widgets.AbstractSourcePanel;
+import org.sonar.gwt.ui.SourcePanel;
+import org.sonar.wsclient.gwt.AbstractCallback;
+import org.sonar.wsclient.gwt.Sonar;
+import org.sonar.wsclient.services.Measure;
+import org.sonar.wsclient.services.Resource;
+import org.sonar.wsclient.services.ResourceQuery;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,58 +31,48 @@ import java.util.Map;
 /**
  * @author Evgeny Mandrikov
  */
-public class BlamePanel extends AbstractSourcePanel {
-  public static final WSMetrics.Metric BLAME_AUTHORS_DATA = new WSMetrics.Metric("blame_authors_data");
-  public static final WSMetrics.Metric BLAME_DATE_DATA = new WSMetrics.Metric("blame_date_data");
-  public static final WSMetrics.Metric BLAME_REVISIONS_DATA = new WSMetrics.Metric("blame_revision_data");
-  public static final WSMetrics.Metric LAST_ACTIVITY = new WSMetrics.Metric("last_commit");
-  public static final WSMetrics.Metric REVISION = new WSMetrics.Metric("revision");
+public class BlamePanel extends SourcePanel {
+  public static final String BLAME_AUTHORS_DATA = "blame_authors_data";
+  public static final String BLAME_DATE_DATA = "blame_date_data";
+  public static final String BLAME_REVISIONS_DATA = "blame_revision_data";
+  public static final String LAST_ACTIVITY = "last_commit";
+  public static final String REVISION = "revision";
 
   private Map<Integer, String> authors = new HashMap<Integer, String>();
   private Map<Integer, String> dates = new HashMap<Integer, String>();
   private Map<Integer, String> revisions = new HashMap<Integer, String>();
 
-  private boolean blameLoaded = false;
-
   public BlamePanel(Resource resource) {
     super(resource);
-    loadBlame();
+    loadBlame(resource);
   }
 
-  private void loadBlame() {
-    ResourcesQuery.get(getResource().getKey())
-        .setMetrics(Arrays.asList(BLAME_AUTHORS_DATA, BLAME_DATE_DATA, BLAME_REVISIONS_DATA))
-        .execute(new BaseQueryCallback<Resources>() {
-          public void onResponse(Resources response, JavaScriptObject jsonRawResponse) {
-            handleResponse(response, BLAME_AUTHORS_DATA, authors);
-            handleResponse(response, BLAME_DATE_DATA, dates);
-            handleResponse(response, BLAME_REVISIONS_DATA, revisions);
-            if (!authors.isEmpty() && !dates.isEmpty() && !revisions.isEmpty()) {
-              blameLoaded = true;
-            }
-            setStarted();
-          }
-        });
-  }
-
-  private void handleResponse(Resources response, WSMetrics.Metric metric, Map<Integer, String> values) {
-    if (response.getResources().size() != 1 || !response.firstResource().hasMeasure(metric)) {
-      return;
-    }
-    values.clear();
-    String linesValue = response.getResources().get(0).getMeasure(metric).getData();
-    String[] lineWithValueArray = linesValue.split(";");
-    for (String lineWithValue : lineWithValueArray) {
-      String[] elt = lineWithValue.split("=");
-      if (elt != null && elt.length == 2) {
-        values.put(Integer.parseInt(elt[0]), elt[1]);
+  private void loadBlame(Resource resource) {
+    ResourceQuery query = ResourceQuery
+        .createForResource(resource, BLAME_AUTHORS_DATA, BLAME_DATE_DATA, BLAME_REVISIONS_DATA);
+    Sonar.getInstance().find(query, new AbstractCallback<Resource>() {
+      @Override
+      protected void doOnResponse(Resource result) {
+        authors = convert(result.getMeasure(BLAME_AUTHORS_DATA));
+        dates = convert(result.getMeasure(BLAME_DATE_DATA));
+        revisions = convert(result.getMeasure(BLAME_REVISIONS_DATA));
+        setStarted();
       }
+    });
+  }
+
+  private Map<Integer, String> convert(Measure measure) {
+    Map<String, String> map = measure.getDataAsMap(";");
+    Map<Integer, String> result = new HashMap<Integer, String>();
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      result.put(Integer.parseInt(entry.getKey()), entry.getValue());
     }
+    return result;
   }
 
   @Override
   protected boolean shouldDecorateLine(int index) {
-    return blameLoaded && index > 0;
+    return index > 0;
   }
 
   @Override

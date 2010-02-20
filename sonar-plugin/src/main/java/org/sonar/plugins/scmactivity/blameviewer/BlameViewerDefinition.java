@@ -16,13 +16,25 @@
 
 package org.sonar.plugins.scmactivity.blameviewer;
 
-import org.sonar.api.web.ResourceViewer;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.web.*;
+import org.sonar.plugins.scmactivity.blameviewer.client.BlamePanel;
 import org.sonar.plugins.scmactivity.blameviewer.client.BlameViewer;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class BlameViewerDefinition implements ResourceViewer {
+@ResourceQualifier({Resource.QUALIFIER_CLASS, Resource.QUALIFIER_FILE})
+@ResourceScope({Resource.SCOPE_ENTITY})
+@NavigationSection(NavigationSection.RESOURCE_TAB)
+@DefaultTab(metrics = {
+    BlamePanel.LAST_ACTIVITY,
+    BlamePanel.REVISION,
+    BlamePanel.BLAME_AUTHORS_DATA,
+    BlamePanel.BLAME_DATE_DATA
+})
+@UserRole(UserRole.CODEVIEWER)
+public class BlameViewerDefinition extends GwtPage {
   public String getTitle() {
     return "Blame";
   }

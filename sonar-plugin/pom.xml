@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -17,10 +18,10 @@
 
   <properties>
     <sonar.plugin.class>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.plugin.class>
-    <sonar.version>1.12</sonar.version>
+    <sonar.version>1.13-SNAPSHOT</sonar.version>
     <jdk.min.version>1.5</jdk.min.version>
 
-    <sonarVersion>1.12</sonarVersion>
+    <sonarVersion>1.13-SNAPSHOT</sonarVersion>
     <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
     <skipGwt>true</skipGwt>
   </properties>
@@ -28,6 +29,12 @@
   <profiles>
     <profile>
       <id>release</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
       <properties>
         <skipGwt>false</skipGwt>
       </properties>
@@ -63,6 +70,13 @@
 
     <!-- GWT -->
     <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-gwt-api</artifactId>
+      <version>${sonar.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-user</artifactId>
       <version>1.7.0</version>
@@ -94,6 +108,12 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.8.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.5.6</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -142,15 +162,6 @@
               <Plugin-Class>${sonar.plugin.class}</Plugin-Class>
             </manifestEntries>
           </archive>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <!-- During release:perform, enable the "release" profile -->
-          <releaseProfiles>release</releaseProfiles>
         </configuration>
       </plugin>
 
