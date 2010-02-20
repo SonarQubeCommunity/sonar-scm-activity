@@ -32,7 +32,9 @@ import java.io.InputStreamReader;
  * @author Evgeny Mandrikov
  */
 public class CvsJavaBlameCommand extends AbsrtactCvsBlameCommand {
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   protected BlameScmResult executeCvsCommand(Commandline cl, CvsScmProviderRepository repository) {
     CvsLogListener logListener = new CvsLogListener();
     CvsBlameConsumer consumer = new CvsBlameConsumer(getLogger());

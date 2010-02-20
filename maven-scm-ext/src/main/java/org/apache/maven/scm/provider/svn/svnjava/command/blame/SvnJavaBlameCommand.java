@@ -38,7 +38,9 @@ import java.util.List;
  */
 public class SvnJavaBlameCommand extends AbstractBlameCommand implements SvnCommand {
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename)
       throws ScmException {
     try {
@@ -55,7 +57,7 @@ public class SvnJavaBlameCommand extends AbstractBlameCommand implements SvnComm
 
   private static class AnnotationHandler implements ISVNAnnotateHandler {
 
-    private List<BlameLine> lines = new ArrayList<BlameLine>();
+    private List lines = new ArrayList();
 
     public void handleEOF() {
       // no op

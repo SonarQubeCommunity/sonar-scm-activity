@@ -29,7 +29,9 @@ import org.codehaus.plexus.util.cli.Commandline;
  * @author Evgeny Mandrikov
  */
 public class CvsExeBlameCommand extends AbsrtactCvsBlameCommand {
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   protected BlameScmResult executeCvsCommand(Commandline cl, CvsScmProviderRepository repository) throws ScmException {
     CvsBlameConsumer consumer = new CvsBlameConsumer(getLogger());
     CommandLineUtils.StringStreamConsumer stderr = new CommandLineUtils.StringStreamConsumer();

@@ -16,8 +16,8 @@
 
 package org.apache.maven.scm;
 
-import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.manager.ExtScmManagerFactory;
+import org.apache.maven.scm.manager.ScmManager;
 
 /**
  * @author Evgeny Mandrikov
@@ -25,8 +25,7 @@ import org.apache.maven.scm.manager.ExtScmManagerFactory;
 public abstract class ExtScmTckTestCase extends ScmTckTestCase {
   protected abstract boolean isPureJava();
 
-  @Override
-  protected ExtScmManager getScmManager() throws Exception {
+  protected ScmManager getScmManager() throws Exception {
     return ExtScmManagerFactory.getScmManager(isPureJava());
   }
 }

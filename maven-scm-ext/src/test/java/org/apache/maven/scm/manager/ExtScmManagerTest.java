@@ -16,6 +16,7 @@
 
 package org.apache.maven.scm.manager;
 
+import junit.framework.Assert;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.command.blame.AbstractBlameCommand;
 import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
@@ -25,14 +26,11 @@ import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameCommand;
 import org.apache.maven.scm.provider.hg.command.blame.HgBlameCommand;
 import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class ExtScmManagerTest {
-  @Test
   public void testPureJava() throws Exception {
     ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(true);
 
@@ -40,7 +38,6 @@ public class ExtScmManagerTest {
     Assert.assertTrue(getBlameCommand(scmManager, "scm:cvs:local:/cvs:module") instanceof CvsJavaBlameCommand);
   }
 
-  @Test
   public void testExe() throws Exception {
     ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(false);
 

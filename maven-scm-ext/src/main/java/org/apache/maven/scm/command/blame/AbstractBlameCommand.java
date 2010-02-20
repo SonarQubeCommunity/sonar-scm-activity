@@ -27,7 +27,6 @@ public abstract class AbstractBlameCommand extends AbstractCommand {
   public abstract BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename)
       throws ScmException;
 
-  @Override
   protected ScmResult executeCommand(ScmProviderRepository repository, ScmFileSet workingDirectory, CommandParameters parameters)
       throws ScmException {
     String file = parameters.getString(CommandParameter.FILE);

@@ -31,7 +31,7 @@ import java.util.List;
 public class BazaarBlameConsumer extends BazaarConsumer {
   private static final String BAZAAR_TIMESTAMP_PATTERN = "yyyyMMdd";
 
-  private List<BlameLine> lines = new ArrayList<BlameLine>();
+  private List lines = new ArrayList();
 
   public BazaarBlameConsumer(ScmLogger logger) {
     super(logger);
@@ -54,7 +54,7 @@ public class BazaarBlameConsumer extends BazaarConsumer {
     lines.add(new BlameLine(date, revision, author));
   }
 
-  public List<BlameLine> getLines() {
+  public List getLines() {
     return lines;
   }
 }

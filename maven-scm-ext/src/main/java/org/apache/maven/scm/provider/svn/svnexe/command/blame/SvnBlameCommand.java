@@ -34,7 +34,9 @@ import java.io.File;
  * @author Evgeny Mandrikov
  */
 public class SvnBlameCommand extends AbstractBlameCommand implements SvnCommand {
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename)
       throws ScmException {
     Commandline cl = createCommandLine((SvnScmProviderRepository) repo, workingDirectory.getBasedir(), filename);

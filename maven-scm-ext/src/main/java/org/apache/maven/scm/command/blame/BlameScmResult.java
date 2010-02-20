@@ -26,9 +26,9 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public final class BlameScmResult extends ScmResult {
-  private List<BlameLine> lines;
+  private List lines;
 
-  public BlameScmResult(String commandLine, List<BlameLine> lines) {
+  public BlameScmResult(String commandLine, List lines) {
     this(commandLine, null, null, true);
     this.lines = lines;
   }
@@ -37,12 +37,12 @@ public final class BlameScmResult extends ScmResult {
     super(commandLine, providerMessage, commandOutput, success);
   }
 
-  public BlameScmResult(List<BlameLine> lines, ScmResult scmResult) {
+  public BlameScmResult(List lines, ScmResult scmResult) {
     super(scmResult);
     this.lines = lines;
   }
 
-  public List<BlameLine> getLines() {
+  public List getLines() {
     return lines;
   }
 }

@@ -55,7 +55,6 @@ public class ExtScmManager extends AbstractScmManager {
     this.logger = logger;
   }
 
-  @Override
   protected ScmLogger getScmLogger() {
     return logger;
   }

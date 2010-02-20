@@ -19,6 +19,7 @@ package org.apache.maven.scm.provider.cvslib.command.blame;
 import org.apache.maven.scm.ExtScmTckTestCase;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
+import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.provider.cvslib.CvsScmTestUtils;
 
 import java.util.List;
@@ -27,34 +28,33 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public abstract class CvsBlameCommandTckTest extends ExtScmTckTestCase {
-  @Override
   public String getScmUrl() throws Exception {
     return CvsScmTestUtils.getScmUrl(getRepositoryRoot(), getModule());
   }
 
-  @Override
   protected String getModule() {
     return "test-repo/module";
   }
 
-  @Override
   public void initRepo() throws Exception {
     CvsScmTestUtils.initRepo("src/test/tck-repository/", getRepositoryRoot(), getWorkingDirectory());
   }
 
   protected void testBlameCommand() throws Exception {
-    BlameScmResult result = getScmManager().blame(
+    ExtScmManager scmManager = (ExtScmManager) getScmManager();
+    BlameScmResult result = scmManager.blame(
         getScmRepository(),
         getScmFileSet(),
         "pom.xml"
     );
     assertResultIsSuccess(result);
 
-    List<BlameLine> lines = result.getLines();
+    List lines = result.getLines();
     int size = lines.size();
     assertEquals(1, size);
-    assertEquals("1.1", lines.get(0).getRevision());
-    assertEquals("Brett", lines.get(0).getAuthor());
+    BlameLine line = (BlameLine) lines.get(0);
+    assertEquals("1.1", line.getRevision());
+    assertEquals("Brett", line.getAuthor());
   }
 
 }

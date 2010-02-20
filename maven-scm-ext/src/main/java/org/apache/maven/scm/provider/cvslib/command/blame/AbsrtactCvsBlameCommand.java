@@ -30,8 +30,9 @@ import org.codehaus.plexus.util.cli.Commandline;
  * @author Evgeny Mandrikov
  */
 public abstract class AbsrtactCvsBlameCommand extends AbstractBlameCommand implements CvsCommand {
-
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet fileSet, String filename) throws ScmException {
     CvsScmProviderRepository repository = (CvsScmProviderRepository) repo;
 

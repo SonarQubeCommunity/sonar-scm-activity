@@ -32,7 +32,9 @@ import java.io.File;
  * @author Evgeny Mandrikov
  */
 public class GitBlameCommand extends AbstractBlameCommand implements GitCommand {
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename)
       throws ScmException {
     Commandline cl = createCommandLine(workingDirectory.getBasedir(), filename);

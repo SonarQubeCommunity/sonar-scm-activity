@@ -22,12 +22,10 @@ import org.apache.maven.scm.provider.cvslib.command.blame.CvsBlameCommandTckTest
  * @author Evgeny Mandrikov
  */
 public class CvsExeBlameCommandTckTest extends CvsBlameCommandTckTest {
-  @Override
   protected boolean isPureJava() {
     return false;
   }
 
-  @Override
   public void testBlameCommand() throws Exception {
     super.testBlameCommand();
   }

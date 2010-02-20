@@ -29,7 +29,7 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public class HgBlameConsumer extends HgConsumer {
-  private List<BlameLine> lines = new ArrayList<BlameLine>();
+  private List lines = new ArrayList();
 
   private static final String HG_TIMESTAMP_PATTERN = "EEE MMM dd HH:mm:ss yyyy Z";
 
@@ -38,7 +38,6 @@ public class HgBlameConsumer extends HgConsumer {
 
   }
 
-  @Override
   public void doConsume(ScmFileStatus status, String trimmedLine) {
     /* godin 0 Sun Jan 31 03:04:54 2010 +0300 */
     String annotation = trimmedLine.substring(0, trimmedLine.indexOf(": "));
@@ -55,7 +54,7 @@ public class HgBlameConsumer extends HgConsumer {
     lines.add(new BlameLine(dateTime, revision, author));
   }
 
-  public List<BlameLine> getLines() {
+  public List getLines() {
     return lines;
   }
 }

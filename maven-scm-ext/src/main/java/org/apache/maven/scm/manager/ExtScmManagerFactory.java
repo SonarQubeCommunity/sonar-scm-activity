@@ -36,9 +36,14 @@ public final class ExtScmManagerFactory {
 
   public static ExtScmManager getScmManager(boolean pureJava) {
     ExtScmManager scmManager = new ExtScmManager();
-    scmManager.setScmProvider("svn", pureJava ? new SvnJavaScmProvider() : new SvnExeScmProvider());
+    if (pureJava) {
+      scmManager.setScmProvider("svn", new SvnJavaScmProvider());
+      scmManager.setScmProvider("cvs", new CvsJavaScmProvider());
+    } else {
+      scmManager.setScmProvider("svn", new SvnExeScmProvider());
+      scmManager.setScmProvider("cvs", new CvsExeScmProvider());
+    }
     scmManager.setScmProvider("git", new GitExeScmProvider());
-    scmManager.setScmProvider("cvs", pureJava ? new CvsJavaScmProvider() : new CvsExeScmProvider());
     scmManager.setScmProvider("hg", new HgScmProvider());
     scmManager.setScmProvider("bazaar", new BazaarScmProvider());
     return scmManager;

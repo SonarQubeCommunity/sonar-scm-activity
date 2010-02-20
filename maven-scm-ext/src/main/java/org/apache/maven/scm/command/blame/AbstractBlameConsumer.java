@@ -26,13 +26,13 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public abstract class AbstractBlameConsumer extends AbstractConsumer {
-  private List<BlameLine> lines = new ArrayList<BlameLine>();
+  private List lines = new ArrayList();
 
   public AbstractBlameConsumer(ScmLogger logger) {
     super(logger);
   }
 
-  public List<BlameLine> getLines() {
+  public List getLines() {
     return lines;
   }
 }

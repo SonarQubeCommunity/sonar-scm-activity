@@ -37,7 +37,7 @@ public abstract class BlameTckTest extends ExtScmTckTestCase {
   public void testBlameCommand()
       throws Exception {
     ScmRepository repository = getScmRepository();
-    ExtScmManager manager = getScmManager();
+    ExtScmManager manager = (ExtScmManager) getScmManager();
     ScmProvider provider = manager.getProviderByRepository(getScmRepository());
     ScmFileSet fileSet = new ScmFileSet(getWorkingCopy());
 
@@ -49,7 +49,7 @@ public abstract class BlameTckTest extends ExtScmTckTestCase {
     assertNotNull("The command returned a null result.", result);
     assertResultIsSuccess(result);
     assertEquals("Expected 1 line in blame", 1, result.getLines().size());
-    line = result.getLines().get(0);
+    line = (BlameLine) result.getLines().get(0);
     String initialRevision = line.getRevision();
 
     //Make a timestamp that we know are after initial revision but before the second
@@ -71,7 +71,7 @@ public abstract class BlameTckTest extends ExtScmTckTestCase {
     assertResultIsSuccess(result);
 
     assertEquals("Expected 1 line in blame", 1, result.getLines().size());
-    line = result.getLines().get(0);
+    line = (BlameLine) result.getLines().get(0);
 
     assertNotNull("Expected not null author", line.getAuthor());
     assertNotNull("Expected not null revision", line.getRevision());

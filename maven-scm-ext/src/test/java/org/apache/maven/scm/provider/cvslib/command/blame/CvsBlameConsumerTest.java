@@ -16,26 +16,23 @@
 
 package org.apache.maven.scm.provider.cvslib.command.blame;
 
+import junit.framework.Assert;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.DefaultLog;
 import org.apache.maven.scm.provider.AbstractConsumerTest;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class CvsBlameConsumerTest extends AbstractConsumerTest {
-  @Test
   public void test() {
     CvsBlameConsumer consumer = new CvsBlameConsumer(new DefaultLog());
     consume("cvs.log", consumer);
 
-    assertEquals(8, consumer.getLines().size());
+    Assert.assertEquals(8, consumer.getLines().size());
 
-    BlameLine line = consumer.getLines().get(0);
-    assertEquals("1.1", line.getRevision());
-    assertEquals("tor", line.getAuthor());
+    BlameLine line = (BlameLine) consumer.getLines().get(0);
+    Assert.assertEquals("1.1", line.getRevision());
+    Assert.assertEquals("tor", line.getAuthor());
   }
 }

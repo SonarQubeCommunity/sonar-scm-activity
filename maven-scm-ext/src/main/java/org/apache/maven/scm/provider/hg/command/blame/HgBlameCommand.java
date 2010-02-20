@@ -30,7 +30,9 @@ import org.apache.maven.scm.provider.hg.HgUtils;
 public class HgBlameCommand extends AbstractBlameCommand {
   public static final String BLAME_CMD = "blame";
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename) throws ScmException {
     String[] cmd = new String[]{
         BLAME_CMD,
