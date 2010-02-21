@@ -39,6 +39,16 @@ import java.util.List;
         global = true
     ),
     @Property(
+        key = ScmActivitySensor.URL_PROPERTY,
+        defaultValue = "",
+        name = "SCM URL",
+        description = "SCM URL. Leave blank to take this value from <i>pom.xml</i>. Example:" +
+            "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>",
+        module = true,
+        project = true,
+        global = false
+    ),
+    @Property(
         key = ScmActivitySensor.USER_PROPERTY,
         defaultValue = "",
         name = "User",

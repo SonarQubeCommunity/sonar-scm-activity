@@ -16,7 +16,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Scm;
 import org.apache.maven.scm.ScmException;
@@ -26,6 +25,7 @@ import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.manager.ExtScmManagerFactory;
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
+import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.slf4j.Logger;
@@ -48,6 +48,7 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public class ScmActivitySensor implements Sensor {
+  public static final String URL_PROPERTY = "sonar.scm-activity.url";
   public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
   public static final String USER_PROPERTY = "sonar.scm-activity.user.secured";
@@ -59,7 +60,7 @@ public class ScmActivitySensor implements Sensor {
     // this sensor is executed only for latest analysis and if plugin enabled and scm connection is defined
     return project.isLatestAnalysis() &&
         project.getConfiguration().getBoolean(ENABLED_PROPERTY, ENABLED_DEFAULT_VALUE) &&
-        project.getPom().getScm() != null;
+        !StringUtils.isBlank(getScmUrl(project));
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -67,13 +68,9 @@ public class ScmActivitySensor implements Sensor {
     List<File> sourceDirs = fileSystem.getSourceDirs();
 
     try {
-      Configuration configuration = project.getConfiguration();
-      String user = configuration.getString(USER_PROPERTY);
-      String password = configuration.getString(PASSWORD_PROPERTY);
       boolean pureJava = project.getConfiguration().getBoolean(PREFER_PURE_JAVA_PROPERTY, PREFER_PURE_JAVA_DEFAULT_VALUE);
-
       ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(pureJava);
-      ScmRepository repository = getRepository(scmManager, project.getPom().getScm(), user, password);
+      ScmRepository repository = getRepository(scmManager, project);
 
       List<File> files = fileSystem.getJavaSourceFiles();
       for (File file : files) {
@@ -90,20 +87,40 @@ public class ScmActivitySensor implements Sensor {
     return LoggerFactory.getLogger(getClass());
   }
 
-  protected ScmRepository getRepository(ExtScmManager scmManager, Scm scm, String user, String password)
+  protected String getUser(Project project) {
+    return project.getConfiguration().getString(USER_PROPERTY);
+  }
+
+  protected String getPassword(Project project) {
+    return project.getConfiguration().getString(PASSWORD_PROPERTY);
+  }
+
+  protected String getScmUrl(Project project) {
+    String url = project.getConfiguration().getString(URL_PROPERTY);
+    Scm scm = project.getPom().getScm();
+    if (StringUtils.isBlank(url) && scm != null) {
+      if (!StringUtils.isBlank(getUser(project)) && !StringUtils.isBlank(getPassword(project))) {
+        url = scm.getDeveloperConnection();
+      } else {
+        url = scm.getConnection();
+      }
+    }
+    return url;
+  }
+
+  protected ScmRepository getRepository(ExtScmManager scmManager, Project project)
       throws NoSuchScmProviderException, ScmRepositoryException {
     ScmRepository repository;
-    String connectionUrl;
-    if (!StringUtils.isEmpty(user) && !StringUtils.isEmpty(password)) {
-      connectionUrl = scm.getDeveloperConnection();
-      repository = scmManager.makeScmRepository(connectionUrl);
-      repository.getProviderRepository().setUser(user);
-      repository.getProviderRepository().setPassword(password);
-    } else {
-      connectionUrl = scm.getConnection();
-      repository = scmManager.makeScmRepository(connectionUrl);
-    }
+    String connectionUrl = getScmUrl(project);
     getLog().info("SCM connection URL: {}", connectionUrl);
+    repository = scmManager.makeScmRepository(connectionUrl);
+    String user = getUser(project);
+    String password = getPassword(project);
+    if (!StringUtils.isBlank(user) && !StringUtils.isBlank(password)) {
+      ScmProviderRepository providerRepository = repository.getProviderRepository();
+      providerRepository.setUser(user);
+      providerRepository.setPassword(password);
+    }
     return repository;
   }
 

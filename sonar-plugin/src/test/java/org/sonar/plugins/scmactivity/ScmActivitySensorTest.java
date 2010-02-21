@@ -38,7 +38,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -68,7 +70,7 @@ public class ScmActivitySensorTest {
     Project project = new Project("")
         .setLatestAnalysis(false);
 
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
   @Test
@@ -79,7 +81,7 @@ public class ScmActivitySensorTest {
         .setLatestAnalysis(true)
         .setConfiguration(configuration);
 
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
   @Test
@@ -92,7 +94,7 @@ public class ScmActivitySensorTest {
         .setPom(pom)
         .setConfiguration(configuration);
 
-    assertFalse(sensor.shouldExecuteOnProject(project));
+    assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
 
   @Test
@@ -100,13 +102,15 @@ public class ScmActivitySensorTest {
     Configuration configuration = new BaseConfiguration();
     configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
     MavenProject pom = new MavenProject();
-    pom.setScm(new Scm());
+    Scm scm = new Scm();
+    scm.setConnection(SCM_CONNECTION);
+    pom.setScm(scm);
     Project project = new Project("")
         .setLatestAnalysis(true)
         .setPom(pom)
         .setConfiguration(configuration);
 
-    assertTrue(sensor.shouldExecuteOnProject(project));
+    assertThat(sensor.shouldExecuteOnProject(project), is(true));
   }
 
   @Test
@@ -119,7 +123,15 @@ public class ScmActivitySensorTest {
     when(repository.getProviderRepository()).thenReturn(providerRepository);
     when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
 
-    ScmRepository actual = sensor.getRepository(scmManager, scm, SCM_USER, SCM_PASSWORD);
+    Configuration configuration = new BaseConfiguration();
+    configuration.setProperty(ScmActivitySensor.USER_PROPERTY, SCM_USER);
+    configuration.setProperty(ScmActivitySensor.PASSWORD_PROPERTY, SCM_PASSWORD);
+    MavenProject pom = new MavenProject();
+    pom.setScm(scm);
+    Project project = new Project("")
+        .setConfiguration(configuration)
+        .setPom(pom);
+    ScmRepository actual = sensor.getRepository(scmManager, project);
 
     assertSame(repository, actual);
     verify(providerRepository).setUser(SCM_USER);
@@ -134,7 +146,13 @@ public class ScmActivitySensorTest {
     when(scm.getConnection()).thenReturn(SCM_CONNECTION);
     when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
 
-    ScmRepository actual = sensor.getRepository(scmManager, scm, null, null);
+    MavenProject pom = new MavenProject();
+    pom.setScm(scm);
+    Project project = new Project("")
+        .setConfiguration(new BaseConfiguration())
+        .setPom(pom);
+
+    ScmRepository actual = sensor.getRepository(scmManager, project);
 
     assertSame(repository, actual);
   }
