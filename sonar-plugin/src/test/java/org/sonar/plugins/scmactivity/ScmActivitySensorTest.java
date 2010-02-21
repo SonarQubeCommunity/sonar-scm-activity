@@ -187,6 +187,11 @@ public class ScmActivitySensorTest {
     );
   }
 
+  /**
+   * See SONARPLUGINS-368
+   *
+   * @throws Exception if something wrong
+   */
   @Test
   public void testScmException() throws Exception {
     SensorContext context;
