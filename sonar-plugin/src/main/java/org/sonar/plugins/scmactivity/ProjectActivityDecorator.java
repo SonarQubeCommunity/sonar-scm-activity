@@ -25,6 +25,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.SonarException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -83,7 +84,7 @@ public class ProjectActivityDecorator implements Decorator {
     try {
       return sdf.parse(data);
     } catch (ParseException e) {
-      throw new RuntimeException(e);
+      throw new SonarException(e);
     }
   }
 }
