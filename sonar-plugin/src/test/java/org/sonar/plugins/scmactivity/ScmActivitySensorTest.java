@@ -20,6 +20,7 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
@@ -28,9 +29,11 @@ import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
 
@@ -182,5 +185,19 @@ public class ScmActivitySensorTest {
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, "org.example.HelloWorld")),
         argThat(new IsMeasure(ScmActivityMetrics.REVISION, "2"))
     );
+  }
+
+  @Test
+  public void testScmException() throws Exception {
+    SensorContext context;
+    context = mock(SensorContext.class);
+    sensor = Mockito.spy(sensor);
+
+    //noinspection ThrowableInstanceNeverThrown
+    doThrow(new ScmException("ERROR"))
+        .when(sensor)
+        .analyzeBlame((ExtScmManager) any(), (ScmRepository) any(), (File) any(), (String) any(), (SensorContext) any(), (Resource) any());
+
+    sensor.analyzeBlame(null, null, new File("."), context, new JavaFile("org.example.HelloWorld"));
   }
 } 

@@ -166,10 +166,14 @@ public class ScmActivitySensor implements Sensor {
     }
   }
 
-  protected void analyzeBlame(ExtScmManager scmManager, ScmRepository repository, File file, SensorContext context, Resource resource) throws ScmException {
-    File basedir = file.getParentFile();
-    String filename = file.getName();
-    analyzeBlame(scmManager, repository, basedir, filename, context, resource);
+  protected void analyzeBlame(ExtScmManager scmManager, ScmRepository repository, File file, SensorContext context, Resource resource) {
+    try {
+      File basedir = file.getParentFile();
+      String filename = file.getName();
+      analyzeBlame(scmManager, repository, basedir, filename, context, resource);
+    } catch (ScmException e) {
+      getLog().warn("Unable to analyze {}: {}", file.getAbsolutePath(), e);
+    }
   }
 
   public static String formatLastActivity(Date lastActivity) {
