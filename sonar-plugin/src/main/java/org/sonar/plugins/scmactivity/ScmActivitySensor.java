@@ -180,4 +180,9 @@ public class ScmActivitySensor implements Sensor {
     SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
     return sdf.format(lastActivity);
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }

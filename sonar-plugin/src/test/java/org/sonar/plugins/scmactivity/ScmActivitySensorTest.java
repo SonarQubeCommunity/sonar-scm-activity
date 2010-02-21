@@ -205,4 +205,9 @@ public class ScmActivitySensorTest {
 
     sensor.analyzeBlame(null, null, new File("."), context, new JavaFile("org.example.HelloWorld"));
   }
+
+  @Test
+  public void testToString() {
+    assertThat(sensor.toString(), is("ScmActivitySensor"));
+  }
 } 
