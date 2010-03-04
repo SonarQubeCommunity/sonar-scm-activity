@@ -21,8 +21,6 @@ import org.apache.maven.scm.ScmResult;
 import java.util.List;
 
 /**
- * TODO add lines count
- *
  * @author Evgeny Mandrikov
  */
 public final class BlameScmResult extends ScmResult {

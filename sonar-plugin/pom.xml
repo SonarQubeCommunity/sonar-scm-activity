@@ -18,10 +18,10 @@
 
   <properties>
     <sonar.plugin.class>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.plugin.class>
-    <sonar.version>1.13-SNAPSHOT</sonar.version>
+    <sonar.version>2.0RC2</sonar.version>
     <jdk.min.version>1.5</jdk.min.version>
 
-    <sonarVersion>1.13-SNAPSHOT</sonarVersion>
+    <sonarVersion>2.0RC2</sonarVersion>
     <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
     <skipGwt>true</skipGwt>
   </properties>
@@ -64,6 +64,10 @@
         <exclusion>
           <groupId>org.codehaus.plexus</groupId>
           <artifactId>plexus-container-default</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.plexus</groupId>
+          <artifactId>plexus-utils</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
