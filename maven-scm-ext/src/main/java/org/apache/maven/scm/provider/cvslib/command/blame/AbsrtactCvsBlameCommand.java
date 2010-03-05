@@ -37,7 +37,7 @@ public abstract class AbsrtactCvsBlameCommand extends AbstractBlameCommand imple
     CvsScmProviderRepository repository = (CvsScmProviderRepository) repo;
 
     Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet);
-    cl.createArg().setValue(filename);
+    cl.createArgument().setValue(filename);
 
     if (getLogger().isInfoEnabled()) {
       getLogger().info("Executing: " + cl);

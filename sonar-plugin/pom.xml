@@ -141,7 +141,6 @@
                   <include>org.codehaus.sonar-plugins.scm-activity:sonar-scm-activity-plugin</include>
                   <include>org.codehaus.sonar-plugins.scm-activity:maven-scm-ext</include>
                   <include>org.apache.maven.scm:*</include>
-                  <include>org.codehaus.plexus:plexus-utils</include>
                   <include>regexp:regexp</include>
                   <!-- CvsJava -->
                   <include>org.netbeans.lib:cvsclient</include>
