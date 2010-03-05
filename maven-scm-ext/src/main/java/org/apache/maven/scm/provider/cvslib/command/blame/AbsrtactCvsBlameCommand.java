@@ -37,6 +37,7 @@ public abstract class AbsrtactCvsBlameCommand extends AbstractBlameCommand imple
     CvsScmProviderRepository repository = (CvsScmProviderRepository) repo;
 
     Commandline cl = CvsCommandUtils.getBaseCommand("annotate", repository, fileSet);
+    // Use createArgument method instead of createArg to avoid problems - see SONARPLUGINS-398
     cl.createArgument().setValue(filename);
 
     if (getLogger().isInfoEnabled()) {

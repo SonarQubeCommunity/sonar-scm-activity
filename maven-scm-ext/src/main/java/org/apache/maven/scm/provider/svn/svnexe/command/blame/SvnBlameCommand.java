@@ -68,6 +68,7 @@ public class SvnBlameCommand extends AbstractBlameCommand implements SvnCommand 
 
   public static Commandline createCommandLine(SvnScmProviderRepository repository, File workingDirectory, String filename) {
     Commandline cl = SvnCommandLineUtils.getBaseSvnCommandLine(workingDirectory, repository);
+    // Use createArgument method instead of createArg to avoid problems - see SONARPLUGINS-398
     cl.createArgument().setValue("blame");
     cl.createArgument().setValue("--xml");
     cl.createArgument().setValue(filename);
