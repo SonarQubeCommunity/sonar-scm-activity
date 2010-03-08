@@ -50,9 +50,8 @@ public class GitBlameCommand extends AbstractBlameCommand implements GitCommand 
 
   public static Commandline createCommandLine(File workingDirectory, String filename) {
     Commandline cl = GitCommandLineUtils.getBaseGitCommandLine(workingDirectory, "blame");
-    // Use createArgument method instead of createArg to avoid problems - see SONARPLUGINS-398
-    cl.createArgument().setValue("-c");
-    cl.createArgument().setValue(filename);
+    cl.createArg().setValue("-c");
+    cl.createArg().setValue(filename);
     return cl;
   }
 }

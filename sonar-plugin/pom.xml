@@ -18,10 +18,10 @@
 
   <properties>
     <sonar.plugin.class>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.plugin.class>
-    <sonar.version>2.0RC2</sonar.version>
+    <sonar.version>2.0RC3</sonar.version>
     <jdk.min.version>1.5</jdk.min.version>
 
-    <sonarVersion>2.0RC2</sonarVersion>
+    <sonarVersion>2.0RC3</sonarVersion>
     <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
     <skipGwt>true</skipGwt>
   </properties>
@@ -141,6 +141,7 @@
                   <include>org.codehaus.sonar-plugins.scm-activity:sonar-scm-activity-plugin</include>
                   <include>org.codehaus.sonar-plugins.scm-activity:maven-scm-ext</include>
                   <include>org.apache.maven.scm:*</include>
+                  <include>org.codehaus.plexus:plexus-utils</include>
                   <include>regexp:regexp</include>
                   <!-- CvsJava -->
                   <include>org.netbeans.lib:cvsclient</include>
@@ -149,6 +150,12 @@
                   <include>org.tmatesoft.svnkit:svnkit</include>
                 </includes>
               </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.codehaus.plexus.util</pattern>
+                  <shadedPattern>org.sonar.plugins.scmactivity.plexus.util</shadedPattern>
+                </relocation>
+              </relocations>
             </configuration>
           </execution>
         </executions>
