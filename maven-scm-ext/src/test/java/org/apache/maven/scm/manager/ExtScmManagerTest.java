@@ -20,6 +20,7 @@ import junit.framework.Assert;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.command.blame.AbstractBlameCommand;
 import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
+import org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame.ClearCaseBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsjava.command.blame.CvsJavaBlameCommand;
 import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameCommand;
@@ -46,6 +47,7 @@ public class ExtScmManagerTest {
     Assert.assertTrue(getBlameCommand(scmManager, "scm:hg:http://host/") instanceof HgBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:bazaar:http://host/") instanceof BazaarBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:cvs:local:/cvs:module") instanceof CvsExeBlameCommand);
+    Assert.assertTrue(getBlameCommand(scmManager, "scm:clearcase:load \\module") instanceof ClearCaseBlameCommand);
   }
 
   private AbstractBlameCommand getBlameCommand(ExtScmManager scmManager, String scmUrl) throws ScmException {

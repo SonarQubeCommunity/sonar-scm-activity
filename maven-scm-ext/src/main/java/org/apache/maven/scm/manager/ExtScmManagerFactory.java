@@ -17,6 +17,7 @@
 package org.apache.maven.scm.manager;
 
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
+import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
@@ -46,6 +47,7 @@ public final class ExtScmManagerFactory {
     scmManager.setScmProvider("git", new GitExeScmProvider());
     scmManager.setScmProvider("hg", new HgScmProvider());
     scmManager.setScmProvider("bazaar", new BazaarScmProvider());
+    scmManager.setScmProvider("clearcase", new ClearCaseScmProvider());
     return scmManager;
   }
 }

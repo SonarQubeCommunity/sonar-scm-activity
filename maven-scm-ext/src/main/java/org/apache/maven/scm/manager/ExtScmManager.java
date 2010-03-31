@@ -26,6 +26,8 @@ import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
+import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame.ClearCaseBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
@@ -75,6 +77,8 @@ public class ExtScmManager extends AbstractScmManager {
       return new HgBlameCommand();
     } else if (provider instanceof BazaarScmProvider) {
       return new BazaarBlameCommand();
+    } else if (provider instanceof ClearCaseScmProvider) {
+      return new ClearCaseBlameCommand();
     } else {
       throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }

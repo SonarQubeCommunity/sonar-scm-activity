@@ -133,6 +133,13 @@
       <artifactId>maven-scm-provider-bazaar</artifactId>
       <version>${version.maven-scm}</version>
     </dependency>
+    
+    <!-- Clearcase -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-clearcase</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
 
     <!-- Unit tests -->
     <dependency>
