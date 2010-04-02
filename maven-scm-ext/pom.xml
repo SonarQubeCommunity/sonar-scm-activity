@@ -149,6 +149,13 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
+    <!-- Perforce -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-perforce</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
     <!-- Unit tests -->
     <dependency>
       <groupId>junit</groupId>

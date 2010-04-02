@@ -38,6 +38,8 @@ import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameCommand;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.hg.command.blame.HgBlameCommand;
+import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
+import org.apache.maven.scm.provider.perforce.command.blame.PerforceBlameCommand;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
@@ -85,6 +87,8 @@ public class ExtScmManager extends AbstractScmManager {
     } else if (provider instanceof AccuRevScmProvider) {
       String accurevExecutable = resolveAccurevExecutable(Os.isFamily("windows"));
       return new AccuRevBlameCommand(accurevExecutable);
+    } else if (provider instanceof PerforceScmProvider) {
+      return new PerforceBlameCommand();
     } else {
       throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }

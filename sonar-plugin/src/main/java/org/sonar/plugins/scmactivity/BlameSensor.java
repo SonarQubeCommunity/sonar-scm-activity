@@ -75,8 +75,10 @@ public class BlameSensor {
     List lines = result.getLines();
     for (int i = 0; i < lines.size(); i++) {
       BlameLine line = (BlameLine) lines.get(i);
+      // TODO in case of Perforce it will be null
       Date date = line.getDate();
       String revision = line.getRevision();
+      // TODO in case of Perforce it will be null
       String author = line.getAuthor();
 
       int lineNumber = i + 1;

@@ -17,21 +17,24 @@
 package org.apache.maven.scm.manager;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.command.blame.AbstractBlameCommand;
+import org.apache.maven.scm.provider.accurev.command.blame.AccuRevBlameCommand;
 import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
 import org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame.ClearCaseBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsjava.command.blame.CvsJavaBlameCommand;
 import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameCommand;
 import org.apache.maven.scm.provider.hg.command.blame.HgBlameCommand;
+import org.apache.maven.scm.provider.perforce.command.blame.PerforceBlameCommand;
 import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class ExtScmManagerTest {
+public class ExtScmManagerTest extends TestCase {
   public void testPureJava() throws Exception {
     ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(true);
 
@@ -48,6 +51,8 @@ public class ExtScmManagerTest {
     Assert.assertTrue(getBlameCommand(scmManager, "scm:bazaar:http://host/") instanceof BazaarBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:cvs:local:/cvs:module") instanceof CvsExeBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:clearcase:load \\module") instanceof ClearCaseBlameCommand);
+    Assert.assertTrue(getBlameCommand(scmManager, "scm:accurev:server:port/depot/my_app/") instanceof AccuRevBlameCommand);
+    Assert.assertTrue(getBlameCommand(scmManager, "scm:perforce://depot/modules/myproject") instanceof PerforceBlameCommand);
   }
 
   private AbstractBlameCommand getBlameCommand(ExtScmManager scmManager, String scmUrl) throws ScmException {

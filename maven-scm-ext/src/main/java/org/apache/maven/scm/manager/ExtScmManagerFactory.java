@@ -16,12 +16,14 @@
 
 package org.apache.maven.scm.manager;
 
+import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 
@@ -48,6 +50,8 @@ public final class ExtScmManagerFactory {
     scmManager.setScmProvider("hg", new HgScmProvider());
     scmManager.setScmProvider("bazaar", new BazaarScmProvider());
     scmManager.setScmProvider("clearcase", new ClearCaseScmProvider());
+    scmManager.setScmProvider("accurev", new AccuRevScmProvider());
+    scmManager.setScmProvider("perforce", new PerforceScmProvider());
     return scmManager;
   }
 }
