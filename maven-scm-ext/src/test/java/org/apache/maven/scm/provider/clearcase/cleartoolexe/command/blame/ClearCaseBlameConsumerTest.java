@@ -16,13 +16,12 @@
 package org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame;
 
 import junit.framework.Assert;
-
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.DefaultLog;
 import org.apache.maven.scm.provider.AbstractConsumerTest;
 
 /**
- * @author Jérémie Lagarde
+ * @author JÃ©rÃ©mie Lagarde
  */
 public class ClearCaseBlameConsumerTest extends AbstractConsumerTest {
 
@@ -40,5 +39,5 @@ public class ClearCaseBlameConsumerTest extends AbstractConsumerTest {
     Assert.assertEquals("\\main\\5", line12.getRevision());
     Assert.assertEquals("Evgeny Mandrikov", line12.getAuthor());
   }
-  
+
 }

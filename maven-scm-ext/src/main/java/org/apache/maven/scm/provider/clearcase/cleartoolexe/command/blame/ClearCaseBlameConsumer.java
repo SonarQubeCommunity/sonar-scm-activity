@@ -16,22 +16,22 @@
 
 package org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame;
 
-import java.util.Date;
-
 import org.apache.maven.scm.command.blame.AbstractBlameConsumer;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.regexp.RE;
 
+import java.util.Date;
+
 /**
- * @author Jérémie Lagarde
+ * @author JÃ©rÃ©mie Lagarde
  */
 public class ClearCaseBlameConsumer extends AbstractBlameConsumer {
 
   private static final String CLEARCASE_TIMESTAMP_PATTERN = "yyyyMMdd.HHmmss";
-  private static final String LINE_PATTERN                = "VERSION:(.*)@@@USER:(.*)@@@DATE:(.*)@@@(.*)";
+  private static final String LINE_PATTERN = "VERSION:(.*)@@@USER:(.*)@@@DATE:(.*)@@@(.*)";
 
-  private RE                  lineRegexp;
+  private RE lineRegexp;
 
   public ClearCaseBlameConsumer(ScmLogger logger) {
     super(logger);

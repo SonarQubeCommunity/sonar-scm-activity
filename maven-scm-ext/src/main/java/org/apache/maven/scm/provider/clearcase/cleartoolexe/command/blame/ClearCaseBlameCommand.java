@@ -16,8 +16,6 @@
 
 package org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame;
 
-import java.io.File;
-
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.AbstractBlameCommand;
@@ -28,10 +26,12 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 
+import java.io.File;
+
 public class ClearCaseBlameCommand extends AbstractBlameCommand implements ClearCaseCommand {
 
   /**
-   * @author Jérémie Lagarde
+   * @author JÃ©rÃ©mie Lagarde
    */
   public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename) throws ScmException {
 
