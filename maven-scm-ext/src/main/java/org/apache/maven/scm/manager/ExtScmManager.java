@@ -24,6 +24,8 @@ import org.apache.maven.scm.log.DefaultLog;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
+import org.apache.maven.scm.provider.accurev.command.blame.AccuRevBlameCommand;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
@@ -41,6 +43,7 @@ import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.codehaus.plexus.util.Os;
 
 /**
  * @author Evgeny Mandrikov
@@ -79,6 +82,9 @@ public class ExtScmManager extends AbstractScmManager {
       return new BazaarBlameCommand();
     } else if (provider instanceof ClearCaseScmProvider) {
       return new ClearCaseBlameCommand();
+    } else if (provider instanceof AccuRevScmProvider) {
+      String accurevExecutable = resolveAccurevExecutable(Os.isFamily("windows"));
+      return new AccuRevBlameCommand(accurevExecutable);
     } else {
       throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }
@@ -89,5 +95,23 @@ public class ExtScmManager extends AbstractScmManager {
     AbstractBlameCommand blameCommand = getBlameCommand(repository);
     blameCommand.setLogger(getScmLogger());
     return blameCommand.executeBlameCommand(providerRepository, workingDirectory, filename);
+  }
+
+  /**
+   * Copied from {@link org.apache.maven.scm.provider.accurev.AccuRevScmProvider},
+   * since {@link org.apache.maven.scm.provider.accurev.AccuRevScmProvider#getAccurevExecutable()} has protected access.
+   */
+  private static String resolveAccurevExecutable(boolean windows) {
+    String executable = "accurev";
+    //Append ".exe" suffix if the OS is Windows
+    if (windows) {
+      executable += ".exe";
+    }
+    //Grab exeucutable from system variable if specified
+    String accurevExecutable = System.getProperty("accurevExecutable");
+    if (accurevExecutable != null) {
+      executable = accurevExecutable;
+    }
+    return executable;
   }
 }
