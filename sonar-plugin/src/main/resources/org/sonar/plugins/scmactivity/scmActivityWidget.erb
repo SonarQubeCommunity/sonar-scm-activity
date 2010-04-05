@@ -1,7 +1,21 @@
-<% if measure('last_commit') %>
-  <div class="dashbox">
-    <p><span><%= format_measure('last_commit', :prefix => 'Last commit: ') %></span></p>
+<%
+   last_commit_measure = measure('last_commit')
+   revision_measure = measure('revision')
 
-    <p><span><%= format_measure('revision', :prefix => 'Revision: ') %></span></p>
+   if last_commit_measure
+%>
+  <div class="dashbox">
+    <p>
+      <span>
+        <!-- TODO :url => url_for_drilldown(last_commit_measure) -->
+        <%= format_measure(last_commit_measure, :prefix => 'Last commit: ') %>
+      </span>
+    </p>
+
+    <p>
+      <span>
+        <%= format_measure(revision_measure, :prefix => 'Revision: ') %>
+      </span>
+    </p>
   </div>
 <% end %>
