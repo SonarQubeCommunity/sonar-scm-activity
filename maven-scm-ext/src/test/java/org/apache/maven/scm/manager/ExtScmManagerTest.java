@@ -30,6 +30,7 @@ import org.apache.maven.scm.provider.hg.command.blame.HgBlameCommand;
 import org.apache.maven.scm.provider.perforce.command.blame.PerforceBlameCommand;
 import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
+import org.apache.maven.scm.provider.tfs.command.blame.TfsBlameCommand;
 
 /**
  * @author Evgeny Mandrikov
@@ -53,6 +54,7 @@ public class ExtScmManagerTest extends TestCase {
     Assert.assertTrue(getBlameCommand(scmManager, "scm:clearcase:load \\module") instanceof ClearCaseBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:accurev:server:port/depot/my_app/") instanceof AccuRevBlameCommand);
     Assert.assertTrue(getBlameCommand(scmManager, "scm:perforce://depot/modules/myproject") instanceof PerforceBlameCommand);
+    Assert.assertTrue(getBlameCommand(scmManager, "scm:tfs:http://host:/myproject") instanceof TfsBlameCommand);
   }
 
   private AbstractBlameCommand getBlameCommand(ExtScmManager scmManager, String scmUrl) throws ScmException {

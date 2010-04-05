@@ -156,6 +156,13 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
+    <!-- TFS -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-tfs</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
     <!-- Unit tests -->
     <dependency>
       <groupId>junit</groupId>

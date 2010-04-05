@@ -44,6 +44,8 @@ import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.command.blame.SvnBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.command.blame.SvnJavaBlameCommand;
+import org.apache.maven.scm.provider.tfs.TfsScmProvider;
+import org.apache.maven.scm.provider.tfs.command.blame.TfsBlameCommand;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.codehaus.plexus.util.Os;
 
@@ -89,6 +91,8 @@ public class ExtScmManager extends AbstractScmManager {
       return new AccuRevBlameCommand(accurevExecutable);
     } else if (provider instanceof PerforceScmProvider) {
       return new PerforceBlameCommand();
+    } else if (provider instanceof TfsScmProvider) {
+      return new TfsBlameCommand();
     } else {
       throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }

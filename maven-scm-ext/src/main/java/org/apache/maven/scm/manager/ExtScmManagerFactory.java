@@ -26,6 +26,7 @@ import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
+import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 
 /**
  * @author Evgeny Mandrikov
@@ -52,6 +53,7 @@ public final class ExtScmManagerFactory {
     scmManager.setScmProvider("clearcase", new ClearCaseScmProvider());
     scmManager.setScmProvider("accurev", new AccuRevScmProvider());
     scmManager.setScmProvider("perforce", new PerforceScmProvider());
+    scmManager.setScmProvider("tfs", new TfsScmProvider());
     return scmManager;
   }
 }
