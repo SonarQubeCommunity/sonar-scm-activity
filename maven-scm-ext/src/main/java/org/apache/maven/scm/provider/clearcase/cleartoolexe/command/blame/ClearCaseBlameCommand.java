@@ -74,11 +74,12 @@ public class ClearCaseBlameCommand extends AbstractBlameCommand implements Clear
     format.append("USER:%u@@@");
     format.append("DATE:%Nd@@@");
 
+    command.createArg().setValue("-out");
+    command.createArg().setValue("-");
     command.createArg().setValue("-fmt");
     command.createArg().setValue(format.toString());
     command.createArg().setValue("-nheader");
     command.createArg().setValue("-f");
-    command.createArg().setValue("-out -");
     command.createArg().setValue(filename);
 
     return command;
