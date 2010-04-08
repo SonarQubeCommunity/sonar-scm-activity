@@ -29,7 +29,7 @@ import org.apache.maven.scm.provider.accurev.command.blame.AccuRevBlameCommand;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.bazaar.command.blame.BazaarBlameCommand;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
-import org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame.ClearCaseBlameCommand;
+import org.apache.maven.scm.provider.clearcase.command.blame.ClearCaseBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.command.blame.CvsExeBlameCommand;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;

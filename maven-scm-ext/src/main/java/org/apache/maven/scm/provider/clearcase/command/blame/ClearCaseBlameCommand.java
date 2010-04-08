@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.maven.scm.provider.clearcase.cleartoolexe.command.blame;
+package org.apache.maven.scm.provider.clearcase.command.blame;
 
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
