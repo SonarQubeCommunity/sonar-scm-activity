@@ -5,13 +5,13 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
   </parent>
 
   <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>sonar-scm-activity-plugin</artifactId>
   <packaging>jar</packaging>
-  <version>1.1</version>
+  <version>1.2-SNAPSHOT</version>
 
   <name>Sonar SCM Activity Plugin</name>
 
