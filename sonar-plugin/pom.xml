@@ -22,23 +22,7 @@
 
     <sonarVersion>2.0.1</sonarVersion>
     <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
-    <skipGwt>true</skipGwt>
   </properties>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <activation>
-        <property>
-          <name>performRelease</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <properties>
-        <skipGwt>false</skipGwt>
-      </properties>
-    </profile>
-  </profiles>
 
   <dependencies>
     <dependency>
