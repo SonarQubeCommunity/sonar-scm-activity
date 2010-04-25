@@ -17,22 +17,20 @@
  * under the License.
  */
 
-package org.apache.maven.scm.provider.git.gitjava.command.remove;
+package org.apache.maven.scm.provider.git.gitjava.repository;
 
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmResult;
-import org.apache.maven.scm.command.remove.AbstractRemoveCommand;
-import org.apache.maven.scm.provider.ScmProviderRepository;
-import org.apache.maven.scm.provider.git.command.GitCommand;
+import org.apache.maven.scm.provider.git.repository.GitScmProviderRepository;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class GitJavaRemoveCommand extends AbstractRemoveCommand implements GitCommand {
-  @Override
-  protected ScmResult executeRemoveCommand(ScmProviderRepository repository, ScmFileSet fileSet, String message) throws ScmException {
-    // TODO
-    return null;
+public class GitJavaScmProviderRepository extends GitScmProviderRepository {
+  public GitJavaScmProviderRepository(String url) throws ScmException {
+    super(url);
+  }
+
+  public GitJavaScmProviderRepository(String url, String user, String password) throws ScmException {
+    super(url, user, password);
   }
 }
