@@ -24,6 +24,7 @@
 
   <modules>
     <module>maven-scm-ext</module>
+    <module>maven-scm-provider-gitjava</module>
     <module>sonar-plugin</module>
   </modules>
 
