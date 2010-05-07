@@ -16,17 +16,19 @@
 
 package org.apache.maven.scm.provider.tfs.command.blame;
 
-import org.apache.maven.scm.command.blame.AbstractBlameConsumer;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.ScmLogger;
+import org.apache.maven.scm.util.AbstractConsumer;
 import org.apache.regexp.RE;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class TfsBlameConsumer extends AbstractBlameConsumer {
+public class TfsBlameConsumer extends AbstractConsumer {
   private static final String TFS_TIMESTAMP_PATTERN = "MM/dd/yyyy";
 
   /* 3 username 3/13/2006 line */
@@ -37,6 +39,8 @@ public class TfsBlameConsumer extends AbstractBlameConsumer {
    * @see #LINE_PATTERN
    */
   private RE lineRegexp;
+
+  private List lines = new ArrayList();
 
   public TfsBlameConsumer(ScmLogger logger) {
     super(logger);
@@ -51,7 +55,11 @@ public class TfsBlameConsumer extends AbstractBlameConsumer {
 
       Date date = parseDate(dateStr, null, TFS_TIMESTAMP_PATTERN);
 
-      getLines().add(new BlameLine(date, revision, author));
+      lines.add(new BlameLine(date, revision, author));
     }
+  }
+
+  public List getLines() {
+    return lines;
   }
 }

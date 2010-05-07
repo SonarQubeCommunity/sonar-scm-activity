@@ -17,18 +17,32 @@
 package org.apache.maven.scm.provider.tfs.command.blame;
 
 import junit.framework.Assert;
+import org.apache.maven.scm.ScmTestCase;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.DefaultLog;
-import org.apache.maven.scm.provider.AbstractConsumerTest;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class TfsBlameConsumerTest extends AbstractConsumerTest {
+public class TfsBlameConsumerTest extends ScmTestCase {
 
-  public void testConsumer() {
+  public void testConsumer() throws Exception {
+    File testFile = getTestFile("src/test/resources/org/apache/maven/scm/provider/tfs/command/blame/tfs.log");
+
     TfsBlameConsumer consumer = new TfsBlameConsumer(new DefaultLog());
-    consume("tfs.log", consumer);
+
+    FileInputStream fis = new FileInputStream(testFile);
+    BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+    String s = in.readLine();
+    while (s != null) {
+      consumer.consumeLine(s);
+      s = in.readLine();
+    }
 
     Assert.assertEquals(3, consumer.getLines().size());
 
@@ -40,5 +54,4 @@ public class TfsBlameConsumerTest extends AbstractConsumerTest {
     Assert.assertEquals("4", line2.getRevision());
     Assert.assertEquals("buckh", line2.getAuthor());
   }
-
 }
