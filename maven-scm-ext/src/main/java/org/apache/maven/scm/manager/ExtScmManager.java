@@ -51,6 +51,7 @@ import org.codehaus.plexus.util.Os;
 
 /**
  * @author Evgeny Mandrikov
+ * @deprecated blame already in maven-scm since 1.4
  */
 public class ExtScmManager extends AbstractScmManager {
   private ScmLogger logger;
@@ -68,6 +69,9 @@ public class ExtScmManager extends AbstractScmManager {
     return logger;
   }
 
+  /**
+   * @deprecated in maven-scm since 1.4
+   */
   protected AbstractBlameCommand getBlameCommand(ScmRepository repository) throws ScmException {
     ScmProvider provider = getProviderByRepository(repository);
     if (provider instanceof SvnJavaScmProvider) {
@@ -96,16 +100,6 @@ public class ExtScmManager extends AbstractScmManager {
     } else {
       throw new ScmException("Unsupported SCM provider: " + provider.toString());
     }
-  }
-
-  /**
-   * @deprecated in maven-scm since 1.4
-   */
-  public BlameScmResult blame(ScmRepository repository, ScmFileSet workingDirectory, String filename) throws ScmException {
-    ScmProviderRepository providerRepository = repository.getProviderRepository();
-    AbstractBlameCommand blameCommand = getBlameCommand(repository);
-    blameCommand.setLogger(getScmLogger());
-    return blameCommand.executeBlameCommand(providerRepository, workingDirectory, filename);
   }
 
   /**
