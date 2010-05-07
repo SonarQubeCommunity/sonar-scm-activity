@@ -21,16 +21,32 @@ package org.apache.maven.scm.provider.git.gitjava.repository;
 
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.provider.git.repository.GitScmProviderRepository;
+import org.eclipse.jgit.lib.Repository;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class GitJavaScmProviderRepository extends GitScmProviderRepository {
+
+  private Repository db;
+
   public GitJavaScmProviderRepository(String url) throws ScmException {
     super(url);
   }
 
   public GitJavaScmProviderRepository(String url, String user, String password) throws ScmException {
     super(url, user, password);
+  }
+
+  public Repository getRepository() {
+    return db;
+  }
+
+  private void initializeRepository() throws IOException {
+    File workDir = null;
+    db = new Repository(workDir);
   }
 }
