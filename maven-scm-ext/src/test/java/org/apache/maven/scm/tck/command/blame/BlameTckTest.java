@@ -30,6 +30,7 @@ import java.util.Date;
 
 /**
  * @author Evgeny Mandrikov
+ * @deprecated in maven-scm since 1.4
  */
 public abstract class BlameTckTest extends ExtScmTckTestCase {
   private static final String COMMIT_MSG = "Second changelog";

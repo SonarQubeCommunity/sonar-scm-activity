@@ -98,6 +98,9 @@ public class ExtScmManager extends AbstractScmManager {
     }
   }
 
+  /**
+   * @deprecated in maven-scm since 1.4
+   */
   public BlameScmResult blame(ScmRepository repository, ScmFileSet workingDirectory, String filename) throws ScmException {
     ScmProviderRepository providerRepository = repository.getProviderRepository();
     AbstractBlameCommand blameCommand = getBlameCommand(repository);

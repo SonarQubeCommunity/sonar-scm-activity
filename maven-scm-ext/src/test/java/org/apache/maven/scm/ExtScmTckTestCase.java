@@ -21,6 +21,7 @@ import org.apache.maven.scm.manager.ScmManager;
 
 /**
  * @author Evgeny Mandrikov
+ * @deprecated
  */
 public abstract class ExtScmTckTestCase extends ScmTckTestCase {
   protected abstract boolean isPureJava();
