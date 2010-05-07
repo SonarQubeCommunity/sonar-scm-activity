@@ -167,7 +167,6 @@
               <modules>
                 <module>org.sonar.plugins.scmactivity.blameviewer.BlameViewer</module>
               </modules>
-              <skip>${skipGwt}</skip>
               <webappDirectory>${project.build.directory}/classes</webappDirectory>
             </configuration>
             <goals>
