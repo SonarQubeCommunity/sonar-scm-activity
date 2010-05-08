@@ -38,8 +38,8 @@ public final class ExtScmManagerFactory {
   private ExtScmManagerFactory() {
   }
 
-  public static ExtScmManager getScmManager(boolean pureJava) {
-    ExtScmManager scmManager = new ExtScmManager();
+  public static ScmManager getScmManager(boolean pureJava) {
+    ScmManager scmManager = new BasicScmManager();
     if (pureJava) {
       scmManager.setScmProvider("svn", new SvnJavaScmProvider());
       scmManager.setScmProvider("cvs", new CvsJavaScmProvider());

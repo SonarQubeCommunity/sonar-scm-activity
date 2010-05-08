@@ -19,9 +19,9 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Scm;
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.manager.ExtScmManager;
 import org.apache.maven.scm.manager.ExtScmManagerFactory;
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
+import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.apache.maven.scm.repository.ScmRepositoryException;
@@ -64,7 +64,7 @@ public class ScmActivitySensor implements Sensor {
     BlameSensor blameSensor;
     try {
       boolean pureJava = project.getConfiguration().getBoolean(PREFER_PURE_JAVA_PROPERTY, PREFER_PURE_JAVA_DEFAULT_VALUE);
-      ExtScmManager scmManager = ExtScmManagerFactory.getScmManager(pureJava);
+      ScmManager scmManager = ExtScmManagerFactory.getScmManager(pureJava);
       ScmRepository repository = getRepository(scmManager, project);
       blameSensor = new BlameSensor(scmManager, repository, context);
     } catch (ScmException e) {
@@ -103,7 +103,7 @@ public class ScmActivitySensor implements Sensor {
     return url;
   }
 
-  protected ScmRepository getRepository(ExtScmManager scmManager, Project project)
+  protected ScmRepository getRepository(ScmManager scmManager, Project project)
       throws NoSuchScmProviderException, ScmRepositoryException {
     ScmRepository repository;
     String connectionUrl = getScmUrl(project);

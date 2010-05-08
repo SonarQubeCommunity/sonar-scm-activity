@@ -20,7 +20,7 @@ import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ExtScmManager;
+import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,13 +48,13 @@ import static org.sonar.api.resources.Resource.SCOPE_ENTITY;
 public class BlameSensorTest {
   private static final String RESOURCE_KEY = "org.example.HelloWorld";
 
-  private ExtScmManager scmManager;
+  private ScmManager scmManager;
   private SensorContext context;
   private BlameSensor sensor;
 
   @Before
   public void setUp() {
-    scmManager = mock(ExtScmManager.class);
+    scmManager = mock(ScmManager.class);
     ScmRepository repository = mock(ScmRepository.class);
     context = mock(SensorContext.class);
     sensor = spy(new BlameSensor(scmManager, repository, context));

@@ -20,7 +20,7 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.scm.manager.ExtScmManager;
+import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
@@ -100,7 +100,7 @@ public class ScmActivitySensorTest {
 
   @Test
   public void testGetRepositorySecured() throws Exception {
-    ExtScmManager scmManager = mock(ExtScmManager.class);
+    ScmManager scmManager = mock(ScmManager.class);
     Scm scm = mock(Scm.class);
     ScmRepository repository = mock(ScmRepository.class);
     ScmProviderRepository providerRepository = mock(ScmProviderRepository.class);
@@ -125,7 +125,7 @@ public class ScmActivitySensorTest {
 
   @Test
   public void testGetRepositoryUnsecured() throws Exception {
-    ExtScmManager scmManager = mock(ExtScmManager.class);
+    ScmManager scmManager = mock(ScmManager.class);
     Scm scm = mock(Scm.class);
     ScmRepository repository = mock(ScmRepository.class);
     when(scm.getConnection()).thenReturn(SCM_CONNECTION);

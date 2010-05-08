@@ -20,7 +20,7 @@ import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ExtScmManager;
+import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +39,10 @@ import java.util.List;
  */
 public class BlameSensor {
   private SensorContext context;
-  private ExtScmManager scmManager;
+  private ScmManager scmManager;
   private ScmRepository repository;
 
-  public BlameSensor(ExtScmManager scmManager, ScmRepository repository, SensorContext context) {
+  public BlameSensor(ScmManager scmManager, ScmRepository repository, SensorContext context) {
     this.scmManager = scmManager;
     this.repository = repository;
     this.context = context;
