@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,18 +11,15 @@
 
   <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>sonar-scm-activity-plugin</artifactId>
-  <packaging>jar</packaging>
+  <packaging>sonar-plugin</packaging>
   <version>1.2-SNAPSHOT</version>
 
   <name>Sonar SCM Activity Plugin</name>
 
   <properties>
-    <sonar.plugin.class>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.plugin.class>
-    <sonar.version>2.0.1</sonar.version>
     <jdk.min.version>1.5</jdk.min.version>
-
-    <sonarVersion>2.0.1</sonarVersion>
-    <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
+    <sonar.version>2.2-SNAPSHOT</sonar.version>
+    <sonarVersion>2.2-SNAPSHOT</sonarVersion>
   </properties>
 
   <dependencies>
@@ -80,27 +78,16 @@
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
+      <artifactId>sonar-testing-harness</artifactId>
       <version>${sonar.version}</version>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.7</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
+      <!-- sonar-testing-harness uses 1.7 -->
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.8.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.5.6</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -108,60 +95,9 @@
   <build>
     <plugins>
       <plugin>
-        <!-- TODO use sonar-plugin packaging -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>1.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <artifactSet>
-                <includes>
-                  <include>org.codehaus.sonar-plugins.scm-activity:sonar-scm-activity-plugin</include>
-                  <include>org.codehaus.sonar-plugins.scm-activity:maven-scm-ext</include>
-                  <include>org.apache.maven.scm:*</include>
-                  <include>org.codehaus.plexus:plexus-utils</include>
-                  <include>regexp:regexp</include>
-                  <!-- CvsJava -->
-                  <include>org.netbeans.lib:cvsclient</include>
-                  <!-- SvnJava -->
-                  <include>com.google.code.maven-scm-provider-svnjava:maven-scm-provider-svnjava</include>
-                  <include>org.tmatesoft.svnkit:svnkit</include>
-                </includes>
-              </artifactSet>
-              <relocations>
-                <relocation>
-                  <pattern>org.codehaus.plexus.util</pattern>
-                  <shadedPattern>org.sonar.plugins.scmactivity.plexus.util</shadedPattern>
-                </relocation>
-              </relocations>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <!-- complete META-INF/MANIFEST.MF -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Plugin-Class>${sonar.plugin.class}</Plugin-Class>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
-        <!-- TODO remove from here after release of parent-6 -->
+        <!-- TODO remove version from here after release of parent-6 -->
         <version>1.2</version>
         <executions>
           <execution>
@@ -176,6 +112,20 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-dev-mojo</artifactId>
+        <version>2.1</version>
+        <!-- TODO
+        <version>${sonar.version}</version>
+        -->
+        <extensions>true</extensions>
+        <configuration>
+          <pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</pluginClass>
+          <packageDependencies>true</packageDependencies>
+        </configuration>
       </plugin>
     </plugins>
   </build>
