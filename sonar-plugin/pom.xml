@@ -9,10 +9,8 @@
     <version>1.2-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>sonar-scm-activity-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>1.2-SNAPSHOT</version>
 
   <name>Sonar SCM Activity Plugin</name>
 
@@ -117,14 +115,10 @@
       <plugin>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-dev-mojo</artifactId>
-        <version>2.1</version>
-        <!-- TODO
-        <version>${sonar.version}</version>
-        -->
+        <version>2.2M1</version>
         <extensions>true</extensions>
         <configuration>
           <pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</pluginClass>
-          <packageDependencies>true</packageDependencies>
         </configuration>
       </plugin>
     </plugins>
