@@ -8,10 +8,7 @@
     <version>1.2-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>maven-scm-ext</artifactId>
-  <packaging>jar</packaging>
-  <version>1.2-SNAPSHOT</version>
 
   <name>Sonar SCM Activity Plugin :: Maven SCM Ext</name>
 
@@ -146,13 +143,6 @@
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-provider-accurev</artifactId>
       <version>${version.maven-scm}</version>
-      <exclusions>
-        <!-- TODO Godin: looks like a bug in maven-scm-provider-accurev 1.4-SNAPSHOT-20100507 -->
-        <exclusion>
-          <groupId>org.apache.maven.scm</groupId>
-          <artifactId>maven-scm-test</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- Perforce -->
