@@ -9,10 +9,7 @@
     <version>1.2-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>maven-scm-provider-gitjava</artifactId>
-  <packaging>jar</packaging>
-  <version>1.2-SNAPSHOT</version>
 
   <name>Maven SCM Git Provider - Java Impl.</name>
 
