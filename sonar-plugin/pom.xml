@@ -13,10 +13,14 @@
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar SCM Activity Plugin</name>
+  <description>This plugin collects and reports information from SCM.</description>
+  <url>http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin</url>
 
   <properties>
     <jdk.min.version>1.5</jdk.min.version>
     <sonar.version>2.2-SNAPSHOT</sonar.version>
+    <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
+
     <sonarVersion>2.2-SNAPSHOT</sonarVersion>
   </properties>
 
@@ -102,8 +106,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
-        <!-- TODO remove version from here after release of parent-6 -->
-        <version>1.2</version>
         <executions>
           <execution>
             <configuration>
@@ -117,16 +119,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-dev-mojo</artifactId>
-        <version>2.2M1</version>
-        <extensions>true</extensions>
-        <configuration>
-          <pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</pluginClass>
-        </configuration>
       </plugin>
     </plugins>
   </build>
