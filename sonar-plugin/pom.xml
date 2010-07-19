@@ -18,10 +18,8 @@
 
   <properties>
     <jdk.min.version>1.5</jdk.min.version>
-    <sonar.version>2.2-SNAPSHOT</sonar.version>
+    <sonar.version>2.2</sonar.version>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
-
-    <sonarVersion>2.2-SNAPSHOT</sonarVersion>
   </properties>
 
   <dependencies>
