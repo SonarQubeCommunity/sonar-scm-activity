@@ -10,7 +10,10 @@
   </parent>
 
   <artifactId>sonar-scm-activity-plugin</artifactId>
+  <!-- TODO see SONARPLUGINS-499
   <packaging>sonar-plugin</packaging>
+  -->
+  <packaging>jar</packaging>
 
   <name>Sonar SCM Activity Plugin</name>
   <description>This plugin collects and reports information from SCM.</description>
@@ -20,6 +23,10 @@
     <jdk.min.version>1.5</jdk.min.version>
     <sonar.version>2.2</sonar.version>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
+
+    <!-- Godin: Use it, when shadedArtifactAttached is true
+    <pluginArtifact>${project.build.directory}/${project.build.finalName}-shaded.jar</pluginArtifact>
+    -->
   </properties>
 
   <dependencies>
@@ -82,21 +89,6 @@
       <version>${sonar.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <!-- sonar-testing-harness uses 1.7 -->
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.8.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.8.1</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -117,6 +109,56 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- TODO see SONARPLUGINS-499 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <!-- Godin: Sometimes false value might cause infinite loop in plugin
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              -->
+              <artifactSet>
+                <includes>
+                  <include>org.codehaus.sonar-plugins.scm-activity:sonar-scm-activity-plugin</include>
+                  <include>org.codehaus.sonar-plugins.scm-activity:maven-scm-ext</include>
+                  <include>org.apache.maven.scm:*</include>
+                  <include>org.codehaus.plexus:plexus-utils</include>
+                  <include>regexp:regexp</include>
+                  <!-- CvsJava -->
+                  <include>org.netbeans.lib:cvsclient</include>
+                  <!-- SvnJava -->
+                  <include>com.google.code.maven-scm-provider-svnjava:maven-scm-provider-svnjava</include>
+                  <include>org.tmatesoft.svnkit:svnkit</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.codehaus.plexus.util</pattern>
+                  <shadedPattern>org.sonar.plugins.scmactivity.plexus.util</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Plugin-Class>${sonar.pluginClass}</Plugin-Class>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
