@@ -55,7 +55,12 @@ public class BlameSensor {
     try {
       analyseBlame(basedir, filename, resource);
     } catch (ScmException e) {
-      getLog().warn("Unable to analyze {}: {}", file.getAbsolutePath(), e);
+      Logger logger = getLog();
+      if (logger.isDebugEnabled()) {
+        getLog().warn("Unable to analyze", e);
+      } else {
+        getLog().warn("Unable to analyze: {}", e.getMessage());
+      }
     }
   }
 
