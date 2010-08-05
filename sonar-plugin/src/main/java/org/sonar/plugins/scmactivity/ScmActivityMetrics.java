@@ -97,8 +97,8 @@ public class ScmActivityMetrics implements Metrics {
    */
   public static final Metric BLAME_REVISION_DATA = new Metric(
       "blame_revision_data",
-      "Blae revision data",
-      "Blae revision data",
+      "Blame revision data",
+      "Blame revision data",
       Metric.ValueType.DATA,
       Metric.DIRECTION_NONE,
       false,
