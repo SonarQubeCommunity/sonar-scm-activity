@@ -61,7 +61,7 @@ public class ScmActivitySensorTest {
   @Test
   public void noExecutionIfDisabled() {
     Configuration configuration = new BaseConfiguration();
-    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, false);
+    configuration.setProperty(ScmActivityPlugin.ENABLED_PROPERTY, false);
     Project project = new Project("")
         .setLatestAnalysis(true)
         .setConfiguration(configuration);
@@ -72,7 +72,7 @@ public class ScmActivitySensorTest {
   @Test
   public void noExecutionIfScmNotDefined() {
     Configuration configuration = new BaseConfiguration();
-    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
+    configuration.setProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
     MavenProject pom = new MavenProject();
     Project project = new Project("")
         .setLatestAnalysis(true)
@@ -85,7 +85,7 @@ public class ScmActivitySensorTest {
   @Test
   public void shouldExecuteOnProject() {
     Configuration configuration = new BaseConfiguration();
-    configuration.setProperty(ScmActivitySensor.ENABLED_PROPERTY, true);
+    configuration.setProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
     MavenProject pom = new MavenProject();
     Scm scm = new Scm();
     scm.setConnection(SCM_CONNECTION);
@@ -109,8 +109,8 @@ public class ScmActivitySensorTest {
     when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
 
     Configuration configuration = new BaseConfiguration();
-    configuration.setProperty(ScmActivitySensor.USER_PROPERTY, SCM_USER);
-    configuration.setProperty(ScmActivitySensor.PASSWORD_PROPERTY, SCM_PASSWORD);
+    configuration.setProperty(ScmActivityPlugin.USER_PROPERTY, SCM_USER);
+    configuration.setProperty(ScmActivityPlugin.PASSWORD_PROPERTY, SCM_PASSWORD);
     MavenProject pom = new MavenProject();
     pom.setScm(scm);
     Project project = new Project("")

@@ -42,18 +42,11 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public class ScmActivitySensor implements Sensor {
-  public static final String URL_PROPERTY = "sonar.scm-activity.url";
-  public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
-  public static final boolean ENABLED_DEFAULT_VALUE = false;
-  public static final String USER_PROPERTY = "sonar.scm-activity.user.secured";
-  public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
-  public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-activity.prefer_pure_java";
-  public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
 
   public boolean shouldExecuteOnProject(Project project) {
     // this sensor is executed only for latest analysis and if plugin enabled and scm connection is defined
     return project.isLatestAnalysis() &&
-        project.getConfiguration().getBoolean(ENABLED_PROPERTY, ENABLED_DEFAULT_VALUE) &&
+        project.getConfiguration().getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) &&
         !StringUtils.isBlank(getScmUrl(project));
   }
 
@@ -63,7 +56,7 @@ public class ScmActivitySensor implements Sensor {
 
     BlameSensor blameSensor;
     try {
-      boolean pureJava = project.getConfiguration().getBoolean(PREFER_PURE_JAVA_PROPERTY, PREFER_PURE_JAVA_DEFAULT_VALUE);
+      boolean pureJava = project.getConfiguration().getBoolean(ScmActivityPlugin.PREFER_PURE_JAVA_PROPERTY, ScmActivityPlugin.PREFER_PURE_JAVA_DEFAULT_VALUE);
       ScmManager scmManager = ExtScmManagerFactory.getScmManager(pureJava);
       ScmRepository repository = getRepository(scmManager, project);
       blameSensor = new BlameSensor(scmManager, repository, context);
@@ -83,15 +76,15 @@ public class ScmActivitySensor implements Sensor {
   }
 
   protected String getUser(Project project) {
-    return project.getConfiguration().getString(USER_PROPERTY);
+    return project.getConfiguration().getString(ScmActivityPlugin.USER_PROPERTY);
   }
 
   protected String getPassword(Project project) {
-    return project.getConfiguration().getString(PASSWORD_PROPERTY);
+    return project.getConfiguration().getString(ScmActivityPlugin.PASSWORD_PROPERTY);
   }
 
   protected String getScmUrl(Project project) {
-    String url = project.getConfiguration().getString(URL_PROPERTY);
+    String url = project.getConfiguration().getString(ScmActivityPlugin.URL_PROPERTY);
     Scm scm = project.getPom().getScm();
     if (StringUtils.isBlank(url) && scm != null) {
       if (!StringUtils.isBlank(getUser(project)) && !StringUtils.isBlank(getPassword(project))) {

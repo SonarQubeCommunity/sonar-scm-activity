@@ -30,8 +30,8 @@ import java.util.List;
  */
 @Properties({
     @Property(
-        key = ScmActivitySensor.ENABLED_PROPERTY,
-        defaultValue = ScmActivitySensor.ENABLED_DEFAULT_VALUE + "",
+        key = ScmActivityPlugin.ENABLED_PROPERTY,
+        defaultValue = ScmActivityPlugin.ENABLED_DEFAULT_VALUE + "",
         name = "Enabled",
         description = "",
         module = true,
@@ -39,7 +39,7 @@ import java.util.List;
         global = true
     ),
     @Property(
-        key = ScmActivitySensor.URL_PROPERTY,
+        key = ScmActivityPlugin.URL_PROPERTY,
         defaultValue = "",
         name = "SCM URL",
         description = "SCM URL. Leave blank to take this value from <i>pom.xml</i>. Example:" +
@@ -49,7 +49,7 @@ import java.util.List;
         global = false
     ),
     @Property(
-        key = ScmActivitySensor.USER_PROPERTY,
+        key = ScmActivityPlugin.USER_PROPERTY,
         defaultValue = "",
         name = "User",
         description = "User to connect with SCM. Leave blank for anonymous.",
@@ -58,7 +58,7 @@ import java.util.List;
         global = true
     ),
     @Property(
-        key = ScmActivitySensor.PASSWORD_PROPERTY,
+        key = ScmActivityPlugin.PASSWORD_PROPERTY,
         defaultValue = "",
         name = "Password",
         description = "Password to connect with SCM. Leave blank for anonymous.",
@@ -67,8 +67,8 @@ import java.util.List;
         global = true
     ),
     @Property(
-        key = ScmActivitySensor.PREFER_PURE_JAVA_PROPERTY,
-        defaultValue = ScmActivitySensor.PREFER_PURE_JAVA_DEFAULT_VALUE + "",
+        key = ScmActivityPlugin.PREFER_PURE_JAVA_PROPERTY,
+        defaultValue = ScmActivityPlugin.PREFER_PURE_JAVA_DEFAULT_VALUE + "",
         name = "Prefer pure Java implementations",
         description = "",
         module = false,
@@ -77,10 +77,16 @@ import java.util.List;
     )
 })
 public class ScmActivityPlugin implements Plugin {
-  public static final String KEY = "scm-activity";
+  public static final String URL_PROPERTY = "sonar.scm-activity.url";
+  public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
+  public static final boolean ENABLED_DEFAULT_VALUE = false;
+  public static final String USER_PROPERTY = "sonar.scm-activity.user.secured";
+  public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
+  public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-activity.prefer_pure_java";
+  public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
 
   public String getKey() {
-    return KEY;
+    return "scm-activity";
   }
 
   public String getName() {
