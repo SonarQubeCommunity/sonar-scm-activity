@@ -20,6 +20,9 @@
     <jdk.min.version>1.5</jdk.min.version>
     <sonar.version>2.4-SNAPSHOT</sonar.version>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
+
+    <!-- TODO Remove before release -->
+    <enforcer.skip>true</enforcer.skip>
   </properties>
 
   <dependencies>
