@@ -20,10 +20,10 @@
 
 package org.sonar.plugins.scmactivity;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Evgeny Mandrikov
@@ -38,6 +38,6 @@ public class ScmActivityPluginTest {
 
   @Test
   public void testGetExtensions() throws Exception {
-    assertEquals(plugin.getExtensions().size(), 5);
+    assertEquals(plugin.getExtensions().size(), 6);
   }
 }

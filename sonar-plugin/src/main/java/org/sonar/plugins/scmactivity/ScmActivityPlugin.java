@@ -78,8 +78,7 @@ import java.util.List;
         module = false,
         project = true,
         global = true
-    )
-})
+    ) })
 public class ScmActivityPlugin implements Plugin {
   public static final String URL_PROPERTY = "sonar.scm-activity.url";
   public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
@@ -103,11 +102,12 @@ public class ScmActivityPlugin implements Plugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     return Arrays.asList(
+        ScmConfiguration.class,
         ScmActivityMetrics.class,
         ScmActivityWidget.class,
         ScmActivitySensor.class,
         ProjectActivityDecorator.class,
         BlameViewerDefinition.class
-    );
+        );
   }
 }

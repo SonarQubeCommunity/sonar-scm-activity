@@ -20,6 +20,13 @@
 
 package org.sonar.plugins.scmactivity;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.model.Scm;
@@ -31,11 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-
 /**
  * @author Evgeny Mandrikov
  */
@@ -44,11 +46,14 @@ public class ScmActivitySensorTest {
   private static final String SCM_USER = "godin";
   private static final String SCM_PASSWORD = "secretpassword";
 
+  private Project project;
   private ScmActivitySensor sensor;
 
   @Before
   public void setUp() {
-    sensor = new ScmActivitySensor();
+    project = new Project("");
+    ScmConfiguration scmConfiguration = new ScmConfiguration(project);
+    sensor = new ScmActivitySensor(scmConfiguration);
   }
 
   /**
@@ -56,8 +61,7 @@ public class ScmActivitySensorTest {
    */
   @Test
   public void noExecutionIfNotLatestAnalysis() {
-    Project project = new Project("")
-        .setLatestAnalysis(false);
+    project.setLatestAnalysis(false);
 
     assertThat(sensor.shouldExecuteOnProject(project), is(false));
   }
@@ -66,7 +70,7 @@ public class ScmActivitySensorTest {
   public void noExecutionIfDisabled() {
     Configuration configuration = new BaseConfiguration();
     configuration.setProperty(ScmActivityPlugin.ENABLED_PROPERTY, false);
-    Project project = new Project("")
+    project
         .setLatestAnalysis(true)
         .setConfiguration(configuration);
 
@@ -78,7 +82,7 @@ public class ScmActivitySensorTest {
     Configuration configuration = new BaseConfiguration();
     configuration.setProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
     MavenProject pom = new MavenProject();
-    Project project = new Project("")
+    project
         .setLatestAnalysis(true)
         .setPom(pom)
         .setConfiguration(configuration);
@@ -94,7 +98,7 @@ public class ScmActivitySensorTest {
     Scm scm = new Scm();
     scm.setConnection(SCM_CONNECTION);
     pom.setScm(scm);
-    Project project = new Project("")
+    project
         .setLatestAnalysis(true)
         .setPom(pom)
         .setConfiguration(configuration);
@@ -117,7 +121,7 @@ public class ScmActivitySensorTest {
     configuration.setProperty(ScmActivityPlugin.PASSWORD_PROPERTY, SCM_PASSWORD);
     MavenProject pom = new MavenProject();
     pom.setScm(scm);
-    Project project = new Project("")
+    project
         .setConfiguration(configuration)
         .setPom(pom);
     ScmRepository actual = sensor.getRepository(scmManager, project);
@@ -137,7 +141,7 @@ public class ScmActivitySensorTest {
 
     MavenProject pom = new MavenProject();
     pom.setScm(scm);
-    Project project = new Project("")
+    project
         .setConfiguration(new BaseConfiguration())
         .setPom(pom);
 
@@ -150,4 +154,4 @@ public class ScmActivitySensorTest {
   public void testToString() {
     assertThat(sensor.toString(), is("ScmActivitySensor"));
   }
-} 
+}
