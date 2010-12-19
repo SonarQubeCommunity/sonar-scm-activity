@@ -27,7 +27,7 @@ import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.FixedGitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
@@ -55,7 +55,7 @@ public class ExtScmManagerFactoryTest extends TestCase {
   }
 
   private void assertNonJava(ScmManager scmManager) throws Exception {
-    Assert.assertTrue(scmManager.getProviderByType("git") instanceof GitExeScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("git") instanceof FixedGitExeScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
