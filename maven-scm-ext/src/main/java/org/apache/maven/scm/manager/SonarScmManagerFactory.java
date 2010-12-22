@@ -25,21 +25,21 @@ import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.FixedGitExeScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
-import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 
 /**
  * @author Evgeny Mandrikov
  */
-public final class ExtScmManagerFactory {
+public final class SonarScmManagerFactory {
   /**
    * Hide utility-class constructor.
    */
-  private ExtScmManagerFactory() {
+  private SonarScmManagerFactory() {
   }
 
   public static ScmManager getScmManager(boolean pureJava) {
@@ -48,10 +48,10 @@ public final class ExtScmManagerFactory {
       scmManager.setScmProvider("svn", new SvnJavaScmProvider());
       scmManager.setScmProvider("cvs", new CvsJavaScmProvider());
     } else {
-      scmManager.setScmProvider("svn", new SvnExeScmProvider());
+      scmManager.setScmProvider("svn", new SonarSvnExeScmProvider());
       scmManager.setScmProvider("cvs", new CvsExeScmProvider());
     }
-    scmManager.setScmProvider("git", new FixedGitExeScmProvider());
+    scmManager.setScmProvider("git", new SonarGitExeScmProvider());
     scmManager.setScmProvider("hg", new HgScmProvider());
     scmManager.setScmProvider("bazaar", new BazaarScmProvider());
     scmManager.setScmProvider("clearcase", new ClearCaseScmProvider());

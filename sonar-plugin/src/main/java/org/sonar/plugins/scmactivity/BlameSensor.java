@@ -24,8 +24,6 @@ import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
@@ -34,7 +32,6 @@ import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -43,12 +40,10 @@ import java.util.List;
  */
 public class BlameSensor {
   private SensorContext context;
-  private ScmManager scmManager;
-  private ScmRepository repository;
+  private ScmConfiguration scmConfiguration;
 
-  public BlameSensor(ScmManager scmManager, ScmRepository repository, SensorContext context) {
-    this.scmManager = scmManager;
-    this.repository = repository;
+  public BlameSensor(ScmConfiguration scmConfiguration, SensorContext context) {
+    this.scmConfiguration = scmConfiguration;
     this.context = context;
   }
 
@@ -60,16 +55,16 @@ public class BlameSensor {
       analyseBlame(basedir, filename, resource);
     } catch (ScmException e) {
       Logger logger = getLog();
-      if (logger.isDebugEnabled()) {
-        getLog().warn("Unable to analyze", e);
-      } else {
-        getLog().warn("Unable to analyze: {}", e.getMessage());
-      }
+      // if (logger.isDebugEnabled()) {
+      getLog().warn("Unable to analyze", e);
+      // } else {
+      // getLog().warn("Unable to analyze: {}", e.getMessage());
+      // }
     }
   }
 
   protected void analyseBlame(File basedir, String filename, Resource resource) throws ScmException {
-    BlameScmResult result = scmManager.blame(repository, new ScmFileSet(basedir), filename);
+    BlameScmResult result = scmConfiguration.getScmManager().blame(scmConfiguration.getScmRepository(), new ScmFileSet(basedir), filename);
     if (!result.isSuccess()) {
       throw new ScmException(result.getProviderMessage());
     }
@@ -89,7 +84,7 @@ public class BlameSensor {
       String author = line.getAuthor();
 
       int lineNumber = i + 1;
-      datesBuilder.add(lineNumber, formatLastActivity(date));
+      datesBuilder.add(lineNumber, ScmUtils.formatLastActivity(date));
       revisionsBuilder.add(lineNumber, revision);
       authorsBuilder.add(lineNumber, author);
 
@@ -100,6 +95,7 @@ public class BlameSensor {
     }
 
     if (lastActivity != null) {
+      // TODO PersistenceMode.DATABASE
       context.saveMeasure(resource, authorsBuilder.build());
       context.saveMeasure(resource, datesBuilder.build());
       context.saveMeasure(resource, revisionsBuilder.build());
@@ -107,17 +103,12 @@ public class BlameSensor {
       Measure lastRevisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);
       context.saveMeasure(resource, lastRevisionMeasure);
 
-      Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, formatLastActivity(lastActivity));
+      Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(lastActivity));
       context.saveMeasure(resource, lastActivityMeasure);
     }
   }
 
   protected Logger getLog() {
     return LoggerFactory.getLogger(getClass());
-  }
-
-  public static String formatLastActivity(Date lastActivity) {
-    SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
-    return sdf.format(lastActivity);
   }
 }

@@ -72,7 +72,7 @@ public class ProjectActivityDecorator implements Decorator {
     }
 
     if (lastActivity != null) {
-      SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
+      SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
 
       Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, sdf.format(lastActivity));
       context.saveMeasure(lastActivityMeasure);
@@ -84,7 +84,7 @@ public class ProjectActivityDecorator implements Decorator {
 
   private Date convertStringMeasureToDate(Measure date) {
     String data = date.getData();
-    SimpleDateFormat sdf = new SimpleDateFormat(ScmActivityMetrics.DATE_TIME_FORMAT);
+    SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
     try {
       return sdf.parse(data);
     } catch (ParseException e) {

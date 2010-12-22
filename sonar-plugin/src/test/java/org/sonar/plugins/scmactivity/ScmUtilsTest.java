@@ -20,25 +20,18 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.greaterThan;
+import java.io.File;
+
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * @author Evgeny Mandrikov
- */
-public class ScmActivityPluginTest {
-  private ScmActivityPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new ScmActivityPlugin();
-  }
-
+public class ScmUtilsTest {
   @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), greaterThan(0));
+  public void shouldReturnRelativePath() {
+    File basedir = new File("/checkout/sonar-core");
+    File file = new File("/checkout/sonar-core/src/main/java/Foo.java");
+    assertThat(ScmUtils.getRelativePath(basedir, file), is("src/main/java/Foo.java"));
   }
 }

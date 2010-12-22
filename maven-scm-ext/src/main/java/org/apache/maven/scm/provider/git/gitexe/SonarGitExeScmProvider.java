@@ -1,5 +1,5 @@
 /*
- * Sonar SCM Activity Plugin
+ * Sonar SCM Activity Plugin :: Maven SCM Ext
  * Copyright (C) 2010 SonarSource
  * dev@sonar.codehaus.org
  *
@@ -18,27 +18,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.scmactivity;
+package org.apache.maven.scm.provider.git.gitexe;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
+import org.apache.maven.scm.provider.git.command.GitCommand;
+import org.apache.maven.scm.provider.git.gitexe.command.blame.FixedGitBlameCommand;
 
 /**
- * @author Evgeny Mandrikov
+ * See SONARPLUGINS-861
  */
-public class ScmActivityPluginTest {
-  private ScmActivityPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new ScmActivityPlugin();
-  }
-
-  @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), greaterThan(0));
+public class SonarGitExeScmProvider extends GitExeScmProvider {
+  protected GitCommand getBlameCommand() {
+    return new FixedGitBlameCommand();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Sonar SCM Activity Plugin
+ * Sonar SCM Activity Plugin :: Maven SCM Ext
  * Copyright (C) 2010 SonarSource
  * dev@sonar.codehaus.org
  *
@@ -18,27 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.scmactivity;
+package org.apache.maven.scm.provider.svn.svnexe;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.maven.scm.provider.svn.command.SvnCommand;
+import org.apache.maven.scm.provider.svn.svnexe.command.changelog.FixedSvnChangeLogCommand;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
-
-/**
- * @author Evgeny Mandrikov
- */
-public class ScmActivityPluginTest {
-  private ScmActivityPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new ScmActivityPlugin();
-  }
-
-  @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), greaterThan(0));
+public class SonarSvnExeScmProvider extends SvnExeScmProvider {
+  protected SvnCommand getChangeLogCommand() {
+    return new FixedSvnChangeLogCommand();
   }
 }

@@ -23,15 +23,51 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.model.Scm;
+import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.manager.SonarScmManagerFactory;
+import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.repository.ScmRepository;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.SonarException;
 
 public class ScmConfiguration implements BatchExtension {
 
   private Project project;
+  private ScmManager scmManager;
+  private ScmRepository scmRepository;
 
   public ScmConfiguration(Project project) {
     this.project = project;
+  }
+
+  public ScmManager getScmManager() {
+    if (scmManager == null) {
+      scmManager = SonarScmManagerFactory.getScmManager(isPureJava());
+    }
+    return scmManager;
+  }
+
+  public ScmRepository getScmRepository() {
+    try {
+      if (scmRepository == null) {
+        String connectionUrl = getUrl();
+        Logs.INFO.info("SCM connection URL: {}", connectionUrl);
+        scmRepository = getScmManager().makeScmRepository(connectionUrl);
+        String user = getUser();
+        String password = getPassword();
+        if (!StringUtils.isBlank(user) && !StringUtils.isBlank(password)) {
+          ScmProviderRepository providerRepository = scmRepository.getProviderRepository();
+          providerRepository.setUser(user);
+          providerRepository.setPassword(password);
+        }
+      }
+      return scmRepository;
+    } catch (ScmException e) {
+      throw new SonarException(e);
+    }
   }
 
   private Configuration getConfiguration() {

@@ -58,20 +58,22 @@ public class BlameSensorTest {
 
   @Before
   public void setUp() {
+    ScmConfiguration scmConfiguration = mock(ScmConfiguration.class);
     scmManager = mock(ScmManager.class);
-    ScmRepository repository = mock(ScmRepository.class);
+    ScmRepository scmRepository = mock(ScmRepository.class);
+    when(scmConfiguration.getScmRepository()).thenReturn(scmRepository);
+    when(scmConfiguration.getScmManager()).thenReturn(scmManager);
     context = mock(SensorContext.class);
-    sensor = spy(new BlameSensor(scmManager, repository, context));
+    sensor = spy(new BlameSensor(scmConfiguration, context));
   }
 
   /**
    * See SONARPLUGINS-368
-   *
+   * 
    * @throws Exception if something wrong
    */
   @Test
   public void testScmException() throws Exception {
-    //noinspection ThrowableInstanceNeverThrown
     doThrow(new ScmException("ERROR"))
         .when(sensor)
         .analyseBlame((File) any(), (String) any(), (Resource) any());
@@ -83,47 +85,35 @@ public class BlameSensorTest {
 
   @Test
   public void testAnalyse() throws Exception {
-    when(
-        scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any())
-    ).thenReturn(
-        new BlameScmResult("fake", Arrays.asList(
-            new BlameLine(new Date(13), "2", "godin"),
-            new BlameLine(new Date(10), "1", "godin")
-        ))
-    );
+    when(scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any()))
+        .thenReturn(new BlameScmResult("fake", Arrays.asList(
+                new BlameLine(new Date(13), "2", "godin"),
+                new BlameLine(new Date(10), "1", "godin"))));
 
     sensor.analyseBlame(new File("."), "HelloWorld.java", new JavaFile(RESOURCE_KEY));
 
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, BlameSensor.formatLastActivity(new Date(13))))
-    );
+        argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(new Date(13)))));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.REVISION, "2"))
-    );
+        argThat(new IsMeasure(ScmActivityMetrics.REVISION, "2")));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.BLAME_AUTHORS_DATA))
-    );
+        argThat(new IsMeasure(ScmActivityMetrics.BLAME_AUTHORS_DATA)));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.BLAME_DATE_DATA))
-    );
+        argThat(new IsMeasure(ScmActivityMetrics.BLAME_DATE_DATA)));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.BLAME_REVISION_DATA))
-    );
+        argThat(new IsMeasure(ScmActivityMetrics.BLAME_REVISION_DATA)));
     verifyNoMoreInteractions(context);
   }
 
   @Test
   public void test() throws Exception {
-    when(
-        scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any())
-    ).thenReturn(
-        new BlameScmResult("command", "Provider message", "output", false)
-    );
+    when(scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any()))
+        .thenReturn(new BlameScmResult("command", "Provider message", "output", false));
 
     try {
       sensor.analyseBlame(new File("."), "HelloWorld.java", new JavaFile(RESOURCE_KEY));

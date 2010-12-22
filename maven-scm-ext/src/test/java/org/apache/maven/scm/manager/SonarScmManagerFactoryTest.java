@@ -27,19 +27,19 @@ import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.FixedGitExeScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
-import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class ExtScmManagerFactoryTest extends TestCase {
+public class SonarScmManagerFactoryTest extends TestCase {
   public void testPureJava() throws Exception {
-    ScmManager scmManager = ExtScmManagerFactory.getScmManager(true);
+    ScmManager scmManager = SonarScmManagerFactory.getScmManager(true);
 
     Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SvnJavaScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsJavaScmProvider);
@@ -47,15 +47,15 @@ public class ExtScmManagerFactoryTest extends TestCase {
   }
 
   public void testExe() throws Exception {
-    ScmManager scmManager = ExtScmManagerFactory.getScmManager(false);
+    ScmManager scmManager = SonarScmManagerFactory.getScmManager(false);
 
-    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SvnExeScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
     assertNonJava(scmManager);
   }
 
   private void assertNonJava(ScmManager scmManager) throws Exception {
-    Assert.assertTrue(scmManager.getProviderByType("git") instanceof FixedGitExeScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);

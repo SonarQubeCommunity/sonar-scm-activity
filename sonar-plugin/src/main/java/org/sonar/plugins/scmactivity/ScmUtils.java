@@ -1,5 +1,5 @@
 /*
- * Sonar SCM Activity Plugin :: Maven SCM Ext
+ * Sonar SCM Activity Plugin
  * Copyright (C) 2010 SonarSource
  * dev@sonar.codehaus.org
  *
@@ -18,16 +18,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.apache.maven.scm.provider.git.gitexe;
+package org.sonar.plugins.scmactivity;
 
-import org.apache.maven.scm.provider.git.command.GitCommand;
-import org.apache.maven.scm.provider.git.gitexe.command.blame.FixedGitBlameCommand;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-/**
- * See SONARPLUGINS-861
- */
-public class FixedGitExeScmProvider extends GitExeScmProvider {
-  protected GitCommand getBlameCommand() {
-    return new FixedGitBlameCommand();
+public class ScmUtils {
+
+  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
+
+  private ScmUtils() {
   }
+
+  public static String getRelativePath(File basedir, File file) {
+    return basedir.toURI().relativize(file.toURI()).getPath();
+  }
+
+  public static String formatLastActivity(Date lastActivity) {
+    SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
+    return sdf.format(lastActivity);
+  }
+
 }
