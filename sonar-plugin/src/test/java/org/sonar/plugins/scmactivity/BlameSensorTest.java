@@ -21,11 +21,8 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +38,7 @@ import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 import static org.sonar.api.resources.Resource.QUALIFIER_CLASS;
@@ -52,19 +50,15 @@ import static org.sonar.api.resources.Resource.SCOPE_ENTITY;
 public class BlameSensorTest {
   private static final String RESOURCE_KEY = "org.example.HelloWorld";
 
-  private ScmManager scmManager;
+  private ProjectScmManager scmManager;
   private SensorContext context;
   private BlameSensor sensor;
 
   @Before
   public void setUp() {
-    ScmConfiguration scmConfiguration = mock(ScmConfiguration.class);
-    scmManager = mock(ScmManager.class);
-    ScmRepository scmRepository = mock(ScmRepository.class);
-    when(scmConfiguration.getScmRepository()).thenReturn(scmRepository);
-    when(scmConfiguration.getScmManager()).thenReturn(scmManager);
+    scmManager = mock(ProjectScmManager.class);
     context = mock(SensorContext.class);
-    sensor = spy(new BlameSensor(scmConfiguration, context));
+    sensor = spy(new BlameSensor(scmManager, context));
   }
 
   /**
@@ -76,7 +70,7 @@ public class BlameSensorTest {
   public void testScmException() throws Exception {
     doThrow(new ScmException("ERROR"))
         .when(sensor)
-        .analyseBlame((File) any(), (String) any(), (Resource) any());
+        .analyseBlame(any(File.class), anyString(), any(Resource.class));
 
     sensor.analyse(new File("."), new JavaFile(RESOURCE_KEY));
 
@@ -85,7 +79,7 @@ public class BlameSensorTest {
 
   @Test
   public void testAnalyse() throws Exception {
-    when(scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any()))
+    when(scmManager.getBlame(any(File.class), anyString()))
         .thenReturn(new BlameScmResult("fake", Arrays.asList(
                 new BlameLine(new Date(13), "2", "godin"),
                 new BlameLine(new Date(10), "1", "godin"))));
@@ -112,7 +106,7 @@ public class BlameSensorTest {
 
   @Test
   public void test() throws Exception {
-    when(scmManager.blame((ScmRepository) any(), (ScmFileSet) any(), (String) any()))
+    when(scmManager.getBlame(any(File.class), anyString()))
         .thenReturn(new BlameScmResult("command", "Provider message", "output", false));
 
     try {

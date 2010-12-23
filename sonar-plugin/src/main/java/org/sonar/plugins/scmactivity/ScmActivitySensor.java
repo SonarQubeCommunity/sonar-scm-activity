@@ -21,28 +21,21 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
-import org.apache.maven.scm.ScmRevision;
-import org.apache.maven.scm.command.changelog.ChangeLogScmResult;
+import org.apache.maven.scm.ChangeSet;
 import org.apache.maven.scm.command.changelog.ChangeLogSet;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
-import org.apache.maven.scm.repository.ScmRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.Logs;
-import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.scmactivity.ProjectStatus.FileStatus;
 
 import java.io.File;
 import java.util.Collection;
@@ -55,29 +48,32 @@ public class ScmActivitySensor implements Sensor {
 
   private ScmConfiguration scmConfiguration;
   private TimeMachine timeMachine;
+  private ProjectScmManager scmManager;
 
-  public ScmActivitySensor(ScmConfiguration scmConfiguration, TimeMachine timeMachine) {
+  public ScmActivitySensor(ScmConfiguration scmConfiguration, ProjectScmManager scmManager, TimeMachine timeMachine) {
     this.scmConfiguration = scmConfiguration;
+    this.scmManager = scmManager;
     this.timeMachine = timeMachine;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
     // this sensor is executed only for latest analysis and if plugin enabled and scm connection is defined
-    return project.isLatestAnalysis() && scmConfiguration.isEnabled() &&
-        !StringUtils.isBlank(scmConfiguration.getUrl());
+    return project.isLatestAnalysis() && scmConfiguration.isEnabled() && !StringUtils.isBlank(scmConfiguration.getUrl());
   }
 
   public void analyse(Project project, SensorContext context) {
+    scmManager.checkLocalModifications();
+
     // Determine modified files
     ProjectStatus projectStatus = new ProjectStatus(project);
 
     String startRevision = getPreviousRevision(project);
-    ChangeLogSet changeLog = getChangeLog(startRevision, project.getFileSystem().getBasedir());
-    projectStatus.analyzeChangeLog(changeLog);
-
-    for (File file : projectStatus.getFiles()) {
-      if (projectStatus.isModified(file)) {
-        Logs.INFO.info("File {} has been modified since previous analysis", file);
+    ChangeLogSet changeLog = scmManager.getChangeLog(startRevision);
+    List<ChangeSet> sets = changeLog.getChangeSets();
+    for (ChangeSet changeSet : sets) {
+      // startRevision already was analyzed in previous Sonar run
+      if (!StringUtils.equals(startRevision, changeSet.getRevision())) {
+        projectStatus.analyzeChangeSet(changeSet);
       }
     }
 
@@ -85,37 +81,56 @@ public class ScmActivitySensor implements Sensor {
     ProjectFileSystem fileSystem = project.getFileSystem();
     List<File> sourceDirs = fileSystem.getSourceDirs();
 
-    BlameSensor blameSensor = new BlameSensor(scmConfiguration, context);
+    BlameSensor blameSensor = new BlameSensor(scmManager, context);
 
     Collection<File> files = projectStatus.getFiles();
     for (File file : files) {
+      FileStatus fileStatus = projectStatus.getFileStatus(file);
       Resource resource = JavaFile.fromIOFile(file, sourceDirs, false);
 
-      if (projectStatus.isModified(file)) {
+      if (fileStatus.isModified()) {
+        Logs.INFO.info("File {} has been modified since previous analysis", file);
         blameSensor.analyse(file, resource);
+
+        // TODO SONARPLUGINS-877: save more accurate values for file
+        // context.saveMeasure(resource, new Measure(ScmActivityMetrics.REVISION, fileStatus.getRevision()));
+        // context.saveMeasure(resource, new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(fileStatus.getDate())));
       } else {
         List<Measure> pastMeasures = getPastMeasures(resource, generatesMetrics());
         if (pastMeasures.isEmpty()) {
           // File not modified, but no past measures
           blameSensor.analyse(file, resource);
         } else {
-          for (Measure measure : pastMeasures) {
-            // TODO PersistenceMode.DATABASE
-            context.saveMeasure(resource, new Measure(measure.getMetric(), measure.getData()));
-          }
+          resave(resource, context, pastMeasures);
         }
       }
     }
 
-    // TODO save correct revision for project
-    // context.saveMeasure(project, new Measure(ScmActivityMetrics.REVISION, projectStatus.getRevision()));
-    // context.saveMeasure(project, new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(projectStatus.getDate())));
+    if (projectStatus.isModified()) {
+      context.saveMeasure(project, new Measure(ScmActivityMetrics.REVISION, projectStatus.getRevision()));
+      context.saveMeasure(project, new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(projectStatus.getDate())));
+    } else {
+      resave(project, context, getPastMeasures(project, generatesMetrics()));
+    }
+  }
+
+  private void resave(Resource resource, SensorContext context, List<Measure> pastMeasures) {
+    for (Measure pastMeasure : pastMeasures) {
+      Metric metric = pastMeasure.getMetric();
+      Measure measure = new Measure(metric, pastMeasure.getData());
+      if (metric.equals(ScmActivityMetrics.BLAME_AUTHORS_DATA)
+          || metric.equals(ScmActivityMetrics.BLAME_DATE_DATA)
+          || metric.equals(ScmActivityMetrics.BLAME_REVISION_DATA)) {
+        measure.setPersistenceMode(PersistenceMode.DATABASE);
+      }
+      context.saveMeasure(resource, measure);
+    }
   }
 
   private List<Measure> getPastMeasures(Resource resource, Metric... metrics) {
     TimeMachineQuery query = new TimeMachineQuery(resource)
         .setOnlyLastAnalysis(true)
-        .setMetrics(generatesMetrics());
+        .setMetrics(metrics);
     return timeMachine.getMeasures(query);
   }
 
@@ -128,32 +143,6 @@ public class ScmActivitySensor implements Sensor {
     return measures.get(0).getData();
   }
 
-  /**
-   * TODO BASE should be correctly handled by providers other than SvnExe
-   * TODO {@link SvnJavaScmProvider} doesn't support revisions range
-   * 
-   * @return changes that have happened between <code>startVersion</code> and BASE
-   */
-  private ChangeLogSet getChangeLog(String startRevision, File basedir) {
-    ScmManager scmManager = scmConfiguration.getScmManager();
-    ScmRepository repository = scmConfiguration.getScmRepository();
-    ChangeLogScmResult changeLogScmResult;
-    try {
-      changeLogScmResult = scmManager.changeLog(
-          repository,
-          new ScmFileSet(basedir),
-          startRevision == null ? null : new ScmRevision(startRevision),
-          new ScmRevision("BASE"));
-    } catch (ScmException e) {
-      throw new SonarException(e);
-    }
-    if (changeLogScmResult.isSuccess()) {
-      return changeLogScmResult.getChangeLog();
-    } else {
-      throw new SonarException(changeLogScmResult.getCommandOutput());
-    }
-  }
-
   private Metric[] generatesMetrics() {
     return new Metric[] {
         ScmActivityMetrics.REVISION,
@@ -161,10 +150,6 @@ public class ScmActivitySensor implements Sensor {
         ScmActivityMetrics.BLAME_AUTHORS_DATA,
         ScmActivityMetrics.BLAME_DATE_DATA,
         ScmActivityMetrics.BLAME_REVISION_DATA };
-  }
-
-  protected Logger getLog() {
-    return LoggerFactory.getLogger(getClass());
   }
 
   @Override

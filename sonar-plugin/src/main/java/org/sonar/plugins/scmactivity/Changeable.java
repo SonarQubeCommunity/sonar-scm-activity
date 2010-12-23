@@ -31,11 +31,11 @@ public abstract class Changeable {
   private String author;
   private int changes;
 
-  protected void analyzeChangeSet(ChangeSet changeSet) {
+  public void analyzeChangeSet(ChangeSet changeSet) {
     changes++;
-    Date date = changeSet.getDate();
-    if (date.after(this.date)) {
-      this.date = date;
+    Date changeSetDate = changeSet.getDate();
+    if (changeSetDate.after(this.date)) {
+      this.date = changeSetDate;
       this.revision = changeSet.getRevision();
       this.author = changeSet.getAuthor();
     }
@@ -45,7 +45,7 @@ public abstract class Changeable {
    * @return date of last change
    */
   public Date getDate() {
-    return date;
+    return (Date) date.clone();
   }
 
   /**

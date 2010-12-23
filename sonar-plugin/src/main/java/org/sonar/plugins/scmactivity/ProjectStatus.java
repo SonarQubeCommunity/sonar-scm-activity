@@ -22,7 +22,6 @@ package org.sonar.plugins.scmactivity;
 
 import com.google.common.collect.Maps;
 import org.apache.maven.scm.ChangeSet;
-import org.apache.maven.scm.command.changelog.ChangeLogSet;
 import org.sonar.api.resources.Project;
 
 import java.io.File;
@@ -34,11 +33,15 @@ public class ProjectStatus extends Changeable {
 
   private Map<File, FileStatus> files = Maps.newHashMap();
 
-  private class FileStatus extends Changeable {
+  public static class FileStatus extends Changeable {
     private String relativePath;
 
     public FileStatus(String relativePath) {
       this.relativePath = relativePath;
+    }
+
+    public String getRelativePath() {
+      return relativePath;
     }
   }
 
@@ -57,19 +60,12 @@ public class ProjectStatus extends Changeable {
   }
 
   @Override
-  protected void analyzeChangeSet(ChangeSet changeSet) {
+  public void analyzeChangeSet(ChangeSet changeSet) {
     super.analyzeChangeSet(changeSet);
     for (FileStatus status : files.values()) {
-      if (changeSet.containsFilename(status.relativePath)) {
+      if (changeSet.containsFilename(status.getRelativePath())) {
         status.analyzeChangeSet(changeSet);
       }
-    }
-  }
-
-  public void analyzeChangeLog(ChangeLogSet changeLog) {
-    List<ChangeSet> sets = changeLog.getChangeSets();
-    for (ChangeSet changeSet : sets) {
-      analyzeChangeSet(changeSet);
     }
   }
 
@@ -77,8 +73,8 @@ public class ProjectStatus extends Changeable {
     return files.keySet();
   }
 
-  public boolean isModified(File file) {
-    return files.get(file).isModified();
+  public FileStatus getFileStatus(File file) {
+    return files.get(file);
   }
 
 }

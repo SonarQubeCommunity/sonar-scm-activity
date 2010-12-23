@@ -52,7 +52,8 @@ public class ScmActivitySensorTest {
   public void setUp() {
     project = new Project("");
     ScmConfiguration scmConfiguration = new ScmConfiguration(project);
-    sensor = new ScmActivitySensor(scmConfiguration, null);
+    ProjectScmManager scmManager = new ProjectScmManager(project, scmConfiguration);
+    sensor = new ScmActivitySensor(scmConfiguration, scmManager, null);
   }
 
   /**

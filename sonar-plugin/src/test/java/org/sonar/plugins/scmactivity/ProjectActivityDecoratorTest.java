@@ -31,7 +31,8 @@ import org.sonar.api.test.IsMeasure;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.*;
  */
 public class ProjectActivityDecoratorTest {
   private ProjectActivityDecorator decorator;
+  private DecoratorContext context;
 
   @Before
   public void setUp() {
@@ -49,18 +51,16 @@ public class ProjectActivityDecoratorTest {
 
   @Test
   public void testGeneratesMetrics() {
-    assertEquals(ScmActivityMetrics.LAST_ACTIVITY, decorator.generatesMetrics());
+    assertThat(decorator.generatesMetrics().size(), is(2));
   }
 
   @Test
   public void testDecorate() {
     DecoratorContext context = mock(DecoratorContext.class);
-
     List<DecoratorContext> children = Arrays.asList(
         mockChildContext("2010-01-02", "3"),
         mockChildContext("2010-01-01", "1"),
-        mockChildContext("2010-01-01", "2")
-    );
+        mockChildContext("2010-01-01", "2"));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(""), context);
     verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
@@ -71,17 +71,13 @@ public class ProjectActivityDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     List<DecoratorContext> children = Arrays.asList(
         mockChildContext(null, null),
-        mockChildContext("2010-01-02", "1")
-    );
+        mockChildContext("2010-01-02", "1"));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project("").setPom(new MavenProject()), context);
     verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
 
     reset(context);
-    children = Arrays.asList(
-        mockChildContext(null, null),
-        mockChildContext(null, null)
-    );
+    children = Arrays.asList(mockChildContext(null, null), mockChildContext(null, null));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project("").setPom(new MavenProject()), context);
     verify(context, never()).saveMeasure((Measure) any());
@@ -89,16 +85,10 @@ public class ProjectActivityDecoratorTest {
 
   private DecoratorContext mockChildContext(String lastActivity, String revision) {
     DecoratorContext context = mock(DecoratorContext.class);
-    when(
-        context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY)
-    ).thenReturn(
-        new Measure(ScmActivityMetrics.LAST_ACTIVITY, lastActivity)
-    );
-    when(
-        context.getMeasure(ScmActivityMetrics.REVISION)
-    ).thenReturn(
-        new Measure(ScmActivityMetrics.REVISION, revision)
-    );
+    when(context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY))
+        .thenReturn(new Measure(ScmActivityMetrics.LAST_ACTIVITY, lastActivity));
+    when(context.getMeasure(ScmActivityMetrics.REVISION))
+        .thenReturn(new Measure(ScmActivityMetrics.REVISION, revision));
     return context;
   }
 }

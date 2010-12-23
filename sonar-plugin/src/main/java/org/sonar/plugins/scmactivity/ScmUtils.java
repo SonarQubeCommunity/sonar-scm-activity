@@ -24,7 +24,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class ScmUtils {
+public final class ScmUtils {
 
   public static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
 

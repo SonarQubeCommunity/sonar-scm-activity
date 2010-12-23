@@ -23,7 +23,6 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.maven.scm.ChangeFile;
 import org.apache.maven.scm.ChangeSet;
-import org.apache.maven.scm.command.changelog.ChangeLogSet;
 import org.junit.Test;
 
 import java.io.File;
@@ -49,8 +48,8 @@ public class ProjectStatusTest {
         "/trunk/sonar-server/src/main/webapp/WEB-INF/db/migrate/165_set_nullable_rule_config_key.rb");
     changes.analyzeChangeSet(changeSet);
 
-    assertThat(changes.isModified(modifiedFile), is(true));
-    assertThat(changes.isModified(notModifiedFile), is(false));
+    assertThat(changes.getFileStatus(modifiedFile).isModified(), is(true));
+    assertThat(changes.getFileStatus(notModifiedFile).isModified(), is(false));
   }
 
   @Test
@@ -58,11 +57,8 @@ public class ProjectStatusTest {
     File basedir = new File("/checkout/sonar-core");
     ProjectStatus changes = new ProjectStatus(basedir, Collections.<File> emptyList());
 
-    ChangeLogSet changeLog = new ChangeLogSet(null, null);
-    changeLog.setChangeSets(Arrays.asList(
-        mockChangeSet(-1, "godin", "1"),
-        mockChangeSet(0, "simon", "2")));
-    changes.analyzeChangeLog(changeLog);
+    changes.analyzeChangeSet(mockChangeSet(-1, "godin", "1"));
+    changes.analyzeChangeSet(mockChangeSet(0, "simon", "2"));
 
     assertThat(changes.getDate().getDay(), is(new Date().getDay()));
     assertThat(changes.getRevision(), is("2"));

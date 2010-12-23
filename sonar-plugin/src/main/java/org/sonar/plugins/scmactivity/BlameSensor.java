@@ -21,13 +21,13 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
 
@@ -40,10 +40,10 @@ import java.util.List;
  */
 public class BlameSensor {
   private SensorContext context;
-  private ScmConfiguration scmConfiguration;
+  private ProjectScmManager scmManager;
 
-  public BlameSensor(ScmConfiguration scmConfiguration, SensorContext context) {
-    this.scmConfiguration = scmConfiguration;
+  public BlameSensor(ProjectScmManager scmManager, SensorContext context) {
+    this.scmManager = scmManager;
     this.context = context;
   }
 
@@ -55,16 +55,16 @@ public class BlameSensor {
       analyseBlame(basedir, filename, resource);
     } catch (ScmException e) {
       Logger logger = getLog();
-      // if (logger.isDebugEnabled()) {
-      getLog().warn("Unable to analyze", e);
-      // } else {
-      // getLog().warn("Unable to analyze: {}", e.getMessage());
-      // }
+      if (logger.isDebugEnabled()) {
+        logger.warn("Unable to analyze", e);
+      } else {
+        logger.warn("Unable to analyze: {}", e.getMessage());
+      }
     }
   }
 
   protected void analyseBlame(File basedir, String filename, Resource resource) throws ScmException {
-    BlameScmResult result = scmConfiguration.getScmManager().blame(scmConfiguration.getScmRepository(), new ScmFileSet(basedir), filename);
+    BlameScmResult result = scmManager.getBlame(basedir, filename);
     if (!result.isSuccess()) {
       throw new ScmException(result.getProviderMessage());
     }
@@ -95,14 +95,13 @@ public class BlameSensor {
     }
 
     if (lastActivity != null) {
-      // TODO PersistenceMode.DATABASE
-      context.saveMeasure(resource, authorsBuilder.build());
-      context.saveMeasure(resource, datesBuilder.build());
-      context.saveMeasure(resource, revisionsBuilder.build());
+      context.saveMeasure(resource, authorsBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
+      context.saveMeasure(resource, datesBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
+      context.saveMeasure(resource, revisionsBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
 
+      // TODO SONARPLUGINS-877
       Measure lastRevisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);
       context.saveMeasure(resource, lastRevisionMeasure);
-
       Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(lastActivity));
       context.saveMeasure(resource, lastActivityMeasure);
     }

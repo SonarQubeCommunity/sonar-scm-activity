@@ -103,6 +103,7 @@ public class ScmActivityPlugin implements Plugin {
   public List<Class<? extends Extension>> getExtensions() {
     return Arrays.asList(
         ScmConfiguration.class,
+        ProjectScmManager.class,
         ScmActivityMetrics.class,
         ScmActivityWidget.class,
         ScmActivitySensor.class,

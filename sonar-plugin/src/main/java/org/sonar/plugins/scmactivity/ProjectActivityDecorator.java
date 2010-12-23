@@ -33,15 +33,17 @@ import org.sonar.api.utils.SonarException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class ProjectActivityDecorator implements Decorator {
   @DependedUpon
-  public Metric generatesMetrics() {
-    return ScmActivityMetrics.LAST_ACTIVITY;
+  public List<Metric> generatesMetrics() {
+    return Arrays.asList(ScmActivityMetrics.LAST_ACTIVITY, ScmActivityMetrics.REVISION);
   }
 
   public boolean shouldExecuteOnProject(Project project) {
