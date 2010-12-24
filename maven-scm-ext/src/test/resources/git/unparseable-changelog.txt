@@ -1,0 +1,5 @@
+commit 97524340cf87ba4653ec2fd702f5a6bf5b94cb7e
+Author: sbrandhof <sbrandhof@dev.java.net>
+Date:   2009-07-31 15:15:54 +0000
+
+:100644 100644 22724aa... 53370f4... M  src/main/resources/hudson/plugins/sonar/SonarPublisher/config_fr.properties

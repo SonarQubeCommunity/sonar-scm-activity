@@ -21,6 +21,8 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.maven.model.Scm;
+import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
@@ -67,6 +69,20 @@ public class ScmConfigurationTest {
   public void shouldReturnUrlFromConfiguration() {
     configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "http://test");
     assertThat(scmConfiguration.getUrl(), is("http://test"));
+  }
+
+  @Test
+  public void shouldReturnDeveloperConnection() {
+    MavenProject pom = new MavenProject();
+    Scm scm = new Scm();
+    scm.setDeveloperConnection("user");
+    scm.setDeveloperConnection("dev");
+    pom.setScm(scm);
+    project.setPom(pom);
+    configuration.addProperty(ScmActivityPlugin.USER_PROPERTY, "godin");
+    configuration.addProperty(ScmActivityPlugin.PASSWORD_PROPERTY, "pass");
+
+    assertThat(scmConfiguration.getUrl(), is("dev"));
   }
 
 }

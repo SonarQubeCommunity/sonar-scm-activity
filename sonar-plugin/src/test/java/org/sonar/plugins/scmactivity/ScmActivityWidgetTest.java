@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -31,8 +32,10 @@ import static org.junit.Assert.assertThat;
  */
 public class ScmActivityWidgetTest {
   @Test
-  public void testGetTemplatePath() {
-    String path = new ScmActivityWidget().getTemplatePath();
-    assertThat(getClass().getResource(path), not(nullValue()));
+  public void testWidgetDefinition() {
+    ScmActivityWidget widget = new ScmActivityWidget();
+    assertThat(widget.getId(), notNullValue());
+    assertThat(widget.getTitle(), notNullValue());
+    assertThat(getClass().getResource(widget.getTemplatePath()), not(nullValue()));
   }
 }

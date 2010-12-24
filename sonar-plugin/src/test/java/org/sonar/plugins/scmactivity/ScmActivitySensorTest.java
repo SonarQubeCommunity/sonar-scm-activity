@@ -24,26 +24,18 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.provider.ScmProviderRepository;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Evgeny Mandrikov
  */
 public class ScmActivitySensorTest {
   private static final String SCM_CONNECTION = "scm:svn:https://localhost";
-  private static final String SCM_USER = "godin";
-  private static final String SCM_PASSWORD = "secretpassword";
 
   private Project project;
   private ScmActivitySensor sensor;
@@ -104,52 +96,6 @@ public class ScmActivitySensorTest {
         .setConfiguration(configuration);
 
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
-  }
-
-  @Ignore
-  @Test
-  public void testGetRepositorySecured() throws Exception {
-    ScmManager scmManager = mock(ScmManager.class);
-    Scm scm = mock(Scm.class);
-    ScmRepository repository = mock(ScmRepository.class);
-    ScmProviderRepository providerRepository = mock(ScmProviderRepository.class);
-    when(scm.getDeveloperConnection()).thenReturn(SCM_CONNECTION);
-    when(repository.getProviderRepository()).thenReturn(providerRepository);
-    when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
-
-    Configuration configuration = new BaseConfiguration();
-    configuration.setProperty(ScmActivityPlugin.USER_PROPERTY, SCM_USER);
-    configuration.setProperty(ScmActivityPlugin.PASSWORD_PROPERTY, SCM_PASSWORD);
-    MavenProject pom = new MavenProject();
-    pom.setScm(scm);
-    project
-        .setConfiguration(configuration)
-        .setPom(pom);
-    // ScmRepository actual = sensor.getRepository(scmManager);
-
-    // assertSame(repository, actual);
-    // verify(providerRepository).setUser(SCM_USER);
-    // verify(providerRepository).setPassword(SCM_PASSWORD);
-  }
-
-  @Ignore
-  @Test
-  public void testGetRepositoryUnsecured() throws Exception {
-    ScmManager scmManager = mock(ScmManager.class);
-    Scm scm = mock(Scm.class);
-    ScmRepository repository = mock(ScmRepository.class);
-    when(scm.getConnection()).thenReturn(SCM_CONNECTION);
-    when(scmManager.makeScmRepository(SCM_CONNECTION)).thenReturn(repository);
-
-    MavenProject pom = new MavenProject();
-    pom.setScm(scm);
-    project
-        .setConfiguration(new BaseConfiguration())
-        .setPom(pom);
-
-    // ScmRepository actual = sensor.getRepository(scmManager);
-
-    // assertSame(repository, actual);
   }
 
   @Test

@@ -20,9 +20,11 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.maven.scm.ChangeFile;
 import org.apache.maven.scm.ChangeSet;
 
 import java.util.Date;
+import java.util.List;
 
 public abstract class Changeable {
 
@@ -32,6 +34,17 @@ public abstract class Changeable {
   private int changes;
 
   public void analyzeChangeSet(ChangeSet changeSet) {
+    if (changeSet.getRevision() == null) {
+      // This is a workaround for bug, which exists in GitExeScmProvider
+      List files = changeSet.getFiles();
+      if (files.size() == 0) {
+        // This may happen if Git changelog can't be correctly parsed
+        // for example when message was not provided for commit
+        return;
+      }
+      ChangeFile file = (ChangeFile) files.get(0);
+      changeSet.setRevision(file.getRevision());
+    }
     changes++;
     Date changeSetDate = changeSet.getDate();
     if (changeSetDate.after(this.date)) {

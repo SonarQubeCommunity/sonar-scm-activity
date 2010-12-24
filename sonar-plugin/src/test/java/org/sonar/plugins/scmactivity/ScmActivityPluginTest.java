@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -41,4 +42,15 @@ public class ScmActivityPluginTest {
   public void testGetExtensions() throws Exception {
     assertThat(plugin.getExtensions().size(), greaterThan(0));
   }
+
+  /**
+   * see SONAR-1898
+   */
+  @Test
+  public void testDeprecatedMethods() {
+    assertThat(plugin.getKey(), notNullValue());
+    assertThat(plugin.getName(), notNullValue());
+    assertThat(plugin.getDescription(), notNullValue());
+  }
+
 }

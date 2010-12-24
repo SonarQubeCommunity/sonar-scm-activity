@@ -72,6 +72,7 @@ public class ScmActivitySensor implements Sensor {
     List<ChangeSet> sets = changeLog.getChangeSets();
     for (ChangeSet changeSet : sets) {
       // startRevision already was analyzed in previous Sonar run
+      // Git excludes this revision from changelog, but Subversion not
       if (!StringUtils.equals(startRevision, changeSet.getRevision())) {
         projectStatus.analyzeChangeSet(changeSet);
       }
