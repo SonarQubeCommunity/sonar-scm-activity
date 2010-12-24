@@ -20,9 +20,13 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.maven.scm.ChangeFile;
+import org.apache.maven.scm.ChangeSet;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public final class ScmUtils {
 
@@ -38,6 +42,25 @@ public final class ScmUtils {
   public static String formatLastActivity(Date lastActivity) {
     SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
     return sdf.format(lastActivity);
+  }
+
+  /**
+   * This is a workaround for bug, which exists in {@link org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider}.
+   * 
+   * @return true, if workaround can be applied
+   */
+  public static boolean fixChangeSet(ChangeSet changeSet) {
+    if (changeSet.getRevision() == null) {
+      List files = changeSet.getFiles();
+      if (files.size() == 0) {
+        // This may happen if Git changelog can't be correctly parsed
+        // for example when message was not provided for commit
+        return false;
+      }
+      ChangeFile file = (ChangeFile) files.get(0);
+      changeSet.setRevision(file.getRevision());
+    }
+    return true;
   }
 
 }

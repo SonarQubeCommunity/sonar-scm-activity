@@ -71,10 +71,16 @@ public class ScmActivitySensor implements Sensor {
     ChangeLogSet changeLog = scmManager.getChangeLog(startRevision);
     List<ChangeSet> sets = changeLog.getChangeSets();
     for (ChangeSet changeSet : sets) {
-      // startRevision already was analyzed in previous Sonar run
-      // Git excludes this revision from changelog, but Subversion not
-      if (!StringUtils.equals(startRevision, changeSet.getRevision())) {
-        projectStatus.analyzeChangeSet(changeSet);
+      if (ScmUtils.fixChangeSet(changeSet)) {
+        // startRevision already was analyzed in previous Sonar run
+        // Git excludes this revision from changelog, but Subversion not
+        if (!StringUtils.equals(startRevision, changeSet.getRevision())) {
+          Logs.INFO.info("{} files changed in {} ({})", new Object[] {
+              changeSet.getFiles().size(),
+              changeSet.getRevision(),
+              changeSet.getDateFormatted() + " " + changeSet.getTimeFormatted() });
+          projectStatus.analyzeChangeSet(changeSet);
+        }
       }
     }
 

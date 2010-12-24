@@ -78,7 +78,7 @@ public class ProjectScmManager implements BatchExtension {
     }
   }
 
-  private File getProjectBasedir() {
+  protected File getProjectBasedir() {
     return project.getFileSystem().getBasedir();
   }
 
@@ -93,7 +93,7 @@ public class ProjectScmManager implements BatchExtension {
       throw new SonarException("Unable to check for local modifications: " + result.getProviderMessage());
     }
     if (!result.getChangedFiles().isEmpty()) {
-      final String errorMessage = "The build will stop as there is local modifications";
+      final String errorMessage = "The build will stop as there is local modifications.";
       Logs.INFO.error(errorMessage);
       throw new SonarException(errorMessage);
     }

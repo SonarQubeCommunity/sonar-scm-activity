@@ -37,37 +37,6 @@ import static org.junit.Assert.assertThat;
 public class ProjectStatusTest {
 
   @Test
-  public void shouldEmptyFileListAndNullChangeSetRevision() {
-    File basedir = new File("/checkout/hudson-sonar");
-    File modifiedFile = new File(basedir, "src/main/java/hudson/plugins/sonar/utils/SonarMaven.java");
-    File unmodifiedFile = new File(basedir, "src/main/java/hudson/plugins/sonar/Unmodified.java");
-    ProjectStatus changes = new ProjectStatus(basedir, Arrays.asList(modifiedFile, unmodifiedFile));
-
-    ChangeSet first = mockChangeSet(-1, "simon", null);
-    ChangeSet second = mockChangeSet(0, "godin", null, "src/main/java/hudson/plugins/sonar/utils/SonarMaven.java");
-    ((ChangeFile) second.getFiles().get(0)).setRevision("a15823bd7e5925bca4a0938151350313e858b683");
-
-    changes.analyzeChangeSet(first);
-    changes.analyzeChangeSet(second);
-
-    // project
-    assertThat(changes.isModified(), is(true));
-    assertThat(changes.getChanges(), is(1)); // first one is ignored
-    assertThat(changes.getDate().getDay(), is(new Date().getDay()));
-    assertThat(changes.getRevision(), is("a15823bd7e5925bca4a0938151350313e858b683"));
-    assertThat(changes.getAuthor(), is("godin"));
-    // unmodified file
-    assertThat(changes.getFileStatus(unmodifiedFile).isModified(), is(false));
-    // modified file
-    FileStatus fileStatus = changes.getFileStatus(modifiedFile);
-    assertThat(fileStatus.isModified(), is(true));
-    assertThat(fileStatus.getChanges(), is(1));
-    assertThat(changes.getDate().getDay(), is(new Date().getDay()));
-    assertThat(changes.getRevision(), is("a15823bd7e5925bca4a0938151350313e858b683"));
-    assertThat(changes.getAuthor(), is("godin"));
-  }
-
-  @Test
   public void shouldTrackFileChanges() {
     File basedir = new File("/checkout/sonar-core");
     File modifiedFile = new File(basedir, "src/main/java/org/sonar/jpa/entity/SchemaMigration.java");

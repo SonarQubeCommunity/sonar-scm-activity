@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.maven.scm.ChangeFile;
+import org.apache.maven.scm.ChangeSet;
 import org.junit.Test;
 
 import java.io.File;
@@ -34,4 +36,22 @@ public class ScmUtilsTest {
     File file = new File("/checkout/sonar-core/src/main/java/Foo.java");
     assertThat(ScmUtils.getRelativePath(basedir, file), is("src/main/java/Foo.java"));
   }
+
+  @Test
+  public void shouldFixMissingRevision() {
+    // missing revision
+    ChangeSet changeSet = new ChangeSet();
+    changeSet.setRevision(null);
+    changeSet.addFile(new ChangeFile("file", "rev"));
+    assertThat(ScmUtils.fixChangeSet(changeSet), is(true));
+    assertThat(changeSet.getRevision(), is("rev"));
+    // nothing to fix
+    changeSet = new ChangeSet();
+    changeSet.setRevision("rev");
+    assertThat(ScmUtils.fixChangeSet(changeSet), is(true));
+    // unable to fix
+    changeSet = new ChangeSet();
+    assertThat(ScmUtils.fixChangeSet(changeSet), is(false));
+  }
+
 }
