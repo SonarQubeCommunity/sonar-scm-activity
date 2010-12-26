@@ -22,6 +22,17 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
+import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
+import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
+import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
+import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnjava.SonarSvnJavaScmProvider;
+import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +40,23 @@ import org.slf4j.LoggerFactory;
  * @author Evgeny Mandrikov
  */
 public class SonarScmManager extends AbstractScmManager {
+  public SonarScmManager(ScmConfiguration scmConfiguration) {
+    if (scmConfiguration.isPureJava()) {
+      setScmProvider("svn", new SonarSvnJavaScmProvider());
+      setScmProvider("cvs", new CvsJavaScmProvider());
+    } else {
+      setScmProvider("svn", new SonarSvnExeScmProvider());
+      setScmProvider("cvs", new CvsExeScmProvider());
+    }
+    setScmProvider("git", new SonarGitExeScmProvider());
+    setScmProvider("hg", new HgScmProvider());
+    setScmProvider("bazaar", new BazaarScmProvider());
+    setScmProvider("clearcase", new ClearCaseScmProvider());
+    setScmProvider("accurev", new AccuRevScmProvider());
+    setScmProvider("perforce", new PerforceScmProvider());
+    setScmProvider("tfs", new TfsScmProvider());
+  }
+
   @Override
   protected ScmLogger getScmLogger() {
     return new SonarScmLogger(LoggerFactory.getLogger(getClass()));
