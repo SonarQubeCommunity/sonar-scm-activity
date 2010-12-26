@@ -40,8 +40,7 @@ public class ScmActivityMetrics implements Metrics {
       Metric.ValueType.STRING,
       Metric.DIRECTION_NONE,
       false,
-      DOMAIN_SCM
-  );
+      DOMAIN_SCM);
 
   /**
    * Revision.
@@ -53,8 +52,7 @@ public class ScmActivityMetrics implements Metrics {
       Metric.ValueType.STRING,
       Metric.DIRECTION_NONE,
       false,
-      DOMAIN_SCM
-  );
+      DOMAIN_SCM);
 
   /**
    * Blame authors information.
@@ -66,8 +64,7 @@ public class ScmActivityMetrics implements Metrics {
       Metric.ValueType.DATA,
       Metric.DIRECTION_NONE,
       false,
-      DOMAIN_SCM
-  );
+      DOMAIN_SCM);
 
   /**
    * Blame dates information.
@@ -79,8 +76,7 @@ public class ScmActivityMetrics implements Metrics {
       Metric.ValueType.DATA,
       Metric.DIRECTION_NONE,
       false,
-      DOMAIN_SCM
-  );
+      DOMAIN_SCM);
 
   /**
    * Blame revisions information.
@@ -92,8 +88,7 @@ public class ScmActivityMetrics implements Metrics {
       Metric.ValueType.DATA,
       Metric.DIRECTION_NONE,
       false,
-      DOMAIN_SCM
-  );
+      DOMAIN_SCM);
 
   /**
    * Number of commits.
@@ -105,17 +100,25 @@ public class ScmActivityMetrics implements Metrics {
       Metric.ValueType.INT,
       Metric.DIRECTION_NONE,
       false,
-      DOMAIN_SCM
-  );
+      DOMAIN_SCM);
+
+  public static final Metric BROWSER = new Metric(
+      "browser",
+      "Browser",
+      "Browser",
+      Metric.ValueType.STRING,
+      Metric.DIRECTION_NONE,
+      false,
+      DOMAIN_SCM);
 
   public List<Metric> getMetrics() {
     return Arrays.asList(
+        BROWSER,
         LAST_ACTIVITY,
         REVISION,
         COMMITS,
         BLAME_AUTHORS_DATA,
         BLAME_DATE_DATA,
-        BLAME_REVISION_DATA
-    );
+        BLAME_REVISION_DATA);
   }
 }

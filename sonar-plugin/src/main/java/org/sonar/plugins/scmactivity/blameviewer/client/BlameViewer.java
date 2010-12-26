@@ -21,12 +21,12 @@
 package org.sonar.plugins.scmactivity.blameviewer.client;
 
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.sonar.gwt.ui.Page;
-import org.sonar.gwt.ui.ViewerHeader;
-import org.sonar.wsclient.services.Measure;
+import org.sonar.wsclient.gwt.AbstractCallback;
+import org.sonar.wsclient.gwt.Sonar;
 import org.sonar.wsclient.services.Resource;
+import org.sonar.wsclient.services.ResourceQuery;
 
 /**
  * @author Evgeny Mandrikov
@@ -34,34 +34,33 @@ import org.sonar.wsclient.services.Resource;
 public class BlameViewer extends Page {
   public static final String GWT_ID = "org.sonar.plugins.scmactivity.blameviewer.BlameViewer";
 
+  private FlowPanel panel;
+
   @Override
   protected Widget doOnResourceLoad(Resource resource) {
-    FlowPanel panel = new FlowPanel();
+    panel = new FlowPanel();
     panel.setWidth("100%");
-    panel.add(new BlameHeader(resource));
-    panel.add(new BlamePanel(resource));
+    load(resource);
     return panel;
   }
 
-  private static class BlameHeader extends ViewerHeader {
-
-    public BlameHeader(Resource resource) {
-      super(resource, new String[]{BlamePanel.LAST_ACTIVITY, BlamePanel.REVISION});
-    }
-
-    @Override
-    protected void display(FlowPanel header, Resource resource) {
-      HorizontalPanel panel = new HorizontalPanel();
-      header.add(panel);
-      Measure m;
-      m = resource.getMeasure(BlamePanel.LAST_ACTIVITY);
-      if (m == null) {
-        addBigCell(panel, "No data available");
-      } else {
-        addCell(panel, m.getMetricName(), m.getData());
-        m = resource.getMeasure(BlamePanel.REVISION);
-        addCell(panel, m.getMetricName(), m.getData());
+  public void load(final Resource resource) {
+    String[] keys = resource.getKey().split(":");
+    String projectKey = keys[0] + ":" + keys[1];
+    ResourceQuery query = ResourceQuery.createForMetrics(projectKey, "browser");
+    Sonar.getInstance().find(query, new AbstractCallback<Resource>() {
+      @Override
+      protected void doOnResponse(Resource project) {
+        String browser = project.getMeasure("browser").getData();
+        panel.clear();
+        panel.add(new BlameHeader(resource, browser));
+        panel.add(new BlamePanel(resource, browser));
       }
-    }
+    });
+  }
+
+  public static String getBrowserLink(String browser, String revision) {
+    String revisionLink = browser.replace("{rev}", revision);
+    return "<a href='" + revisionLink + "'>" + revision + "</a>";
   }
 }

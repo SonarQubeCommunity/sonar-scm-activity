@@ -48,8 +48,11 @@ public class BlamePanel extends SourcePanel {
   private Map<Integer, String> revisions = new HashMap<Integer, String>();
   private Map<Integer, List<Violation>> violationsByLine = new HashMap<Integer, List<Violation>>();
 
-  public BlamePanel(Resource resource) {
+  private String browser;
+
+  public BlamePanel(Resource resource, String browser) {
     super(resource);
+    this.browser = browser;
     loadBlame(resource);
   }
 
@@ -116,7 +119,8 @@ public class BlamePanel extends SourcePanel {
     String date = dates.get(index);
     String revision = revisions.get(index);
     if (author != null && revision != null && date != null) {
-      row.setValue(revision + " (" + date + ")", "");
+      String revisionLink = BlameViewer.getBrowserLink(browser, revision);
+      row.setValue(revisionLink + " (" + date + ")", "");
       row.setValue2(author, "");
     }
     rows.add(row);
@@ -158,7 +162,10 @@ public class BlamePanel extends SourcePanel {
     @Override
     public String getColumn4() {
       return "<div class=\"warn\"><img src='" + Links.baseUrl() + "/images/priority/" + violation.getPriority() + ".gif'></img> "
-          + "<a href=\"" + Links.urlForRule(violation.getRuleKey(), false) + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\"" + violation.getRuleKey() + "\"><b>" + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : " + Utils.escapeHtml(violation.getMessage()) + "</div>";
+          + "<a href=\"" + Links.urlForRule(violation.getRuleKey(), false)
+          + "\" onclick=\"window.open(this.href,'rule','height=800,width=900,scrollbars=1,resizable=1');return false;\" title=\""
+          + violation.getRuleKey() + "\"><b>" + Utils.escapeHtml(violation.getRuleName()) + "</b></a> : "
+          + Utils.escapeHtml(violation.getMessage()) + "</div>";
     }
   }
 }

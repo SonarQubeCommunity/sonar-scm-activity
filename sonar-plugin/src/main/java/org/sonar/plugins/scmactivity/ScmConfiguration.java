@@ -41,6 +41,10 @@ public class ScmConfiguration implements BatchExtension {
     return project.getConfiguration();
   }
 
+  public String getBrowserUrlTemplate() {
+    return getConfiguration().getString(ScmActivityPlugin.BROWSER_PROPERTY, "");
+  }
+
   public boolean isEnabled() {
     return getConfiguration().getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE);
   }

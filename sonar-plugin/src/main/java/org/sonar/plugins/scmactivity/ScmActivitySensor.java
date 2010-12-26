@@ -141,9 +141,9 @@ public class ScmActivitySensor implements Sensor {
     }
     commits += projectStatus.getChanges();
 
-    context.saveMeasure(project, new Measure(ScmActivityMetrics.REVISION, revision));
-    context.saveMeasure(project, new Measure(ScmActivityMetrics.LAST_ACTIVITY, date));
-    context.saveMeasure(project, new Measure(ScmActivityMetrics.COMMITS, commits));
+    context.saveMeasure(new Measure(ScmActivityMetrics.REVISION, revision));
+    context.saveMeasure(new Measure(ScmActivityMetrics.LAST_ACTIVITY, date));
+    context.saveMeasure(new Measure(ScmActivityMetrics.COMMITS, commits));
   }
 
   private Double getPastMeasure(Resource resource, Metric metric) {

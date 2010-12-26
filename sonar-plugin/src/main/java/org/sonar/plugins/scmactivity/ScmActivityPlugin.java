@@ -53,6 +53,15 @@ import java.util.List;
         global = false
     ),
     @Property(
+        key = ScmActivityPlugin.BROWSER_PROPERTY,
+        defaultValue = "",
+        name = "", // TODO
+        description = "", // TODO
+        module = false,
+        project = true,
+        global = true
+    ),
+    @Property(
         key = ScmActivityPlugin.USER_PROPERTY,
         defaultValue = "",
         name = "User",
@@ -87,6 +96,7 @@ public class ScmActivityPlugin implements Plugin {
   public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
   public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-activity.prefer_pure_java";
   public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
+  public static final String BROWSER_PROPERTY = "sonar.scm-activity.browser";
 
   public String getKey() {
     return "scm-activity";
@@ -107,8 +117,8 @@ public class ScmActivityPlugin implements Plugin {
         ScmActivityMetrics.class,
         ScmActivityWidget.class,
         ScmActivitySensor.class,
+        ScmLinksSensor.class,
         ProjectActivityDecorator.class,
-        BlameViewerDefinition.class
-        );
+        BlameViewerDefinition.class);
   }
 }
