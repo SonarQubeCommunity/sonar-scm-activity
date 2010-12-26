@@ -29,15 +29,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 public class ProjectStatus extends Changeable {
 
   private Map<File, FileStatus> files = Maps.newHashMap();
 
   public static class FileStatus extends Changeable {
+    private File file;
     private String relativePath;
 
-    public FileStatus(String relativePath) {
+    public FileStatus(File file, String relativePath) {
+      this.file = file;
       this.relativePath = relativePath;
+    }
+
+    public File getFile() {
+      return file;
     }
 
     public String getRelativePath() {
@@ -55,7 +64,7 @@ public class ProjectStatus extends Changeable {
   ProjectStatus(File basedir, List<File> files) {
     for (File file : files) {
       String relativePath = ScmUtils.getRelativePath(basedir, file);
-      this.files.put(file, new FileStatus(relativePath));
+      this.files.put(file, new FileStatus(file, relativePath));
     }
   }
 
@@ -69,8 +78,8 @@ public class ProjectStatus extends Changeable {
     }
   }
 
-  public Collection<File> getFiles() {
-    return files.keySet();
+  public Collection<FileStatus> getFiles() {
+    return files.values();
   }
 
   public FileStatus getFileStatus(File file) {

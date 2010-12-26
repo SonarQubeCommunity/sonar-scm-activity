@@ -22,7 +22,6 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ChangeSet;
-import org.apache.maven.scm.command.changelog.ChangeLogSet;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
@@ -38,7 +37,6 @@ import org.sonar.api.utils.Logs;
 import org.sonar.plugins.scmactivity.ProjectStatus.FileStatus;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,19 +44,16 @@ import java.util.List;
  */
 public class ScmActivitySensor implements Sensor {
 
-  private ScmConfiguration scmConfiguration;
   private TimeMachine timeMachine;
   private ProjectScmManager scmManager;
 
-  public ScmActivitySensor(ScmConfiguration scmConfiguration, ProjectScmManager scmManager, TimeMachine timeMachine) {
-    this.scmConfiguration = scmConfiguration;
+  public ScmActivitySensor(ProjectScmManager scmManager, TimeMachine timeMachine) {
     this.scmManager = scmManager;
     this.timeMachine = timeMachine;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    // this sensor is executed only for latest analysis and if plugin enabled and scm connection is defined
-    return project.isLatestAnalysis() && scmConfiguration.isEnabled() && !StringUtils.isBlank(scmConfiguration.getUrl());
+    return scmManager.isEnabled();
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -68,9 +63,8 @@ public class ScmActivitySensor implements Sensor {
     ProjectStatus projectStatus = new ProjectStatus(project);
 
     String startRevision = getPreviousRevision(project);
-    ChangeLogSet changeLog = scmManager.getChangeLog(startRevision);
-    List<ChangeSet> sets = changeLog.getChangeSets();
-    for (ChangeSet changeSet : sets) {
+    List<ChangeSet> changeLog = scmManager.getChangeLog(startRevision);
+    for (ChangeSet changeSet : changeLog) {
       if (ScmUtils.fixChangeSet(changeSet)) {
         // startRevision already was analyzed in previous Sonar run
         // Git excludes this revision from changelog, but Subversion not
@@ -88,72 +82,103 @@ public class ScmActivitySensor implements Sensor {
     ProjectFileSystem fileSystem = project.getFileSystem();
     List<File> sourceDirs = fileSystem.getSourceDirs();
 
+    for (FileStatus fileStatus : projectStatus.getFiles()) {
+      Resource resource = JavaFile.fromIOFile(fileStatus.getFile(), sourceDirs, false);
+      saveFile(context, resource, fileStatus);
+    }
+    saveProject(context, project, projectStatus);
+  }
+
+  private void saveFile(SensorContext context, Resource resource, FileStatus fileStatus) {
+    final String revision, date, dates, authors, revisions;
+    File file = fileStatus.getFile();
     BlameSensor blameSensor = new BlameSensor(scmManager, context);
 
-    Collection<File> files = projectStatus.getFiles();
-    for (File file : files) {
-      FileStatus fileStatus = projectStatus.getFileStatus(file);
-      Resource resource = JavaFile.fromIOFile(file, sourceDirs, false);
+    if (fileStatus.isModified()) {
+      Logs.INFO.info("File {} has been modified since previous analysis", file);
+      blameSensor.analyse(file, resource);
 
-      if (fileStatus.isModified()) {
-        Logs.INFO.info("File {} has been modified since previous analysis", file);
-        blameSensor.analyse(file, resource);
-
-        // TODO SONARPLUGINS-877: save more accurate values for file
-        // context.saveMeasure(resource, new Measure(ScmActivityMetrics.REVISION, fileStatus.getRevision()));
-        // context.saveMeasure(resource, new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(fileStatus.getDate())));
-      } else {
-        List<Measure> pastMeasures = getPastMeasures(resource, generatesMetrics());
-        if (pastMeasures.isEmpty()) {
-          // File not modified, but no past measures
-          blameSensor.analyse(file, resource);
-        } else {
-          resave(resource, context, pastMeasures);
-        }
-      }
-    }
-
-    if (projectStatus.isModified()) {
-      context.saveMeasure(project, new Measure(ScmActivityMetrics.REVISION, projectStatus.getRevision()));
-      context.saveMeasure(project, new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(projectStatus.getDate())));
+      revision = fileStatus.getRevision();
+      date = ScmUtils.formatLastActivity(fileStatus.getDate());
+      dates = blameSensor.getDates();
+      revisions = blameSensor.getRevisions();
+      authors = blameSensor.getAuthors();
     } else {
-      resave(project, context, getPastMeasures(project, generatesMetrics()));
-    }
-  }
-
-  private void resave(Resource resource, SensorContext context, List<Measure> pastMeasures) {
-    for (Measure pastMeasure : pastMeasures) {
-      Metric metric = pastMeasure.getMetric();
-      Measure measure = new Measure(metric, pastMeasure.getData());
-      if (metric.equals(ScmActivityMetrics.BLAME_AUTHORS_DATA)
-          || metric.equals(ScmActivityMetrics.BLAME_DATE_DATA)
-          || metric.equals(ScmActivityMetrics.BLAME_REVISION_DATA)) {
-        measure.setPersistenceMode(PersistenceMode.DATABASE);
+      revision = getPastMeasureData(resource, ScmActivityMetrics.REVISION);
+      if (revision == null) {
+        // File not modified, but no past measures
+        // This should happen only for generated sources
+        return;
       }
-      context.saveMeasure(resource, measure);
+      date = getPastMeasureData(resource, ScmActivityMetrics.LAST_ACTIVITY);
+      dates = getPastMeasureData(resource, ScmActivityMetrics.BLAME_DATE_DATA);
+      revisions = getPastMeasureData(resource, ScmActivityMetrics.BLAME_REVISION_DATA);
+      authors = getPastMeasureData(resource, ScmActivityMetrics.BLAME_AUTHORS_DATA);
     }
+
+    context.saveMeasure(resource, new Measure(ScmActivityMetrics.REVISION, revision));
+    context.saveMeasure(resource, new Measure(ScmActivityMetrics.LAST_ACTIVITY, date));
+
+    context.saveMeasure(resource, new Measure(ScmActivityMetrics.BLAME_DATE_DATA, dates)
+        .setPersistenceMode(PersistenceMode.DATABASE));
+    context.saveMeasure(resource, new Measure(ScmActivityMetrics.BLAME_REVISION_DATA, revisions)
+        .setPersistenceMode(PersistenceMode.DATABASE));
+    context.saveMeasure(resource, new Measure(ScmActivityMetrics.BLAME_AUTHORS_DATA, authors)
+        .setPersistenceMode(PersistenceMode.DATABASE));
   }
 
-  private List<Measure> getPastMeasures(Resource resource, Metric... metrics) {
+  private void saveProject(SensorContext context, Project project, ProjectStatus projectStatus) {
+    final String revision;
+    final String date;
+    if (!projectStatus.isModified()) {
+      revision = projectStatus.getRevision();
+      date = ScmUtils.formatLastActivity(projectStatus.getDate());
+    } else {
+      revision = getPastMeasureData(project, ScmActivityMetrics.REVISION);
+      date = getPastMeasureData(project, ScmActivityMetrics.LAST_ACTIVITY);
+    }
+    Double commits = getPastMeasure(project, ScmActivityMetrics.COMMITS);
+    if (commits == null) {
+      commits = 0d;
+    }
+    commits += projectStatus.getChanges();
+
+    context.saveMeasure(project, new Measure(ScmActivityMetrics.REVISION, revision));
+    context.saveMeasure(project, new Measure(ScmActivityMetrics.LAST_ACTIVITY, date));
+    context.saveMeasure(project, new Measure(ScmActivityMetrics.COMMITS, commits));
+  }
+
+  private Double getPastMeasure(Resource resource, Metric metric) {
     TimeMachineQuery query = new TimeMachineQuery(resource)
         .setOnlyLastAnalysis(true)
-        .setMetrics(metrics);
-    return timeMachine.getMeasures(query);
+        .setMetrics(metric);
+    List<Object[]> fields = timeMachine.getMeasuresFields(query);
+    if (fields.isEmpty()) {
+      return null;
+    }
+    return (Double) fields.get(0)[2];
   }
 
-  private String getPreviousRevision(Project project) {
-    List<Measure> measures = getPastMeasures(project, ScmActivityMetrics.REVISION);
+  private String getPastMeasureData(Resource resource, Metric metric) {
+    TimeMachineQuery query = new TimeMachineQuery(resource)
+        .setOnlyLastAnalysis(true)
+        .setMetrics(metric);
+    List<Measure> measures = timeMachine.getMeasures(query);
     if (measures.isEmpty()) {
-      // First analysis
       return null;
     }
     return measures.get(0).getData();
+  }
+
+  private String getPreviousRevision(Project project) {
+    return getPastMeasureData(project, ScmActivityMetrics.REVISION);
   }
 
   private Metric[] generatesMetrics() {
     return new Metric[] {
         ScmActivityMetrics.REVISION,
         ScmActivityMetrics.LAST_ACTIVITY,
+        ScmActivityMetrics.COMMITS,
         ScmActivityMetrics.BLAME_AUTHORS_DATA,
         ScmActivityMetrics.BLAME_DATE_DATA,
         ScmActivityMetrics.BLAME_REVISION_DATA };

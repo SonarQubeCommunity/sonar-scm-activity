@@ -21,12 +21,12 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.scm.ChangeSet;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.ScmRevision;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.command.changelog.ChangeLogScmResult;
-import org.apache.maven.scm.command.changelog.ChangeLogSet;
 import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.manager.SonarScmManagerFactory;
@@ -38,7 +38,11 @@ import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
+import java.util.List;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 public class ProjectScmManager implements BatchExtension {
 
   private ScmConfiguration scmConfiguration;
@@ -49,6 +53,11 @@ public class ProjectScmManager implements BatchExtension {
   public ProjectScmManager(Project project, ScmConfiguration scmConfiguration) {
     this.project = project;
     this.scmConfiguration = scmConfiguration;
+  }
+
+  public boolean isEnabled() {
+    // TODO was project.isLatestAnalysis()
+    return scmConfiguration.isEnabled() && !StringUtils.isBlank(scmConfiguration.getUrl());
   }
 
   public ScmManager getScmManager() {
@@ -109,7 +118,7 @@ public class ProjectScmManager implements BatchExtension {
    * 
    * @return changes that have happened between <code>startVersion</code> and BASE
    */
-  public ChangeLogSet getChangeLog(String startRevision) {
+  public List<ChangeSet> getChangeLog(String startRevision) {
     ScmManager scmManager = getScmManager();
     ScmRepository repository = getScmRepository();
     ChangeLogScmResult result;
@@ -125,6 +134,6 @@ public class ProjectScmManager implements BatchExtension {
     if (!result.isSuccess()) {
       throw new SonarException("Unable to retrieve changelog: " + result.getProviderMessage());
     }
-    return result.getChangeLog();
+    return result.getChangeLog().getChangeSets();
   }
 }

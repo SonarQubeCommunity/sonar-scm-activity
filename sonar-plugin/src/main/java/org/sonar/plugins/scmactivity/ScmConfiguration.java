@@ -26,6 +26,9 @@ import org.apache.maven.model.Scm;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 public class ScmConfiguration implements BatchExtension {
 
   private Project project;

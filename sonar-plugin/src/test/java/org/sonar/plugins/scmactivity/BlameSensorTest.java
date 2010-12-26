@@ -70,7 +70,7 @@ public class BlameSensorTest {
   public void testScmException() throws Exception {
     doThrow(new ScmException("ERROR"))
         .when(sensor)
-        .analyseBlame(any(File.class), anyString(), any(Resource.class));
+        .calculateBlame(any(File.class), anyString(), any(Resource.class));
 
     sensor.analyse(new File("."), new JavaFile(RESOURCE_KEY));
 
@@ -86,12 +86,6 @@ public class BlameSensorTest {
 
     sensor.analyseBlame(new File("."), "HelloWorld.java", new JavaFile(RESOURCE_KEY));
 
-    verify(context).saveMeasure(
-        argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(new Date(13)))));
-    verify(context).saveMeasure(
-        argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.REVISION, "2")));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
         argThat(new IsMeasure(ScmActivityMetrics.BLAME_AUTHORS_DATA)));

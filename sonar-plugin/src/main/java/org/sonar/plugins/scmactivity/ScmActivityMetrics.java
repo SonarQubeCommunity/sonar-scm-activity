@@ -112,6 +112,7 @@ public class ScmActivityMetrics implements Metrics {
     return Arrays.asList(
         LAST_ACTIVITY,
         REVISION,
+        COMMITS,
         BLAME_AUTHORS_DATA,
         BLAME_DATE_DATA,
         BLAME_REVISION_DATA

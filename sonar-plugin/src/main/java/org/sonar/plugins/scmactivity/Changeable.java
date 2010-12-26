@@ -24,6 +24,9 @@ import org.apache.maven.scm.ChangeSet;
 
 import java.util.Date;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 public abstract class Changeable {
 
   private Date date = new Date(0);

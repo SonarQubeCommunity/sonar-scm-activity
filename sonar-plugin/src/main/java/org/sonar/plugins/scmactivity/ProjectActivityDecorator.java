@@ -74,9 +74,7 @@ public class ProjectActivityDecorator implements Decorator {
     }
 
     if (lastActivity != null) {
-      SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
-
-      Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, sdf.format(lastActivity));
+      Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(lastActivity));
       context.saveMeasure(lastActivityMeasure);
 
       Measure revisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);

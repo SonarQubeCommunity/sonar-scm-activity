@@ -23,7 +23,8 @@ package org.sonar.plugins.scmactivity;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Evgeny Mandrikov
@@ -38,6 +39,6 @@ public class ScmActivityMetricsTest {
 
   @Test
   public void testGetMetrics() throws Exception {
-    assertEquals(metrics.getMetrics().size(), 5);
+    assertThat(metrics.getMetrics().size(), greaterThan(0));
   }
 }

@@ -28,6 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 public final class ScmUtils {
 
   public static final String DATE_TIME_FORMAT = "yyyy-MM-dd";

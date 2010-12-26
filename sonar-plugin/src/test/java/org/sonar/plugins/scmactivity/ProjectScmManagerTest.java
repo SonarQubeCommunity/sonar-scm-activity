@@ -26,6 +26,7 @@ import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -70,4 +71,22 @@ public class ProjectScmManagerTest {
     verify(providerRepository, never()).setUser(anyString());
     verify(providerRepository, never()).setPassword(anyString());
   }
+
+  @Test
+  public void shouldBeDisabled() {
+    when(configuration.isEnabled()).thenReturn(true).thenReturn(false);
+    when(configuration.getUrl()).thenReturn("").thenReturn("scm:svn:http//localhost");
+
+    assertThat(projectScmManager.isEnabled(), is(false));
+    assertThat(projectScmManager.isEnabled(), is(false));
+  }
+
+  @Test
+  public void shouldBeEnabled() {
+    when(configuration.isEnabled()).thenReturn(true);
+    when(configuration.getUrl()).thenReturn("scm:svn:http//localhost");
+
+    assertThat(projectScmManager.isEnabled(), is(true));
+  }
+
 }

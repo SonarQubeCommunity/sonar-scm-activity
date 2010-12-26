@@ -26,7 +26,6 @@ import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
@@ -42,6 +41,11 @@ public class BlameSensor {
   private SensorContext context;
   private ProjectScmManager scmManager;
 
+  private PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_AUTHORS_DATA);
+  private PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_DATE_DATA);
+  private PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(
+      ScmActivityMetrics.BLAME_REVISION_DATA);
+
   public BlameSensor(ProjectScmManager scmManager, SensorContext context) {
     this.scmManager = scmManager;
     this.context = context;
@@ -52,7 +56,7 @@ public class BlameSensor {
     File basedir = file.getParentFile();
     String filename = file.getName();
     try {
-      analyseBlame(basedir, filename, resource);
+      calculateBlame(basedir, filename, resource);
     } catch (ScmException e) {
       Logger logger = getLog();
       if (logger.isDebugEnabled()) {
@@ -63,7 +67,7 @@ public class BlameSensor {
     }
   }
 
-  protected void analyseBlame(File basedir, String filename, Resource resource) throws ScmException {
+  protected boolean calculateBlame(File basedir, String filename, Resource resource) throws ScmException {
     BlameScmResult result = scmManager.getBlame(basedir, filename);
     if (!result.isSuccess()) {
       throw new ScmException(result.getProviderMessage());
@@ -72,9 +76,9 @@ public class BlameSensor {
     Date lastActivity = null;
     String lastRevision = null;
 
-    PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_AUTHORS_DATA);
-    PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_DATE_DATA);
-    PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_REVISION_DATA);
+    authorsBuilder.clear();
+    revisionsBuilder.clear();
+    datesBuilder.clear();
 
     List lines = result.getLines();
     for (int i = 0; i < lines.size(); i++) {
@@ -94,17 +98,27 @@ public class BlameSensor {
       }
     }
 
-    if (lastActivity != null) {
+    return lastActivity != null;
+  }
+
+  protected void analyseBlame(File basedir, String filename, Resource resource) throws ScmException {
+    if (calculateBlame(basedir, filename, resource)) {
       context.saveMeasure(resource, authorsBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
       context.saveMeasure(resource, datesBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
       context.saveMeasure(resource, revisionsBuilder.build().setPersistenceMode(PersistenceMode.DATABASE));
-
-      // TODO SONARPLUGINS-877
-      Measure lastRevisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);
-      context.saveMeasure(resource, lastRevisionMeasure);
-      Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(lastActivity));
-      context.saveMeasure(resource, lastActivityMeasure);
     }
+  }
+
+  public String getAuthors() {
+    return authorsBuilder.buildData();
+  }
+
+  public String getRevisions() {
+    return revisionsBuilder.buildData();
+  }
+
+  public String getDates() {
+    return datesBuilder.buildData();
   }
 
   protected Logger getLog() {

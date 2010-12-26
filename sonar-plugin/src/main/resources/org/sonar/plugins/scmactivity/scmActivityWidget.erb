@@ -1,6 +1,7 @@
 <%
    last_commit_measure = measure('last_commit')
    revision_measure = measure('revision')
+   commits_measure = measure('commits')
 
    if last_commit_measure
 %>
@@ -15,6 +16,15 @@
     <p>
       <span>
         <%= format_measure(revision_measure, :prefix => 'Revision: ') %>
+      </span>
+    </p>
+    
+    <p>
+      <span>
+        <%= format_measure(commits_measure, :prefix => 'Commits: ') %>
+        <!--% if dashboard_configuration.selected_period? %> 
+        <%= format_variation(commits) %>
+        <% end %-->
       </span>
     </p>
   </div>
