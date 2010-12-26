@@ -25,6 +25,9 @@ import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.RubyRailsWidget;
 import org.sonar.api.web.UserRole;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 @NavigationSection(NavigationSection.RESOURCE)
 @UserRole(UserRole.USER)
 public class ScmActivityWidget extends AbstractRubyTemplate implements RubyRailsWidget {

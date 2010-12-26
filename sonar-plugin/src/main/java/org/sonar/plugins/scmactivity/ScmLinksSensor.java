@@ -26,6 +26,9 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 
+/**
+ * @author Evgeny Mandrikov
+ */
 public class ScmLinksSensor implements Sensor {
 
   private ScmConfiguration scmConfiguration;

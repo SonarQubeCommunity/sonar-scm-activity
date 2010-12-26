@@ -119,17 +119,15 @@ public class ProjectScmManager implements BatchExtension {
    * @return changes that have happened between <code>startVersion</code> and BASE
    */
   public List<ChangeSet> getChangeLog(String startRevision) {
-    ScmManager scmManager = getScmManager();
     ScmRepository repository = getScmRepository();
+    if (startRevision == null) {
+      if (repository.getProviderRepository() instanceof SvnScmProviderRepository) {
+        startRevision = "1";
+      }
+    }
     ChangeLogScmResult result;
     try {
-      if (startRevision == null) {
-        if (repository.getProviderRepository() instanceof SvnScmProviderRepository) {
-          startRevision = "1";
-        }
-      }
-
-      result = scmManager.changeLog(
+      result = getScmManager().changeLog(
           repository,
           new ScmFileSet(getProjectBasedir()),
           startRevision == null ? null : new ScmRevision(startRevision),

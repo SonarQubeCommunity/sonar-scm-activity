@@ -13,7 +13,7 @@
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar SCM Activity Plugin</name>
-  <description>This plugin collects and reports information from SCM.</description>
+  <description>Collects and reports information from SCM.</description>
   <url>http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin</url>
 
   <properties>

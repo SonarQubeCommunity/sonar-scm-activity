@@ -77,17 +77,5 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-    <repository>
-      <!-- for gwt-incubator -->
-      <id>sonar</id>
-      <name>Sonar</name>
-      <url>http://repository.sonarsource.org/content/repositories/sonar</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
   </repositories>
 </project>
