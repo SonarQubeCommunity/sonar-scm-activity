@@ -21,10 +21,15 @@
 package org.apache.maven.scm.provider.svn.svnjava;
 
 import org.apache.maven.scm.provider.svn.command.SvnCommand;
+import org.apache.maven.scm.provider.svn.svnjava.command.blame.FixedSvnJavaBlameCommand;
 import org.apache.maven.scm.provider.svn.svnjava.command.changelog.FixedSvnJavaChangeLogCommand;
 
 public class SonarSvnJavaScmProvider extends SvnJavaScmProvider {
   protected SvnCommand getChangeLogCommand() {
     return new FixedSvnJavaChangeLogCommand();
+  }
+
+  protected SvnCommand getBlameCommand() {
+    return new FixedSvnJavaBlameCommand();
   }
 }
