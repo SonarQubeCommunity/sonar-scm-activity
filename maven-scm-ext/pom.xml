@@ -15,7 +15,7 @@
 
   <properties>
     <version.maven-scm>1.4</version.maven-scm>
-    <version.maven-scm-provider-svnjava>1.11</version.maven-scm-provider-svnjava>
+    <version.maven-scm-provider-svnjava>1.12</version.maven-scm-provider-svnjava>
   </properties>
 
   <dependencies>
