@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
  * @author Evgeny Mandrikov
  */
 public class SonarScmManager extends AbstractScmManager {
-  public SonarScmManager(ScmConfiguration scmConfiguration) {
-    if (scmConfiguration.isPureJava()) {
+  public SonarScmManager(boolean pureJava) {
+    if (pureJava) {
       setScmProvider("svn", new SonarSvnJavaScmProvider());
       setScmProvider("cvs", new CvsJavaScmProvider());
     } else {

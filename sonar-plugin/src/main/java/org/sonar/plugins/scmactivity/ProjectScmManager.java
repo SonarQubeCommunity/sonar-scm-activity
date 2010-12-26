@@ -62,7 +62,7 @@ public class ProjectScmManager implements BatchExtension {
 
   public ScmManager getScmManager() {
     if (scmManager == null) {
-      scmManager = new SonarScmManager(scmConfiguration);
+      scmManager = new SonarScmManager(scmConfiguration.isPureJava());
     }
     return scmManager;
   }

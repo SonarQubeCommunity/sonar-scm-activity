@@ -55,7 +55,7 @@ public final class ScmUtils {
   public static boolean fixChangeSet(ChangeSet changeSet) {
     if (changeSet.getRevision() == null) {
       List files = changeSet.getFiles();
-      if (files.size() == 0) {
+      if (files.isEmpty()) {
         // This may happen if Git changelog can't be correctly parsed
         // for example when message was not provided for commit
         return false;
