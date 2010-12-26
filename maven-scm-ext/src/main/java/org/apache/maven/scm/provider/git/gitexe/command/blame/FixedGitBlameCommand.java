@@ -33,7 +33,7 @@ import org.codehaus.plexus.util.cli.Commandline;
 import java.io.File;
 
 /**
- * See SONARPLUGINS-861
+ * Fix for SONARPLUGINS-861 and for showing long rev
  */
 public class FixedGitBlameCommand extends AbstractBlameCommand implements GitCommand {
   /**
@@ -56,6 +56,7 @@ public class FixedGitBlameCommand extends AbstractBlameCommand implements GitCom
   public static Commandline createCommandLine(File workingDirectory, String filename) {
     Commandline cl = GitCommandLineUtils.getBaseGitCommandLine(workingDirectory, "blame");
     cl.createArg().setValue("-c");
+    cl.createArg().setValue("-l");
     cl.createArg().setValue(filename);
     return cl;
   }

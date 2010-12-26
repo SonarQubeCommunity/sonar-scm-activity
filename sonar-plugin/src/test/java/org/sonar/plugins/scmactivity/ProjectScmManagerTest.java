@@ -20,8 +20,20 @@
 
 package org.sonar.plugins.scmactivity;
 
+import junit.framework.Assert;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
+import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
+import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
+import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
+import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,11 +62,11 @@ public class ProjectScmManagerTest {
     when(repository.getProviderRepository()).thenReturn(providerRepository);
 
     projectScmManager = spy(new ProjectScmManager(null, configuration));
-    doReturn(scmManager).when(projectScmManager).getScmManager();
   }
 
   @Test
   public void shouldSetCredentials() throws Exception {
+    doReturn(scmManager).when(projectScmManager).getScmManager();
     when(configuration.getUser()).thenReturn("godin");
     when(configuration.getPassword()).thenReturn("pass");
 
@@ -66,6 +78,7 @@ public class ProjectScmManagerTest {
 
   @Test
   public void shouldNotSetCredentials() throws Exception {
+    doReturn(scmManager).when(projectScmManager).getScmManager();
     assertThat(projectScmManager.getScmRepository(), sameInstance(repository));
 
     verify(providerRepository, never()).setUser(anyString());
@@ -89,4 +102,35 @@ public class ProjectScmManagerTest {
     assertThat(projectScmManager.isEnabled(), is(true));
   }
 
+  @Test
+  public void testPureJava() throws Exception {
+    when(configuration.isPureJava()).thenReturn(true);
+
+    ScmManager scmManager = projectScmManager.getScmManager();
+
+    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SvnJavaScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsJavaScmProvider);
+    assertNonJava(scmManager);
+  }
+
+  @Test
+  public void testExe() throws Exception {
+    when(configuration.isPureJava()).thenReturn(false);
+
+    ScmManager scmManager = projectScmManager.getScmManager();
+
+    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
+    assertNonJava(scmManager);
+  }
+
+  private void assertNonJava(ScmManager scmManager) throws Exception {
+    Assert.assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);
+  }
 }

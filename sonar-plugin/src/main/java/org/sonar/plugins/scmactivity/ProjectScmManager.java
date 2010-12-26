@@ -29,8 +29,18 @@ import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.command.changelog.ChangeLogScmResult;
 import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.manager.SonarScmManagerFactory;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
+import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
+import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
+import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
+import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
@@ -62,7 +72,21 @@ public class ProjectScmManager implements BatchExtension {
 
   public ScmManager getScmManager() {
     if (scmManager == null) {
-      scmManager = SonarScmManagerFactory.getScmManager(scmConfiguration.isPureJava());
+      scmManager = new SonarScmManager();
+      if (scmConfiguration.isPureJava()) {
+        scmManager.setScmProvider("svn", new SvnJavaScmProvider());
+        scmManager.setScmProvider("cvs", new CvsJavaScmProvider());
+      } else {
+        scmManager.setScmProvider("svn", new SonarSvnExeScmProvider());
+        scmManager.setScmProvider("cvs", new CvsExeScmProvider());
+      }
+      scmManager.setScmProvider("git", new SonarGitExeScmProvider());
+      scmManager.setScmProvider("hg", new HgScmProvider());
+      scmManager.setScmProvider("bazaar", new BazaarScmProvider());
+      scmManager.setScmProvider("clearcase", new ClearCaseScmProvider());
+      scmManager.setScmProvider("accurev", new AccuRevScmProvider());
+      scmManager.setScmProvider("perforce", new PerforceScmProvider());
+      scmManager.setScmProvider("tfs", new TfsScmProvider());
     }
     return scmManager;
   }

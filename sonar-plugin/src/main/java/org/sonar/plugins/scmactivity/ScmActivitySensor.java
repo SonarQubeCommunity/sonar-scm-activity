@@ -22,10 +22,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ChangeSet;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.TimeMachine;
-import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.batch.*;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
@@ -37,6 +34,7 @@ import org.sonar.api.utils.Logs;
 import org.sonar.plugins.scmactivity.ProjectStatus.FileStatus;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -130,7 +128,7 @@ public class ScmActivitySensor implements Sensor {
   private void saveProject(SensorContext context, Project project, ProjectStatus projectStatus) {
     final String revision;
     final String date;
-    if (!projectStatus.isModified()) {
+    if (projectStatus.isModified()) {
       revision = projectStatus.getRevision();
       date = ScmUtils.formatLastActivity(projectStatus.getDate());
     } else {
@@ -174,14 +172,15 @@ public class ScmActivitySensor implements Sensor {
     return getPastMeasureData(project, ScmActivityMetrics.REVISION);
   }
 
-  private Metric[] generatesMetrics() {
-    return new Metric[] {
+  @DependedUpon
+  public List<Metric> generatesMetrics() {
+    return Arrays.asList(
         ScmActivityMetrics.REVISION,
         ScmActivityMetrics.LAST_ACTIVITY,
         ScmActivityMetrics.COMMITS,
         ScmActivityMetrics.BLAME_AUTHORS_DATA,
         ScmActivityMetrics.BLAME_DATE_DATA,
-        ScmActivityMetrics.BLAME_REVISION_DATA };
+        ScmActivityMetrics.BLAME_REVISION_DATA);
   }
 
   @Override
