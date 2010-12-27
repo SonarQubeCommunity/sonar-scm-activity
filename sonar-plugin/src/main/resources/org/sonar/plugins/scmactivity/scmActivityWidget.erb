@@ -18,10 +18,13 @@
         <%= format_measure(revision_measure, :prefix => 'Revision: ') %>
       </span>
     </p>
-    
+
     <p>
       <span>
         <%= format_measure(commits_measure, :prefix => 'Commits: ') %>
+        <% if dashboard_configuration.selected_period? %>
+          <%= format_variation(commits_measure) %>
+        <% end %>
       </span>
     </p>
   </div>
