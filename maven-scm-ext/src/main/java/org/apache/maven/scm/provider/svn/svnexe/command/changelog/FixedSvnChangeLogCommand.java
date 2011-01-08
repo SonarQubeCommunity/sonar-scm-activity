@@ -121,7 +121,7 @@ public class FixedSvnChangeLogCommand extends AbstractChangeLogCommand implement
 
       } else {
         // Next line was modified
-        cl.createArg().setValue(startVersion.getName() + ":BASE");
+        cl.createArg().setValue(startVersion.getName() + ":HEAD");
       }
     }
 
@@ -133,8 +133,9 @@ public class FixedSvnChangeLogCommand extends AbstractChangeLogCommand implement
       }
     }
 
-    // Next line was commented out to support BASE as a revision argument
-    // cl.createArg().setValue(repository.getUrl());
+    if (endVersion == null || !StringUtils.equals("BASE", endVersion.getName())) {
+      cl.createArg().setValue(repository.getUrl());
+    }
 
     return cl;
   }

@@ -31,6 +31,7 @@ import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.provider.svn.repository.SvnScmProviderRepository;
+import org.apache.maven.scm.provider.svn.svnjava.repository.SvnJavaScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Project;
@@ -120,9 +121,13 @@ public class ProjectScmManager implements BatchExtension {
    */
   public List<ChangeSet> getChangeLog(String startRevision) {
     ScmRepository repository = getScmRepository();
-    if (startRevision == null) {
-      if (repository.getProviderRepository() instanceof SvnScmProviderRepository) {
+    ScmRevision endVersion = null;
+    if (repository.getProviderRepository() instanceof SvnScmProviderRepository) {
+      if (startRevision == null) {
         startRevision = "1";
+      }
+      if (!(repository.getProviderRepository() instanceof SvnJavaScmProviderRepository)) {
+        endVersion = new ScmRevision("BASE");
       }
     }
     ChangeLogScmResult result;
@@ -131,7 +136,7 @@ public class ProjectScmManager implements BatchExtension {
           repository,
           new ScmFileSet(getProjectBasedir()),
           startRevision == null ? null : new ScmRevision(startRevision),
-          null);
+          endVersion);
     } catch (ScmException e) {
       throw new SonarException(e.getMessage(), e);
     }
