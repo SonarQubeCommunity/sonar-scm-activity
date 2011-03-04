@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
@@ -28,97 +29,13 @@ import java.util.List;
 
 public class ScmActivityMetrics implements Metrics {
 
-  public static final String DOMAIN_SCM = "SCM";
-
-  /**
-   * Date of the last commit.
-   */
-  public static final Metric LAST_ACTIVITY = new Metric(
-      "last_commit",
-      "Last Commit",
-      "Last Commit",
-      Metric.ValueType.STRING,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
-
-  /**
-   * Revision.
-   */
-  public static final Metric REVISION = new Metric(
-      "revision",
-      "Revision",
-      "Revision",
-      Metric.ValueType.STRING,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
-
-  /**
-   * Blame authors information.
-   */
-  public static final Metric BLAME_AUTHORS_DATA = new Metric(
-      "blame_authors_data",
-      "Blame data",
-      "Blame data",
-      Metric.ValueType.DATA,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
-
-  /**
-   * Blame dates information.
-   */
-  public static final Metric BLAME_DATE_DATA = new Metric(
-      "blame_date_data",
-      "Blame date data",
-      "Blame date data",
-      Metric.ValueType.DATA,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
-
-  /**
-   * Blame revisions information.
-   */
-  public static final Metric BLAME_REVISION_DATA = new Metric(
-      "blame_revision_data",
-      "Blame revision data",
-      "Blame revision data",
-      Metric.ValueType.DATA,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
-
-  /**
-   * Number of commits.
-   */
-  public static final Metric COMMITS = new Metric(
-      "commits",
-      "Commits",
-      "Commits",
-      Metric.ValueType.INT,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
-
-  public static final Metric BROWSER = new Metric(
-      "browser",
-      "Browser",
-      "Browser",
-      Metric.ValueType.STRING,
-      Metric.DIRECTION_NONE,
-      false,
-      DOMAIN_SCM);
+  public static final Metric BROWSER = new Metric.Builder("browser", Metric.ValueType.STRING)
+      .setName("Browser")
+      .setDescription("Browser")
+      .setDomain(CoreMetrics.DOMAIN_SCM)
+      .create();
 
   public List<Metric> getMetrics() {
-    return Arrays.asList(
-        BROWSER,
-        LAST_ACTIVITY,
-        REVISION,
-        COMMITS,
-        BLAME_AUTHORS_DATA,
-        BLAME_DATE_DATA,
-        BLAME_REVISION_DATA);
+    return Arrays.asList(BROWSER);
   }
 }

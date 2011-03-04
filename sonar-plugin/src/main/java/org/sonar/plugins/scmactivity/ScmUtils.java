@@ -22,6 +22,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ChangeFile;
 import org.apache.maven.scm.ChangeSet;
+import org.sonar.api.utils.DateUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -33,8 +34,6 @@ import java.util.List;
  */
 public final class ScmUtils {
 
-  public static final String DATE_TIME_FORMAT = "yyyy-MM-dd";
-
   private ScmUtils() {
   }
 
@@ -43,7 +42,7 @@ public final class ScmUtils {
   }
 
   public static String formatLastActivity(Date lastActivity) {
-    SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
+    SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DATETIME_FORMAT);
     return sdf.format(lastActivity);
   }
 

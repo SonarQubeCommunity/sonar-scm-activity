@@ -23,12 +23,14 @@ package org.sonar.plugins.scmactivity;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import java.text.ParseException;
@@ -43,7 +45,7 @@ import java.util.List;
 public class ProjectActivityDecorator implements Decorator {
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(ScmActivityMetrics.LAST_ACTIVITY, ScmActivityMetrics.REVISION);
+    return Arrays.asList(CoreMetrics.SCM_LAST_COMMIT_DATE, CoreMetrics.SCM_REVISION);
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -54,7 +56,7 @@ public class ProjectActivityDecorator implements Decorator {
     if (ResourceUtils.isEntity(resource) ||
         resource.getQualifier().equals(Resource.QUALIFIER_VIEW) ||
         resource.getQualifier().equals(Resource.QUALIFIER_SUBVIEW) ||
-        context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY) != null) {
+        context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE) != null) {
       return;
     }
 
@@ -62,8 +64,8 @@ public class ProjectActivityDecorator implements Decorator {
     String lastRevision = null;
 
     for (DecoratorContext child : context.getChildren()) {
-      Measure lastActivityMeasure = child.getMeasure(ScmActivityMetrics.LAST_ACTIVITY);
-      Measure revisionMeasure = child.getMeasure(ScmActivityMetrics.REVISION);
+      Measure lastActivityMeasure = child.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE);
+      Measure revisionMeasure = child.getMeasure(CoreMetrics.SCM_REVISION);
       if (MeasureUtils.hasData(lastActivityMeasure)) {
         Date childLastActivity = convertStringMeasureToDate(lastActivityMeasure);
         if (lastActivity == null || lastActivity.before(childLastActivity)) {
@@ -74,17 +76,17 @@ public class ProjectActivityDecorator implements Decorator {
     }
 
     if (lastActivity != null) {
-      Measure lastActivityMeasure = new Measure(ScmActivityMetrics.LAST_ACTIVITY, ScmUtils.formatLastActivity(lastActivity));
+      Measure lastActivityMeasure = new Measure(CoreMetrics.SCM_LAST_COMMIT_DATE, ScmUtils.formatLastActivity(lastActivity));
       context.saveMeasure(lastActivityMeasure);
 
-      Measure revisionMeasure = new Measure(ScmActivityMetrics.REVISION, lastRevision);
+      Measure revisionMeasure = new Measure(CoreMetrics.SCM_REVISION, lastRevision);
       context.saveMeasure(revisionMeasure);
     }
   }
 
   private Date convertStringMeasureToDate(Measure date) {
     String data = date.getData();
-    SimpleDateFormat sdf = new SimpleDateFormat(ScmUtils.DATE_TIME_FORMAT);
+    SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DATETIME_FORMAT);
     try {
       return sdf.parse(data);
     } catch (ParseException e) {

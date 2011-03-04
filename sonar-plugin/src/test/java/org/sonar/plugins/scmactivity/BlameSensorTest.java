@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
@@ -88,13 +89,13 @@ public class BlameSensorTest {
 
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.BLAME_AUTHORS_DATA)));
+        argThat(new IsMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE)));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.BLAME_DATE_DATA)));
+        argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)));
     verify(context).saveMeasure(
         argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
-        argThat(new IsMeasure(ScmActivityMetrics.BLAME_REVISION_DATA)));
+        argThat(new IsMeasure(CoreMetrics.SCM_REVISIONS_BY_LINE)));
     verifyNoMoreInteractions(context);
   }
 

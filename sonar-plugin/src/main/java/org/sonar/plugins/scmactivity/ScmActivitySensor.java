@@ -23,6 +23,7 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ChangeSet;
 import org.sonar.api.batch.*;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
@@ -102,26 +103,26 @@ public class ScmActivitySensor implements Sensor {
       revisions = blameSensor.getRevisions();
       authors = blameSensor.getAuthors();
     } else {
-      revision = getPastMeasureData(resource, ScmActivityMetrics.REVISION);
+      revision = getPastMeasureData(resource, CoreMetrics.SCM_REVISION);
       if (revision == null) {
         // File not modified, but no past measures
         // This should happen only for generated sources
         return;
       }
-      date = getPastMeasureData(resource, ScmActivityMetrics.LAST_ACTIVITY);
-      dates = getPastMeasureData(resource, ScmActivityMetrics.BLAME_DATE_DATA);
-      revisions = getPastMeasureData(resource, ScmActivityMetrics.BLAME_REVISION_DATA);
-      authors = getPastMeasureData(resource, ScmActivityMetrics.BLAME_AUTHORS_DATA);
+      date = getPastMeasureData(resource, CoreMetrics.SCM_LAST_COMMIT_DATE);
+      dates = getPastMeasureData(resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+      revisions = getPastMeasureData(resource, CoreMetrics.SCM_REVISIONS_BY_LINE);
+      authors = getPastMeasureData(resource, CoreMetrics.SCM_AUTHORS_BY_LINE);
     }
 
-    context.saveMeasure(resource, new Measure(ScmActivityMetrics.REVISION, revision));
-    context.saveMeasure(resource, new Measure(ScmActivityMetrics.LAST_ACTIVITY, date));
+    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_REVISION, revision));
+    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_LAST_COMMIT_DATE, date));
 
-    context.saveMeasure(resource, new Measure(ScmActivityMetrics.BLAME_DATE_DATA, dates)
+    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, dates)
         .setPersistenceMode(PersistenceMode.DATABASE));
-    context.saveMeasure(resource, new Measure(ScmActivityMetrics.BLAME_REVISION_DATA, revisions)
+    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, revisions)
         .setPersistenceMode(PersistenceMode.DATABASE));
-    context.saveMeasure(resource, new Measure(ScmActivityMetrics.BLAME_AUTHORS_DATA, authors)
+    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, authors)
         .setPersistenceMode(PersistenceMode.DATABASE));
   }
 
@@ -132,18 +133,18 @@ public class ScmActivitySensor implements Sensor {
       revision = projectStatus.getRevision();
       date = ScmUtils.formatLastActivity(projectStatus.getDate());
     } else {
-      revision = getPastMeasureData(project, ScmActivityMetrics.REVISION);
-      date = getPastMeasureData(project, ScmActivityMetrics.LAST_ACTIVITY);
+      revision = getPastMeasureData(project, CoreMetrics.SCM_REVISION);
+      date = getPastMeasureData(project, CoreMetrics.SCM_LAST_COMMIT_DATE);
     }
-    Double commits = getPastMeasure(project, ScmActivityMetrics.COMMITS);
+    Double commits = getPastMeasure(project, CoreMetrics.SCM_COMMITS);
     if (commits == null) {
       commits = 0d;
     }
     commits += projectStatus.getChanges();
 
-    context.saveMeasure(new Measure(ScmActivityMetrics.REVISION, revision));
-    context.saveMeasure(new Measure(ScmActivityMetrics.LAST_ACTIVITY, date));
-    context.saveMeasure(new Measure(ScmActivityMetrics.COMMITS, commits));
+    context.saveMeasure(new Measure(CoreMetrics.SCM_REVISION, revision));
+    context.saveMeasure(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATE, date));
+    context.saveMeasure(new Measure(CoreMetrics.SCM_COMMITS, commits));
   }
 
   private Double getPastMeasure(Resource resource, Metric metric) {
@@ -169,18 +170,18 @@ public class ScmActivitySensor implements Sensor {
   }
 
   private String getPreviousRevision(Project project) {
-    return getPastMeasureData(project, ScmActivityMetrics.REVISION);
+    return getPastMeasureData(project, CoreMetrics.SCM_REVISION);
   }
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
     return Arrays.asList(
-        ScmActivityMetrics.REVISION,
-        ScmActivityMetrics.LAST_ACTIVITY,
-        ScmActivityMetrics.COMMITS,
-        ScmActivityMetrics.BLAME_AUTHORS_DATA,
-        ScmActivityMetrics.BLAME_DATE_DATA,
-        ScmActivityMetrics.BLAME_REVISION_DATA);
+        CoreMetrics.SCM_REVISION,
+        CoreMetrics.SCM_LAST_COMMIT_DATE,
+        CoreMetrics.SCM_COMMITS,
+        CoreMetrics.SCM_AUTHORS_BY_LINE,
+        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+        CoreMetrics.SCM_REVISIONS_BY_LINE);
   }
 
   @Override

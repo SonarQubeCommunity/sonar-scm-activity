@@ -26,6 +26,7 @@ import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
@@ -41,10 +42,9 @@ public class BlameSensor {
   private SensorContext context;
   private ProjectScmManager scmManager;
 
-  private PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_AUTHORS_DATA);
-  private PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(ScmActivityMetrics.BLAME_DATE_DATA);
-  private PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(
-      ScmActivityMetrics.BLAME_REVISION_DATA);
+  private PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_AUTHORS_BY_LINE);
+  private PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+  private PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_REVISIONS_BY_LINE);
 
   public BlameSensor(ProjectScmManager scmManager, SensorContext context) {
     this.scmManager = scmManager;

@@ -18,7 +18,7 @@
 
   <properties>
     <jdk.min.version>1.5</jdk.min.version>
-    <sonar.version>2.4</sonar.version>
+    <sonar.buildVersion>2.7-SNAPSHOT</sonar.buildVersion>
     <sonar.pluginName>SCM Activity</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
   </properties>
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
+      <version>${sonar.buildVersion}</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
@@ -64,7 +64,7 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-gwt-api</artifactId>
-      <version>${sonar.version}</version>
+      <version>${sonar.buildVersion}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
-      <version>${sonar.version}</version>
+      <version>${sonar.buildVersion}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

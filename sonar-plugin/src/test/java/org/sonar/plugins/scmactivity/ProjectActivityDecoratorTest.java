@@ -24,6 +24,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
@@ -63,7 +64,7 @@ public class ProjectActivityDecoratorTest {
         mockChildContext("2010-01-01", "2"));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(""), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE, "2010-01-02")));
   }
 
   @Test
@@ -74,7 +75,7 @@ public class ProjectActivityDecoratorTest {
         mockChildContext("2010-01-02", "1"));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project("").setPom(new MavenProject()), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(ScmActivityMetrics.LAST_ACTIVITY, "2010-01-02")));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE, "2010-01-02")));
 
     reset(context);
     children = Arrays.asList(mockChildContext(null, null), mockChildContext(null, null));
@@ -85,10 +86,10 @@ public class ProjectActivityDecoratorTest {
 
   private DecoratorContext mockChildContext(String lastActivity, String revision) {
     DecoratorContext context = mock(DecoratorContext.class);
-    when(context.getMeasure(ScmActivityMetrics.LAST_ACTIVITY))
-        .thenReturn(new Measure(ScmActivityMetrics.LAST_ACTIVITY, lastActivity));
-    when(context.getMeasure(ScmActivityMetrics.REVISION))
-        .thenReturn(new Measure(ScmActivityMetrics.REVISION, revision));
+    when(context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE))
+        .thenReturn(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATE, lastActivity));
+    when(context.getMeasure(CoreMetrics.SCM_REVISION))
+        .thenReturn(new Measure(CoreMetrics.SCM_REVISION, revision));
     return context;
   }
 }

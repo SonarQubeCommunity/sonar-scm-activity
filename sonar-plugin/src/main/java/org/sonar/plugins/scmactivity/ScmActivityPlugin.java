@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.sonar.api.Extension;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -53,15 +52,6 @@ import java.util.List;
         global = false
     ),
     @Property(
-        key = ScmActivityPlugin.BROWSER_PROPERTY,
-        defaultValue = "",
-        name = "", // TODO
-        description = "", // TODO
-        module = false,
-        project = true,
-        global = true
-    ),
-    @Property(
         key = ScmActivityPlugin.USER_PROPERTY,
         defaultValue = "",
         name = "User",
@@ -88,7 +78,7 @@ import java.util.List;
         project = true,
         global = true
     ) })
-public class ScmActivityPlugin implements Plugin {
+public final class ScmActivityPlugin implements Plugin {
   public static final String URL_PROPERTY = "sonar.scm-activity.url";
   public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
@@ -110,7 +100,7 @@ public class ScmActivityPlugin implements Plugin {
     return "Collects information from SCM.";
   }
 
-  public List<Class<? extends Extension>> getExtensions() {
+  public List getExtensions() {
     return Arrays.asList(
         ScmConfiguration.class,
         ProjectScmManager.class,
