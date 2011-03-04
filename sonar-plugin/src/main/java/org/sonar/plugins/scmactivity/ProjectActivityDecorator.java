@@ -28,6 +28,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.DateUtils;
@@ -54,8 +55,8 @@ public class ProjectActivityDecorator implements Decorator {
 
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isEntity(resource) ||
-        resource.getQualifier().equals(Resource.QUALIFIER_VIEW) ||
-        resource.getQualifier().equals(Resource.QUALIFIER_SUBVIEW) ||
+        resource.getQualifier().equals(Qualifiers.VIEW) ||
+        resource.getQualifier().equals(Qualifiers.SUBVIEW) ||
         context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE) != null) {
       return;
     }

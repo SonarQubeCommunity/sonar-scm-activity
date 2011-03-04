@@ -29,8 +29,7 @@ import java.util.List;
 
 public class ScmActivityMetrics implements Metrics {
 
-  public static final Metric BROWSER = new Metric.Builder("browser", Metric.ValueType.STRING)
-      .setName("Browser")
+  public static final Metric BROWSER = new Metric.Builder("browser", "Browser", Metric.ValueType.STRING)
       .setDescription("Browser")
       .setDomain(CoreMetrics.DOMAIN_SCM)
       .create();

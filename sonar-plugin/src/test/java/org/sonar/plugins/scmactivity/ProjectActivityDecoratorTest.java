@@ -21,13 +21,14 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.project.MavenProject;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
-import org.sonar.api.test.IsMeasure;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,6 @@ import static org.mockito.Mockito.*;
  */
 public class ProjectActivityDecoratorTest {
   private ProjectActivityDecorator decorator;
-  private DecoratorContext context;
 
   @Before
   public void setUp() {
@@ -59,12 +59,12 @@ public class ProjectActivityDecoratorTest {
   public void testDecorate() {
     DecoratorContext context = mock(DecoratorContext.class);
     List<DecoratorContext> children = Arrays.asList(
-        mockChildContext("2010-01-02", "3"),
-        mockChildContext("2010-01-01", "1"),
-        mockChildContext("2010-01-01", "2"));
+        mockChildContext("2010-01-02T11:58:05+0000", "3"),
+        mockChildContext("2010-01-01T11:58:05+0000", "1"),
+        mockChildContext("2010-01-01T15:58:05+0000", "2"));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project(""), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE, "2010-01-02")));
+    verify(context).saveMeasure(argThat(new IsLastCommitDate("2010-01-02")));
   }
 
   @Test
@@ -72,16 +72,32 @@ public class ProjectActivityDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     List<DecoratorContext> children = Arrays.asList(
         mockChildContext(null, null),
-        mockChildContext("2010-01-02", "1"));
+        mockChildContext("2010-01-02T15:58:05+0000", "1"));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project("").setPom(new MavenProject()), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE, "2010-01-02")));
+    verify(context).saveMeasure(argThat(new IsLastCommitDate("2010-01-02")));
 
     reset(context);
     children = Arrays.asList(mockChildContext(null, null), mockChildContext(null, null));
     when(context.getChildren()).thenReturn(children);
     decorator.decorate(new Project("").setPom(new MavenProject()), context);
     verify(context, never()).saveMeasure((Measure) any());
+  }
+
+  static class IsLastCommitDate extends BaseMatcher<Measure> {
+    String date;
+
+    IsLastCommitDate(String date) {
+      this.date = date;
+    }
+
+    public boolean matches(Object o) {
+      Measure m = (Measure) o;
+      return m.getMetricKey().equals(CoreMetrics.SCM_LAST_COMMIT_DATE_KEY) && m.getData().startsWith(date);
+    }
+
+    public void describeTo(Description description) {
+    }
   }
 
   private DecoratorContext mockChildContext(String lastActivity, String revision) {
