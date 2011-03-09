@@ -49,7 +49,7 @@ public class ProjectScmManagerTest {
     when(scmManager.makeScmRepository(anyString())).thenReturn(repository);
     when(repository.getProviderRepository()).thenReturn(providerRepository);
 
-    projectScmManager = spy(new ProjectScmManager(null, configuration));
+    projectScmManager = spy(new ProjectScmManager(configuration));
   }
 
   @Test
@@ -71,15 +71,6 @@ public class ProjectScmManagerTest {
 
     verify(providerRepository, never()).setUser(anyString());
     verify(providerRepository, never()).setPassword(anyString());
-  }
-
-  @Test
-  public void shouldBeDisabled() {
-    when(configuration.isEnabled()).thenReturn(true).thenReturn(false);
-    when(configuration.getUrl()).thenReturn("").thenReturn("scm:svn:http//localhost");
-
-    assertThat(projectScmManager.isEnabled(), is(false));
-    assertThat(projectScmManager.isEnabled(), is(false));
   }
 
   @Test

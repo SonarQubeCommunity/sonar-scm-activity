@@ -76,7 +76,7 @@ import java.util.List;
         module = false,
         project = true,
         global = true
-    ) })
+    )})
 public final class ScmActivityPlugin implements Plugin {
   public static final String URL_PROPERTY = "sonar.scm-activity.url";
   public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
@@ -85,7 +85,6 @@ public final class ScmActivityPlugin implements Plugin {
   public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
   public static final String PREFER_PURE_JAVA_PROPERTY = "sonar.scm-activity.prefer_pure_java";
   public static final boolean PREFER_PURE_JAVA_DEFAULT_VALUE = true;
-  public static final String BROWSER_PROPERTY = "sonar.scm-activity.browser";
 
   public String getKey() {
     return "scm-activity";
@@ -101,12 +100,8 @@ public final class ScmActivityPlugin implements Plugin {
 
   public List getExtensions() {
     return Arrays.asList(
-        ScmConfiguration.class,
-        ProjectScmManager.class,
-        ScmActivityMetrics.class,
-        ScmActivityWidget.class,
-        ScmActivitySensor.class,
-        ScmLinksSensor.class,
-        ProjectActivityDecorator.class);
+        ScmConfiguration.class, MavenScmConfiguration.class,
+        ProjectScmManager.class, ScmActivitySensor.class, ProjectActivityDecorator.class,
+        ScmActivityWidget.class);
   }
 }

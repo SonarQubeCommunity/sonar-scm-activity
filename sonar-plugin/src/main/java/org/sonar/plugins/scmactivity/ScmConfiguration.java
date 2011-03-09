@@ -20,61 +20,76 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.model.Scm;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 
-/**
- * @author Evgeny Mandrikov
- */
+import java.io.File;
+import java.util.List;
+
 public class ScmConfiguration implements BatchExtension {
 
-  private Project project;
+  private Configuration conf;
+  private MavenScmConfiguration mavenConf;
+  private ProjectFileSystem fileSystem;
 
-  public ScmConfiguration(Project project) {
-    this.project = project;
+  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
+    this.fileSystem = fileSystem;
+    this.conf = configuration;
+    this.mavenConf = mavenConfiguration;
   }
 
-  private Configuration getConfiguration() {
-    return project.getConfiguration();
-  }
-
-  public String getBrowserUrlTemplate() {
-    return getConfiguration().getString(ScmActivityPlugin.BROWSER_PROPERTY, "");
+  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration) {
+    this(fileSystem, configuration, null /* not in maven environment */);
   }
 
   public boolean isEnabled() {
-    return getConfiguration().getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE);
+    return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && getUrl()!=null;
   }
 
   public boolean isPureJava() {
-    return getConfiguration().getBoolean(ScmActivityPlugin.PREFER_PURE_JAVA_PROPERTY, ScmActivityPlugin.PREFER_PURE_JAVA_DEFAULT_VALUE);
+    return conf.getBoolean(ScmActivityPlugin.PREFER_PURE_JAVA_PROPERTY, ScmActivityPlugin.PREFER_PURE_JAVA_DEFAULT_VALUE);
   }
 
   public String getUser() {
-    return getConfiguration().getString(ScmActivityPlugin.USER_PROPERTY);
+    return conf.getString(ScmActivityPlugin.USER_PROPERTY);
   }
 
   public String getPassword() {
-    return getConfiguration().getString(ScmActivityPlugin.PASSWORD_PROPERTY);
+    return conf.getString(ScmActivityPlugin.PASSWORD_PROPERTY);
+  }
+
+  public File getBaseDir() {
+    return fileSystem.getBasedir();
+  }
+
+  public List<File> getSourceDirs() {
+    List<File> dirs = Lists.newArrayList();
+    dirs.addAll(fileSystem.getSourceDirs());
+    dirs.addAll(fileSystem.getTestDirs());
+    return dirs;
   }
 
   public String getUrl() {
-    String url = getConfiguration().getString(ScmActivityPlugin.URL_PROPERTY);
-    if (StringUtils.isNotBlank(url)) {
-      return url;
+    String url = conf.getString(ScmActivityPlugin.URL_PROPERTY);
+    if (StringUtils.isBlank(url)) {
+      url = getMavenUrl();
     }
-    Scm scm = project.getPom().getScm();
-    if (scm != null) {
-      if (!StringUtils.isBlank(getUser()) && !StringUtils.isBlank(getPassword())) {
-        return scm.getDeveloperConnection();
+    return StringUtils.defaultIfBlank(url, null);
+  }
+
+  private String getMavenUrl() {
+    String url = null;
+    if (mavenConf != null) {
+      if (StringUtils.isNotBlank(mavenConf.getDeveloperUrl()) && StringUtils.isNotBlank(getUser()) && StringUtils.isNotBlank(getPassword())) {
+        url = mavenConf.getDeveloperUrl();
       } else {
-        return scm.getConnection();
+        url = mavenConf.getUrl();
       }
     }
-    return null;
+    return url;
   }
 
 }

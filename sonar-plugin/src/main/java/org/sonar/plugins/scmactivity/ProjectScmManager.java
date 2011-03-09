@@ -34,7 +34,6 @@ import org.apache.maven.scm.provider.svn.repository.SvnScmProviderRepository;
 import org.apache.maven.scm.provider.svn.svnjava.repository.SvnJavaScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 
@@ -46,24 +45,21 @@ import java.util.List;
  */
 public class ProjectScmManager implements BatchExtension {
 
-  private ScmConfiguration scmConfiguration;
-  private Project project;
+  private ScmConfiguration conf;
   private ScmManager scmManager;
   private ScmRepository scmRepository;
 
-  public ProjectScmManager(Project project, ScmConfiguration scmConfiguration) {
-    this.project = project;
-    this.scmConfiguration = scmConfiguration;
+  public ProjectScmManager(ScmConfiguration conf) {
+    this.conf = conf;
   }
 
   public boolean isEnabled() {
-    // TODO was project.isLatestAnalysis()
-    return scmConfiguration.isEnabled() && !StringUtils.isBlank(scmConfiguration.getUrl());
+    return conf.isEnabled();
   }
 
   public ScmManager getScmManager() {
     if (scmManager == null) {
-      scmManager = new SonarScmManager(scmConfiguration.isPureJava());
+      scmManager = new SonarScmManager(conf.isPureJava());
     }
     return scmManager;
   }
@@ -71,11 +67,11 @@ public class ProjectScmManager implements BatchExtension {
   public ScmRepository getScmRepository() {
     try {
       if (scmRepository == null) {
-        String connectionUrl = scmConfiguration.getUrl();
+        String connectionUrl = conf.getUrl();
         Logs.INFO.info("SCM connection URL: {}", connectionUrl);
         scmRepository = getScmManager().makeScmRepository(connectionUrl);
-        String user = scmConfiguration.getUser();
-        String password = scmConfiguration.getPassword();
+        String user = conf.getUser();
+        String password = conf.getPassword();
         if (!StringUtils.isBlank(user) && !StringUtils.isBlank(password)) {
           ScmProviderRepository providerRepository = scmRepository.getProviderRepository();
           providerRepository.setUser(user);
@@ -88,14 +84,10 @@ public class ProjectScmManager implements BatchExtension {
     }
   }
 
-  protected File getProjectBasedir() {
-    return project.getFileSystem().getBasedir();
-  }
-
   public void checkLocalModifications() {
     StatusScmResult result;
     try {
-      result = getScmManager().status(getScmRepository(), new ScmFileSet(getProjectBasedir()));
+      result = getScmManager().status(getScmRepository(), new ScmFileSet(conf.getBaseDir()));
     } catch (ScmException e) {
       throw new SonarException(e.getMessage(), e);
     }
@@ -103,6 +95,9 @@ public class ProjectScmManager implements BatchExtension {
       throw new SonarException("Unable to check for local modifications: " + result.getProviderMessage());
     }
     if (!result.getChangedFiles().isEmpty()) {
+      for (Object o : result.getChangedFiles()) {
+        System.out.println(o);
+      }
       final String errorMessage = "The build will stop as there are local modifications.";
       Logs.INFO.error(errorMessage);
       throw new SonarException(errorMessage);
@@ -116,7 +111,7 @@ public class ProjectScmManager implements BatchExtension {
   /**
    * TODO BASE should be correctly handled by providers other than SvnExe
    * TODO {@link org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider} doesn't support revisions range
-   * 
+   *
    * @return changes that have happened between <code>startVersion</code> and BASE
    */
   public List<ChangeSet> getChangeLog(String startRevision) {
@@ -134,7 +129,7 @@ public class ProjectScmManager implements BatchExtension {
     try {
       result = getScmManager().changeLog(
           repository,
-          new ScmFileSet(getProjectBasedir()),
+          new ScmFileSet(conf.getBaseDir()),
           startRevision == null ? null : new ScmRevision(startRevision),
           endVersion);
     } catch (ScmException e) {

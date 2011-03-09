@@ -20,34 +20,28 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.Project;
+import org.apache.maven.model.Scm;
+import org.apache.maven.project.MavenProject;
+import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.SupportedEnvironment;
 
-/**
- * @author Evgeny Mandrikov
- */
-public class ScmLinksSensor implements Sensor {
+@SupportedEnvironment({"maven"})
+public class MavenScmConfiguration implements BatchExtension {
 
-  private ScmConfiguration scmConfiguration;
+  private MavenProject pom;
 
-  public ScmLinksSensor(ScmConfiguration scmConfiguration) {
-    this.scmConfiguration = scmConfiguration;
+  public MavenScmConfiguration(MavenProject pom) {
+    this.pom = pom;
   }
 
-  public boolean shouldExecuteOnProject(Project project) {
-    return StringUtils.isNotBlank(scmConfiguration.getBrowserUrlTemplate());
+  public String getDeveloperUrl() {
+    Scm scm = pom.getScm();
+    return (scm != null ? scm.getDeveloperConnection() : null);
   }
 
-  public void analyse(Project project, SensorContext context) {
-    context.saveMeasure(new Measure(ScmActivityMetrics.BROWSER, scmConfiguration.getBrowserUrlTemplate()));
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  public String getUrl() {
+    Scm scm = pom.getScm();
+    return (scm != null ? scm.getConnection() : null);
   }
 
 }
