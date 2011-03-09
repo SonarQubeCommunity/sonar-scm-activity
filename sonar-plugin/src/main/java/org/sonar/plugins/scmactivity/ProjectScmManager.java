@@ -30,8 +30,6 @@ import org.apache.maven.scm.command.changelog.ChangeLogScmResult;
 import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
-import org.apache.maven.scm.provider.svn.repository.SvnScmProviderRepository;
-import org.apache.maven.scm.provider.svn.svnjava.repository.SvnJavaScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.Logs;
@@ -59,7 +57,7 @@ public class ProjectScmManager implements BatchExtension {
 
   public ScmManager getScmManager() {
     if (scmManager == null) {
-      scmManager = new SonarScmManager(conf.isPureJava());
+      scmManager = new SonarScmManager();
     }
     return scmManager;
   }
@@ -110,20 +108,17 @@ public class ProjectScmManager implements BatchExtension {
 
   /**
    * TODO BASE should be correctly handled by providers other than SvnExe
-   * TODO {@link org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider} doesn't support revisions range
    *
    * @return changes that have happened between <code>startVersion</code> and BASE
    */
   public List<ChangeSet> getChangeLog(String startRevision) {
     ScmRepository repository = getScmRepository();
     ScmRevision endVersion = null;
-    if (repository.getProviderRepository() instanceof SvnScmProviderRepository) {
+    if ("svn".equals(repository.getProvider())) {
       if (startRevision == null) {
         startRevision = "1";
       }
-      if (!(repository.getProviderRepository() instanceof SvnJavaScmProviderRepository)) {
-        endVersion = new ScmRevision("BASE");
-      }
+      endVersion = new ScmRevision("BASE");
     }
     ChangeLogScmResult result;
     try {

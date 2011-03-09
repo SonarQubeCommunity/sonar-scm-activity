@@ -40,12 +40,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>com.google.code.maven-scm-provider-svnjava</groupId>
-      <artifactId>maven-scm-provider-svnjava</artifactId>
-      <version>${version.maven-scm-provider-svnjava}</version>
-    </dependency>
-
     <!-- GIT -->
     <dependency>
       <groupId>org.apache.maven.scm</groupId>

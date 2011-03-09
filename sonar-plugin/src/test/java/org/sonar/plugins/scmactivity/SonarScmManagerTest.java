@@ -21,42 +21,30 @@
 package org.sonar.plugins.scmactivity;
 
 import junit.framework.Assert;
-import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
-import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
-import org.apache.maven.scm.provider.svn.svnjava.SvnJavaScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 
 public class SonarScmManagerTest {
 
   @Test
-  public void testPureJava() throws Exception {
-    SonarScmManager scmManager = new SonarScmManager(true);
-
-    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SvnJavaScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsJavaScmProvider);
-    assertNonJava(scmManager);
+  public void shouldBePatchedProviders() throws Exception {
+    SonarScmManager scmManager = new SonarScmManager();
+    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
+    Assert.assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
   }
 
   @Test
-  public void testExe() throws Exception {
-    ScmManager scmManager = new SonarScmManager(false);
-
-    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
+  public void shouldBeNativeProviders() throws Exception {
+    SonarScmManager scmManager = new SonarScmManager();
     Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
-    assertNonJava(scmManager);
-  }
-
-  private void assertNonJava(ScmManager scmManager) throws Exception {
-    Assert.assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
     Assert.assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);

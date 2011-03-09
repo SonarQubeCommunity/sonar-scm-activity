@@ -49,11 +49,6 @@ public class ScmConfigurationTest {
   }
 
   @Test
-  public void shouldUsePureJavaByDefault() {
-    assertThat(scmConfiguration.isPureJava(), is(true));
-  }
-
-  @Test
   public void shouldReturnUsername() {
     configuration.addProperty(ScmActivityPlugin.USER_PROPERTY, "godin");
     assertThat(scmConfiguration.getUser(), is("godin"));

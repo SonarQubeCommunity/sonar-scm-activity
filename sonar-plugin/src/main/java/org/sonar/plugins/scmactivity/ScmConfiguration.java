@@ -49,10 +49,6 @@ public class ScmConfiguration implements BatchExtension {
     return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && getUrl()!=null;
   }
 
-  public boolean isPureJava() {
-    return conf.getBoolean(ScmActivityPlugin.PREFER_PURE_JAVA_PROPERTY, ScmActivityPlugin.PREFER_PURE_JAVA_DEFAULT_VALUE);
-  }
-
   public String getUser() {
     return conf.getString(ScmActivityPlugin.USER_PROPERTY);
   }
