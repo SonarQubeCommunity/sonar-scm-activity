@@ -38,23 +38,22 @@ public class ProjectStatusTest {
 
   @Test
   public void shouldTrackFileChanges() {
-    File basedir = new File("/checkout/sonar-core");
-    File modifiedFile = new File(basedir, "src/main/java/org/sonar/jpa/entity/SchemaMigration.java");
-    File unmodifiedFile = new File(basedir, "src/main/java/org/sonar/jpa/entity/Unmodified.java");
-    ProjectStatus changes = new ProjectStatus(basedir, Arrays.asList(modifiedFile, unmodifiedFile));
+    File unmodifiedFile = new File("Unmodified.java");
+    File modifiedFile = new File("Modified.java");
+    ProjectStatus changes = new ProjectStatus(Arrays.asList(unmodifiedFile, modifiedFile));
 
     ChangeSet changeSet = mockChangeSet(0, "godin", "6177",
-        "/trunk/sonar-core/src/main/java/org/sonar/jpa/entity/SchemaMigration.java",
-        "/trunk/sonar-plugin-api/src/main/java/org/sonar/api/rules/Rule.java",
-        "/trunk/sonar-server/src/main/webapp/WEB-INF/db/migrate/165_set_nullable_rule_config_key.rb");
-    changes.analyzeChangeSet(changeSet);
+        "Modified.java",
+        "Other.java");
+    changes.add(changeSet);
 
     // unmodified file
-    assertThat(changes.getFileStatus(unmodifiedFile).isModified(), is(false));
+    assertThat(changes.getFileStatuses().get(0).isModified(), is(false));
+
     // modified file
-    FileStatus fileStatus = changes.getFileStatus(modifiedFile);
-    assertThat(fileStatus.isModified(), is(true));
-    assertThat(fileStatus.getChanges(), is(1));
+    FileStatus modifiedStatus = changes.getFileStatuses().get(1);
+    assertThat(modifiedStatus.isModified(), is(true));
+    assertThat(modifiedStatus.getChanges(), is(1));
     assertThat(changes.getDate().getDay(), is(new Date().getDay()));
     assertThat(changes.getRevision(), is("6177"));
     assertThat(changes.getAuthor(), is("godin"));
@@ -62,11 +61,10 @@ public class ProjectStatusTest {
 
   @Test
   public void shouldTrackProjectChanges() {
-    File basedir = new File("/checkout/sonar-core");
-    ProjectStatus changes = new ProjectStatus(basedir, Collections.<File> emptyList());
+    ProjectStatus changes = new ProjectStatus(Collections.<File>emptyList());
 
-    changes.analyzeChangeSet(mockChangeSet(-1, "simon", "1"));
-    changes.analyzeChangeSet(mockChangeSet(0, "godin", "2"));
+    changes.add(mockChangeSet(-1, "simon", "1"));
+    changes.add(mockChangeSet(0, "godin", "2"));
 
     assertThat(changes.isModified(), is(true));
     assertThat(changes.getChanges(), is(2));

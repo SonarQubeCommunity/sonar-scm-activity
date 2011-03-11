@@ -21,20 +21,18 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.scm.ChangeSet;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.Logs;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.plugins.scmactivity.ProjectStatus.FileStatus;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,99 +42,101 @@ import java.util.List;
 public class ScmActivitySensor implements Sensor {
 
   private TimeMachine timeMachine;
-  private ProjectScmManager scmManager;
+  private ScmConfiguration conf;
+  private LocalModificationChecker checkLocalModifications;
+  private Changelog changelog;
+  private Blame blameSensor;
 
-  public ScmActivitySensor(ProjectScmManager scmManager, TimeMachine timeMachine) {
-    this.scmManager = scmManager;
+  public ScmActivitySensor(ScmConfiguration conf, LocalModificationChecker checkLocalModifications, Changelog changelog, Blame blameSensor, TimeMachine timeMachine) {
+    this.conf = conf;
+    this.checkLocalModifications = checkLocalModifications;
+    this.changelog = changelog;
+    this.blameSensor = blameSensor;
     this.timeMachine = timeMachine;
   }
 
+  @DependedUpon
+  public final List<Metric> generatesMetrics() {
+    return Arrays.asList(
+        CoreMetrics.SCM_REVISION,
+        CoreMetrics.SCM_LAST_COMMIT_DATE,
+        CoreMetrics.SCM_COMMITS,
+        CoreMetrics.SCM_AUTHORS_BY_LINE,
+        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+        CoreMetrics.SCM_REVISIONS_BY_LINE);
+  }
+
   public boolean shouldExecuteOnProject(Project project) {
-    return scmManager.isEnabled();
+    return conf.isEnabled();
   }
 
   public void analyse(Project project, SensorContext context) {
-    scmManager.checkLocalModifications();
+    checkLocalModifications.check();
 
-    // Determine modified files
     ProjectStatus projectStatus = new ProjectStatus(project);
+    changelog.load(projectStatus, getPreviousRevision(project));
 
-    String startRevision = getPreviousRevision(project);
-    List<ChangeSet> changeLog = scmManager.getChangeLog(startRevision);
-    for (ChangeSet changeSet : changeLog) {
-      if (ScmUtils.fixChangeSet(changeSet)) {
-        // startRevision already was analyzed in previous Sonar run
-        // Git excludes this revision from changelog, but Subversion not
-        if (!StringUtils.equals(startRevision, changeSet.getRevision())) {
-          Logs.INFO.info("{} file(s) changed {} ({})", new Object[] {
-              changeSet.getFiles().size(),
-              changeSet.getDateFormatted() + " " + changeSet.getTimeFormatted(),
-              changeSet.getRevision() });
-          projectStatus.analyzeChangeSet(changeSet);
-        }
-      }
+    TimeProfiler profiler = new TimeProfiler().start("Retrieve blames");
+    for (FileStatus fileStatus : projectStatus.getFileStatuses()) {
+      inspectFile(context, fileStatus);
     }
-
-    // Analyze blame
-    ProjectFileSystem fileSystem = project.getFileSystem();
-    List<File> sourceDirs = fileSystem.getSourceDirs();
-
-    for (FileStatus fileStatus : projectStatus.getFiles()) {
-      Resource resource = JavaFile.fromIOFile(fileStatus.getFile(), sourceDirs, false);
-      saveFile(context, resource, fileStatus);
-    }
-    saveProject(context, project, projectStatus);
+    profiler.stop();
+    inspectProject(context, project, projectStatus);
   }
 
-  private void saveFile(SensorContext context, Resource resource, FileStatus fileStatus) {
-    final String revision, date, dates, authors, revisions;
-    File file = fileStatus.getFile();
-    BlameSensor blameSensor = new BlameSensor(scmManager, context);
+  private void inspectFile(SensorContext context, FileStatus fileStatus) {
+    Resource resource = toResource(context, fileStatus);
+    if (resource == null) {
+      // this file is not indexed
+      return;
+    }
 
     if (fileStatus.isModified()) {
-      Logs.INFO.info("File {} has been modified since previous analysis", file);
-      blameSensor.analyse(file, resource);
+      blameSensor.analyse(fileStatus, resource, context);
 
-      revision = fileStatus.getRevision();
-      date = ScmUtils.formatLastActivity(fileStatus.getDate());
-      dates = blameSensor.getDates();
-      revisions = blameSensor.getRevisions();
-      authors = blameSensor.getAuthors();
     } else {
-      revision = getPastMeasureData(resource, CoreMetrics.SCM_REVISION);
-      if (revision == null) {
-        // File not modified, but no past measures
-        // This should happen only for generated sources
-        return;
-      }
-      date = getPastMeasureData(resource, CoreMetrics.SCM_LAST_COMMIT_DATE);
-      dates = getPastMeasureData(resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-      revisions = getPastMeasureData(resource, CoreMetrics.SCM_REVISIONS_BY_LINE);
-      authors = getPastMeasureData(resource, CoreMetrics.SCM_AUTHORS_BY_LINE);
+      copyPreviousFileMeasures(resource, context);
     }
-
-    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_REVISION, revision));
-    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_LAST_COMMIT_DATE, date));
-
-    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, dates)
-        .setPersistenceMode(PersistenceMode.DATABASE));
-    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, revisions)
-        .setPersistenceMode(PersistenceMode.DATABASE));
-    context.saveMeasure(resource, new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, authors)
-        .setPersistenceMode(PersistenceMode.DATABASE));
   }
 
-  private void saveProject(SensorContext context, Project project, ProjectStatus projectStatus) {
+  private void copyPreviousFileMeasures(Resource resource, SensorContext context) {
+    List<Measure> previousMeasures = getPreviousMeasures(resource, CoreMetrics.SCM_REVISION, CoreMetrics.SCM_LAST_COMMIT_DATE,
+        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, CoreMetrics.SCM_REVISIONS_BY_LINE, CoreMetrics.SCM_AUTHORS_BY_LINE);
+
+    for (Measure previousMeasure : previousMeasures) {
+      if (StringUtils.isNotBlank( previousMeasure.getData())) {
+        PersistenceMode persistence = previousMeasure.getMetric().isDataType() ? PersistenceMode.DATABASE : PersistenceMode.FULL;
+        context.saveMeasure(resource, new Measure(previousMeasure.getMetric(),  previousMeasure.getData())).setPersistenceMode(persistence);
+      }
+    }
+  }
+
+  private Resource toResource(SensorContext context, FileStatus fileStatus) {
+    Resource resource = null;
+    if (conf.isJavaProject()) {
+      if (Java.isJavaFile(fileStatus.getFile())) {
+        resource = JavaFile.fromRelativePath(fileStatus.getRelativePath(), false);
+      }
+    } else {
+      resource = new org.sonar.api.resources.File(fileStatus.getRelativePath());
+    }
+    if (resource != null) {
+      return context.getResource(resource);
+    }
+    return null;
+  }
+
+  private void inspectProject(SensorContext context, Project project, ProjectStatus projectStatus) {
     final String revision;
     final String date;
     if (projectStatus.isModified()) {
       revision = projectStatus.getRevision();
-      date = ScmUtils.formatLastActivity(projectStatus.getDate());
+      date = ScmUtils.formatLastCommitDate(projectStatus.getDate());
     } else {
-      revision = getPastMeasureData(project, CoreMetrics.SCM_REVISION);
-      date = getPastMeasureData(project, CoreMetrics.SCM_LAST_COMMIT_DATE);
+      revision = getPreviousMeasure(project, CoreMetrics.SCM_REVISION);
+      date = getPreviousMeasure(project, CoreMetrics.SCM_LAST_COMMIT_DATE);
     }
-    Double commits = getPastMeasure(project, CoreMetrics.SCM_COMMITS);
+    Double commits = getPreviousMeasureValue(project, CoreMetrics.SCM_COMMITS);
     if (commits == null) {
       commits = 0d;
     }
@@ -147,7 +147,7 @@ public class ScmActivitySensor implements Sensor {
     context.saveMeasure(new Measure(CoreMetrics.SCM_COMMITS, commits));
   }
 
-  private Double getPastMeasure(Resource resource, Metric metric) {
+  private Double getPreviousMeasureValue(Resource resource, Metric metric) {
     TimeMachineQuery query = new TimeMachineQuery(resource)
         .setOnlyLastAnalysis(true)
         .setMetrics(metric);
@@ -158,31 +158,26 @@ public class ScmActivitySensor implements Sensor {
     return (Double) fields.get(0)[2];
   }
 
-  private String getPastMeasureData(Resource resource, Metric metric) {
-    TimeMachineQuery query = new TimeMachineQuery(resource)
-        .setOnlyLastAnalysis(true)
-        .setMetrics(metric);
-    List<Measure> measures = timeMachine.getMeasures(query);
+  private String getPreviousMeasure(Resource resource, Metric metric) {
+    List<Measure> measures = getPreviousMeasures(resource, metric);
     if (measures.isEmpty()) {
       return null;
     }
     return measures.get(0).getData();
   }
 
-  private String getPreviousRevision(Project project) {
-    return getPastMeasureData(project, CoreMetrics.SCM_REVISION);
+  private List<Measure> getPreviousMeasures(Resource resource, Metric... metrics) {
+    TimeMachineQuery query = new TimeMachineQuery(resource)
+        .setOnlyLastAnalysis(true)
+        .setMetrics(metrics);
+    return timeMachine.getMeasures(query);
   }
 
-  @DependedUpon
-  public List<Metric> generatesMetrics() {
-    return Arrays.asList(
-        CoreMetrics.SCM_REVISION,
-        CoreMetrics.SCM_LAST_COMMIT_DATE,
-        CoreMetrics.SCM_COMMITS,
-        CoreMetrics.SCM_AUTHORS_BY_LINE,
-        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-        CoreMetrics.SCM_REVISIONS_BY_LINE);
+
+  private String getPreviousRevision(Project project) {
+    return getPreviousMeasure(project, CoreMetrics.SCM_REVISION);
   }
+
 
   @Override
   public String toString() {

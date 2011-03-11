@@ -24,6 +24,9 @@ import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
@@ -34,15 +37,17 @@ public class ScmConfiguration implements BatchExtension {
   private Configuration conf;
   private MavenScmConfiguration mavenConf;
   private ProjectFileSystem fileSystem;
+  private boolean isJavaProject;
 
-  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
-    this.fileSystem = fileSystem;
+  public ScmConfiguration(Project project, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
+    this.fileSystem = project.getFileSystem();
     this.conf = configuration;
     this.mavenConf = mavenConfiguration;
+    isJavaProject = Java.KEY.equals(project.getLanguageKey());
   }
 
-  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration) {
-    this(fileSystem, configuration, null /* not in maven environment */);
+  public ScmConfiguration(Project project, Configuration configuration) {
+    this(project, configuration, null /* not in maven environment */);
   }
 
   public boolean isEnabled() {
@@ -59,6 +64,10 @@ public class ScmConfiguration implements BatchExtension {
 
   public File getBaseDir() {
     return fileSystem.getBasedir();
+  }
+
+  public boolean isJavaProject() {
+    return isJavaProject;
   }
 
   public List<File> getSourceDirs() {

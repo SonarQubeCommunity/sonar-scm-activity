@@ -34,7 +34,7 @@ public abstract class Changeable {
   private String author;
   private int changes;
 
-  public void analyzeChangeSet(ChangeSet changeSet) {
+  public final void add(ChangeSet changeSet) {
     changes++;
     Date changeSetDate = changeSet.getDate();
     if (changeSetDate.after(this.date)) {
@@ -42,6 +42,11 @@ public abstract class Changeable {
       this.revision = changeSet.getRevision();
       this.author = changeSet.getAuthor();
     }
+    doAdd(changeSet);
+  }
+
+  protected void doAdd(ChangeSet changeSet) {
+    
   }
 
   /**

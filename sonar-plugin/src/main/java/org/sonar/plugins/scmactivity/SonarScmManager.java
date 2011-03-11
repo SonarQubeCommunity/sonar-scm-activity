@@ -33,21 +33,25 @@ import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchExtension;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class SonarScmManager extends AbstractScmManager {
-  public SonarScmManager() {
-    setScmProvider("svn", new SonarSvnExeScmProvider());
-    setScmProvider("cvs", new CvsExeScmProvider());
-    setScmProvider("git", new SonarGitExeScmProvider());
-    setScmProvider("hg", new HgScmProvider());
-    setScmProvider("bazaar", new BazaarScmProvider());
-    setScmProvider("clearcase", new ClearCaseScmProvider());
-    setScmProvider("accurev", new AccuRevScmProvider());
-    setScmProvider("perforce", new PerforceScmProvider());
-    setScmProvider("tfs", new TfsScmProvider());
+public class SonarScmManager extends AbstractScmManager implements BatchExtension {
+
+  public SonarScmManager(ScmConfiguration conf) {
+    if (conf.isEnabled()) {
+      setScmProvider("svn", new SonarSvnExeScmProvider());
+      setScmProvider("cvs", new CvsExeScmProvider());
+      setScmProvider("git", new SonarGitExeScmProvider());
+      setScmProvider("hg", new HgScmProvider());
+      setScmProvider("bazaar", new BazaarScmProvider());
+      setScmProvider("clearcase", new ClearCaseScmProvider());
+      setScmProvider("accurev", new AccuRevScmProvider());
+      setScmProvider("perforce", new PerforceScmProvider());
+      setScmProvider("tfs", new TfsScmProvider());
+    }
   }
 
   @Override
@@ -55,10 +59,10 @@ public class SonarScmManager extends AbstractScmManager {
     return new SonarScmLogger(LoggerFactory.getLogger(getClass()));
   }
 
-  public static class SonarScmLogger implements ScmLogger {
+  private static class SonarScmLogger implements ScmLogger {
     private Logger log;
 
-    public SonarScmLogger(Logger log) {
+    SonarScmLogger(Logger log) {
       this.log = log;
     }
 
@@ -83,15 +87,15 @@ public class SonarScmManager extends AbstractScmManager {
     }
 
     public void info(String content) {
-      log.info(content);
+      log.info("\t" + content);
     }
 
     public void info(String content, Throwable error) {
-      log.info(content, error);
+      log.info("\t" + content, error);
     }
 
     public void info(Throwable error) {
-      log.info(error.getMessage(), error);
+      log.info("\t" + error.getMessage(), error);
     }
 
     public boolean isWarnEnabled() {

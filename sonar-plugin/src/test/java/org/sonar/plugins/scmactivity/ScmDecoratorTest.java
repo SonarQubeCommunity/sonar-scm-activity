@@ -42,12 +42,12 @@ import static org.mockito.Mockito.*;
 /**
  * @author Evgeny Mandrikov
  */
-public class ProjectActivityDecoratorTest {
-  private ProjectActivityDecorator decorator;
+public class ScmDecoratorTest {
+  private ScmDecorator decorator;
 
   @Before
   public void setUp() {
-    decorator = new ProjectActivityDecorator();
+    decorator = new ScmDecorator();
   }
 
   @Test

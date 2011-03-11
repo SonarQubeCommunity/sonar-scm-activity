@@ -20,7 +20,7 @@
 
 package org.sonar.plugins.scmactivity;
 
-import junit.framework.Assert;
+import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
@@ -32,24 +32,44 @@ import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class SonarScmManagerTest {
+
+  @Test(expected = NoSuchScmProviderException.class)
+  public void shouldNotRegisterProvidersIfDisabled() throws Exception {
+    ScmConfiguration conf = mock(ScmConfiguration.class);
+    when(conf.isEnabled()).thenReturn(false);
+    SonarScmManager scmManager = new SonarScmManager(conf);
+
+    scmManager.getProviderByType("svn");
+  }
 
   @Test
   public void shouldBePatchedProviders() throws Exception {
-    SonarScmManager scmManager = new SonarScmManager();
-    Assert.assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
+    ScmConfiguration conf = mock(ScmConfiguration.class);
+    when(conf.isEnabled()).thenReturn(true);
+    SonarScmManager scmManager = new SonarScmManager(conf);
+
+    assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
+    assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
   }
 
   @Test
   public void shouldBeNativeProviders() throws Exception {
-    SonarScmManager scmManager = new SonarScmManager();
-    Assert.assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
-    Assert.assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);
+    ScmConfiguration conf = mock(ScmConfiguration.class);
+    when(conf.isEnabled()).thenReturn(true);
+    SonarScmManager scmManager = new SonarScmManager(conf);
+
+    assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
+    assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
+    assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
+    assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
+    assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
+    assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
+    assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);
   }
 }

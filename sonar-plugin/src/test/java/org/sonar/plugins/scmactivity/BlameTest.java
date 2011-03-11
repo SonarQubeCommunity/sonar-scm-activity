@@ -21,17 +21,22 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.junit.Assert;
+import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.netbeans.lib.cvsclient.file.FileStatus;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -40,75 +45,62 @@ import java.util.Date;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
-import static org.sonar.api.resources.Resource.QUALIFIER_CLASS;
-import static org.sonar.api.resources.Resource.SCOPE_ENTITY;
 
 /**
  * @author Evgeny Mandrikov
  */
-public class BlameSensorTest {
-  private static final String RESOURCE_KEY = "org.example.HelloWorld";
+public class BlameTest {
+  private static final String FILENAME = "Foo.txt";
 
-  private ProjectScmManager scmManager;
+  private ScmManager scmManager;
   private SensorContext context;
-  private BlameSensor sensor;
+  private Blame blame;
 
   @Before
-  public void setUp() {
-    scmManager = mock(ProjectScmManager.class);
+  public void before() {
+    scmManager = mock(ScmManager.class);
     context = mock(SensorContext.class);
-    sensor = spy(new BlameSensor(scmManager, context));
+    blame = new Blame(scmManager, mock(SonarScmRepository.class));
   }
 
   /**
-   * See SONARPLUGINS-368
-   * 
-   * @throws Exception if something wrong
+   * See SONARPLUGINS-368 - can occur with generated sources
    */
   @Test
-  public void testScmException() throws Exception {
-    doThrow(new ScmException("ERROR"))
-        .when(sensor)
-        .calculateBlame(any(File.class), anyString(), any(Resource.class));
+  public void shouldNotThrowScmException() throws Exception {
+    doThrow(new ScmException("ERROR")).when(scmManager).blame(any(ScmRepository.class), any(ScmFileSet.class), anyString());
 
-    sensor.analyse(new File("."), new JavaFile(RESOURCE_KEY));
+    File file = TestUtils.getResource(getClass(), FILENAME);
+    blame.retrieveBlame(file);
 
-    verifyNoMoreInteractions(context);
+    // no exception
   }
 
   @Test
   public void testAnalyse() throws Exception {
-    when(scmManager.getBlame(any(File.class), anyString()))
+    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
         .thenReturn(new BlameScmResult("fake", Arrays.asList(
-                new BlameLine(new Date(13), "2", "godin"),
-                new BlameLine(new Date(10), "1", "godin"))));
+            new BlameLine(new Date(13), "2", "godin"),
+            new BlameLine(new Date(10), "1", "godin"))));
 
-    sensor.analyseBlame(new File("."), "HelloWorld.java", new JavaFile(RESOURCE_KEY));
+    File file = TestUtils.getResource(getClass(), FILENAME);
+    ProjectStatus.FileStatus fileStatus = new ProjectStatus.FileStatus(file, FILENAME);
+    blame.analyse(fileStatus, new org.sonar.api.resources.File(FILENAME), context);
 
     verify(context).saveMeasure(
-        argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
+        argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE)));
+    verify(context).saveMeasure(
+        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
         argThat(new IsMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE)));
     verify(context).saveMeasure(
-        argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
         argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)));
     verify(context).saveMeasure(
-        argThat(new IsResource(SCOPE_ENTITY, QUALIFIER_CLASS, RESOURCE_KEY)),
+        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
         argThat(new IsMeasure(CoreMetrics.SCM_REVISIONS_BY_LINE)));
     verifyNoMoreInteractions(context);
   }
 
-  @Test
-  public void test() throws Exception {
-    when(scmManager.getBlame(any(File.class), anyString()))
-        .thenReturn(new BlameScmResult("command", "Provider message", "output", false));
-
-    try {
-      sensor.analyseBlame(new File("."), "HelloWorld.java", new JavaFile(RESOURCE_KEY));
-    } catch (ScmException e) {
-      Assert.assertThat(e.getMessage(), is("Provider message"));
-    }
-    verifyNoMoreInteractions(context);
-  }
 }

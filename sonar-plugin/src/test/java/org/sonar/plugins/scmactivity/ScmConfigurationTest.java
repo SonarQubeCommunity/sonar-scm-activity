@@ -45,7 +45,7 @@ public class ScmConfigurationTest {
   public void setUp() {
     mavenConf = mock(MavenScmConfiguration.class);
     configuration = new PropertiesConfiguration();
-    scmConfiguration = new ScmConfiguration(null, configuration, mavenConf);
+    scmConfiguration = new ScmConfiguration(new Project("key"), configuration, mavenConf);
   }
 
   @Test

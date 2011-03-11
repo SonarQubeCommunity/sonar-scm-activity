@@ -20,14 +20,9 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.maven.scm.ChangeFile;
-import org.apache.maven.scm.ChangeSet;
 import org.sonar.api.utils.DateUtils;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
@@ -37,32 +32,11 @@ public final class ScmUtils {
   private ScmUtils() {
   }
 
-  public static String getRelativePath(File basedir, File file) {
-    return basedir.toURI().relativize(file.toURI()).getPath();
+  public static String formatLastCommitDate(Date date) {
+    return DateUtils.formatDate(date);
   }
 
-  public static String formatLastActivity(Date lastActivity) {
-    SimpleDateFormat sdf = new SimpleDateFormat(DateUtils.DATETIME_FORMAT);
-    return sdf.format(lastActivity);
+  public static Date parseLastCommitDate(String s) {
+    return DateUtils.parseDate(s);
   }
-
-  /**
-   * This is a workaround for bug, which exists in {@link org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider}.
-   * 
-   * @return true, if workaround can be applied
-   */
-  public static boolean fixChangeSet(ChangeSet changeSet) {
-    if (changeSet.getRevision() == null) {
-      List files = changeSet.getFiles();
-      if (files.isEmpty()) {
-        // This may happen if Git changelog can't be correctly parsed
-        // for example when message was not provided for commit
-        return false;
-      }
-      ChangeFile file = (ChangeFile) files.get(0);
-      changeSet.setRevision(file.getRevision());
-    }
-    return true;
-  }
-
 }

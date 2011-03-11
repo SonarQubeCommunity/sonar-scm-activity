@@ -20,47 +20,29 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.Before;
-import org.junit.Ignore;
+import org.apache.maven.scm.ChangeFile;
+import org.apache.maven.scm.ChangeSet;
 import org.junit.Test;
-import org.sonar.api.resources.Project;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
-/**
- * @author Evgeny Mandrikov
- */
-public class ScmActivitySensorTest {
-
-  private ScmActivitySensor sensor;
-  private ProjectScmManager scmManager;
-
-  @Before
-  public void setUp() {
-    scmManager = mock(ProjectScmManager.class);
-    sensor = new ScmActivitySensor(scmManager, null);
-  }
-
-  /**
-   * See SONARPLUGINS-350
-   */
+public class ChangelogTest {
+  
   @Test
-  @Ignore
-  public void noExecutionIfNotLatestAnalysis() {
-
-  }
-
-  @Test
-  public void shouldExecuteOnProject() {
-    when(scmManager.isEnabled()).thenReturn(true);
-    assertThat(sensor.shouldExecuteOnProject(new Project("foo")), is(true));
-    verify(scmManager).isEnabled();
-  }
-
-  @Test
-  public void testToString() {
-    assertThat(sensor.toString(), is("ScmActivitySensor"));
+  public void shouldFixMissingRevision() {
+    // missing revision
+    ChangeSet changeSet = new ChangeSet();
+    changeSet.setRevision(null);
+    changeSet.addFile(new ChangeFile("file", "rev"));
+    assertThat(Changelog.fixChangeSet(changeSet), is(true));
+    assertThat(changeSet.getRevision(), is("rev"));
+    // nothing to fix
+    changeSet = new ChangeSet();
+    changeSet.setRevision("rev");
+    assertThat(Changelog.fixChangeSet(changeSet), is(true));
+    // unable to fix
+    changeSet = new ChangeSet();
+    assertThat(Changelog.fixChangeSet(changeSet), is(false));
   }
 }
