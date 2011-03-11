@@ -38,12 +38,14 @@ public class ScmConfiguration implements BatchExtension {
   private MavenScmConfiguration mavenConf;
   private ProjectFileSystem fileSystem;
   private boolean isJavaProject;
+  private boolean isCheckLocalModifications;
 
   public ScmConfiguration(Project project, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
     this.fileSystem = project.getFileSystem();
     this.conf = configuration;
     this.mavenConf = mavenConfiguration;
     isJavaProject = Java.KEY.equals(project.getLanguageKey());
+    isCheckLocalModifications = configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
   }
 
   public ScmConfiguration(Project project, Configuration configuration) {
@@ -68,6 +70,10 @@ public class ScmConfiguration implements BatchExtension {
 
   public boolean isJavaProject() {
     return isJavaProject;
+  }
+
+  public boolean isCheckLocalModifications() {
+    return isCheckLocalModifications;
   }
 
   public List<File> getSourceDirs() {

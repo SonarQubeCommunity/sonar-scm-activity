@@ -36,23 +36,29 @@ import java.io.File;
 public class LocalModificationChecker implements BatchExtension {
 
   private ScmManager manager;
-  private SonarScmRepository repositoryBuilder;
+  private SonarScmRepository repository;
   private ScmConfiguration config;
 
-  public LocalModificationChecker(ScmConfiguration config, ScmManager manager, SonarScmRepository repositoryBuilder) {
+  public LocalModificationChecker(ScmConfiguration config, ScmManager manager, SonarScmRepository repository) {
     this.config = config;
     this.manager = manager;
-    this.repositoryBuilder = repositoryBuilder;
+    this.repository = repository;
   }
 
   public void check() {
+    if (config.isCheckLocalModifications()) {
+      doCheck();
+    }
+  }
+
+  void doCheck() {
     TimeProfiler profiler = new TimeProfiler().start("Check for local modifications");
     try {
       for (File sourceDir : config.getSourceDirs()) {
         // limitation of http://jira.codehaus.org/browse/SONAR-2266, the directory existence must be checked
         if (sourceDir.exists()) {
           LoggerFactory.getLogger(getClass()).debug("Check directory: " + sourceDir);
-          StatusScmResult result = manager.status(repositoryBuilder.getScmRepository(), new ScmFileSet(sourceDir));
+          StatusScmResult result = manager.status(repository.getScmRepository(), new ScmFileSet(sourceDir));
 
           if (!result.isSuccess()) {
             throw new SonarException("Unable to check for local modifications: " + result.getProviderMessage());
@@ -67,7 +73,7 @@ public class LocalModificationChecker implements BatchExtension {
 
     } catch (ScmException e) {
       throw new SonarException("Unable to check for local modifications", e);
-      
+
     } finally {
       profiler.stop();
     }

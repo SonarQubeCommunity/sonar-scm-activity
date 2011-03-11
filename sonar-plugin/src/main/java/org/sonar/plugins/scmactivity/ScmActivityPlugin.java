@@ -67,9 +67,20 @@ import java.util.List;
         module = false,
         project = true,
         global = true
+    ),
+    @Property(
+        key = ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS,
+        defaultValue = "" + ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE,
+        name = "Ignore local modifications",
+        description = "By default local modifications are forbidden in order to have consistent data with SCM repository.",
+        module = true,
+        project = true,
+        global = true
     )})
 public final class ScmActivityPlugin implements Plugin {
-  
+
+  public static final String IGNORE_LOCAL_MODIFICATIONS = "sonar.scm.ignoreLocalModifications";
+  public static final boolean IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE = false;
   public static final String URL_PROPERTY = "sonar.scm.url";
   public static final String ENABLED_PROPERTY = "sonar.scm.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
