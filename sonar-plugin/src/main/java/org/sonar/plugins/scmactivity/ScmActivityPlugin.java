@@ -34,7 +34,7 @@ import java.util.List;
     @Property(
         key = ScmActivityPlugin.ENABLED_PROPERTY,
         defaultValue = ScmActivityPlugin.ENABLED_DEFAULT_VALUE + "",
-        name = "Enabled",
+        name = "Enable loading of SCM activity. It requires to connect to SCM server.",
         description = "",
         module = true,
         project = true,
@@ -44,7 +44,7 @@ import java.util.List;
         key = ScmActivityPlugin.URL_PROPERTY,
         defaultValue = "",
         name = "SCM URL",
-        description = "SCM URL. Leave blank to take this value from <i>pom.xml</i>. Example:" +
+        description = "SCM URL. The format is described in <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
             "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>",
         module = true,
         project = true,
@@ -54,7 +54,7 @@ import java.util.List;
         key = ScmActivityPlugin.USER_PROPERTY,
         defaultValue = "",
         name = "User",
-        description = "User to connect with SCM. Leave blank for anonymous.",
+        description = "User to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
         module = false,
         project = true,
         global = true
@@ -63,17 +63,18 @@ import java.util.List;
         key = ScmActivityPlugin.PASSWORD_PROPERTY,
         defaultValue = "",
         name = "Password",
-        description = "Password to connect with SCM. Leave blank for anonymous.",
+        description = "Password to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
         module = false,
         project = true,
         global = true
     )})
 public final class ScmActivityPlugin implements Plugin {
-  public static final String URL_PROPERTY = "sonar.scm-activity.url";
-  public static final String ENABLED_PROPERTY = "sonar.scm-activity.enabled";
+  
+  public static final String URL_PROPERTY = "sonar.scm.url";
+  public static final String ENABLED_PROPERTY = "sonar.scm.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
-  public static final String USER_PROPERTY = "sonar.scm-activity.user.secured";
-  public static final String PASSWORD_PROPERTY = "sonar.scm-activity.password.secured";
+  public static final String USER_PROPERTY = "sonar.scm.user.secured";
+  public static final String PASSWORD_PROPERTY = "sonar.scm.password.secured";
 
   public String getKey() {
     return "scm-activity";
