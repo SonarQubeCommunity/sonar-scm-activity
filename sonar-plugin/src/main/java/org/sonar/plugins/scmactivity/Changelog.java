@@ -84,7 +84,12 @@ public class Changelog implements BatchExtension {
       endVersion = new ScmRevision("BASE");
     }
 
-    TimeProfiler profiler = new TimeProfiler().start("Retrieve changelog from revision " + startRevision);
+
+    String title = "Retrieve changelog";
+    if (StringUtils.isNotBlank(startRevision)) {
+      title += " from revision " + startRevision;
+    }
+    TimeProfiler profiler = new TimeProfiler().start(title);
     if (fullChangeLog) {
       Logs.INFO.info("It can be long this first time. Next analysis will be faster.");
     }
