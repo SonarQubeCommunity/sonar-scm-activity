@@ -76,7 +76,7 @@ public class ScmActivitySensor implements Sensor {
     ProjectStatus projectStatus = new ProjectStatus(project);
     changelog.load(projectStatus, getPreviousRevision(project));
 
-    TimeProfiler profiler = new TimeProfiler().start("Retrieve blames");
+    TimeProfiler profiler = new TimeProfiler().start("Retrieve files SCM info");
     for (FileStatus fileStatus : projectStatus.getFileStatuses()) {
       inspectFile(context, fileStatus);
     }

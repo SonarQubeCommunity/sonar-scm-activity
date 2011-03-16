@@ -92,16 +92,16 @@ public class Blame implements BatchExtension {
 
   BlameScmResult retrieveBlame(File file) {
     try {
-      Logs.INFO.info("Retrieve blame for " + file);
+      Logs.INFO.info("Retrieve SCM info for " + file);
       BlameScmResult result = scmManager.blame(repositoryBuilder.getScmRepository(), new ScmFileSet(file.getParentFile()), file.getName());
       if (!result.isSuccess()) {
-        throw new SonarException("Fail to retrieve blame for file " + file + ": " + result.getProviderMessage());
+        throw new SonarException("Fail to retrieve SCM info for file " + file + ": " + result.getProviderMessage());
       }
       return result;
 
     } catch (ScmException e) {
       // See SONARPLUGINS-368. Can occur on generated source
-      LoggerFactory.getLogger(getClass()).debug("Unable to retrieve blame of: " + file, e);
+      LoggerFactory.getLogger(getClass()).debug("Unable to retrieve SCM info of: " + file, e);
       return null;
     }
   }
