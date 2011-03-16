@@ -29,7 +29,7 @@ public class LocalModificationCheckerTest {
   @Test
   public void shouldIgnore() {
     ScmConfiguration configuration = mock(ScmConfiguration.class);
-    when(configuration.isCheckLocalModifications()).thenReturn(false);
+    when(configuration.isIgnoreLocalModifications()).thenReturn(true);
 
     LocalModificationChecker checker = spy(new LocalModificationChecker(configuration, null, null));
 
@@ -41,7 +41,7 @@ public class LocalModificationCheckerTest {
   @Test
   public void shouldCheck() {
     ScmConfiguration configuration = mock(ScmConfiguration.class);
-    when(configuration.isCheckLocalModifications()).thenReturn(true);
+    when(configuration.isIgnoreLocalModifications()).thenReturn(false);
 
     LocalModificationChecker checker = spy(new LocalModificationChecker(configuration, null, null));
 

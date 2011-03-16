@@ -46,7 +46,7 @@ public class LocalModificationChecker implements BatchExtension {
   }
 
   public void check() {
-    if (config.isCheckLocalModifications()) {
+    if (!config.isIgnoreLocalModifications()) {
       doCheck();
     }
   }

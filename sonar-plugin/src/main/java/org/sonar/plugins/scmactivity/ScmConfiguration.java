@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -38,14 +37,14 @@ public class ScmConfiguration implements BatchExtension {
   private MavenScmConfiguration mavenConf;
   private ProjectFileSystem fileSystem;
   private boolean isJavaProject;
-  private boolean isCheckLocalModifications;
+  private boolean isIgnoreLocalModifications;
 
   public ScmConfiguration(Project project, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
     this.fileSystem = project.getFileSystem();
     this.conf = configuration;
     this.mavenConf = mavenConfiguration;
     isJavaProject = Java.KEY.equals(project.getLanguageKey());
-    isCheckLocalModifications = configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
+    isIgnoreLocalModifications = configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
   }
 
   public ScmConfiguration(Project project, Configuration configuration) {
@@ -53,7 +52,7 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public boolean isEnabled() {
-    return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && getUrl()!=null;
+    return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && getUrl() != null;
   }
 
   public String getUser() {
@@ -72,8 +71,8 @@ public class ScmConfiguration implements BatchExtension {
     return isJavaProject;
   }
 
-  public boolean isCheckLocalModifications() {
-    return isCheckLocalModifications;
+  public boolean isIgnoreLocalModifications() {
+    return isIgnoreLocalModifications;
   }
 
   public List<File> getSourceDirs() {
