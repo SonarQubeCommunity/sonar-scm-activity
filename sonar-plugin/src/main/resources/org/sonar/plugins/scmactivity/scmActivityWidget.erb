@@ -1,31 +1,21 @@
 <%
-   last_commit_measure = measure('last_commit_date')
+   last_commit_date = measure('last_commit_date')
    revision_measure = measure('revision')
    commits_measure = measure('commits')
-
-   if last_commit_measure
+   
+   if commits_measure
 %>
   <div class="dashbox">
+    <p class="title">Commits</p>
     <p>
-      <span>
-        <!-- TODO :url => url_for_drilldown(last_commit_measure) -->
-        <%= format_measure(last_commit_measure, :prefix => 'Last commit: ') %>
-      </span>
+      <span class="big"><%= format_measure(commits_measure) -%></span>
+      <%= dashboard_configuration.selected_period? ? format_variation(commits_measure) : trend_icon(commits_measure) -%>
     </p>
-
     <p>
-      <span>
-        <%= format_measure(revision_measure, :prefix => 'Revision: ') %>
-      </span>
+      <%= format_measure(revision_measure, :prefix => 'Revision: ') -%>
     </p>
-
     <p>
-      <span>
-        <%= format_measure(commits_measure, :prefix => 'Commits: ') %>
-        <% if dashboard_configuration.selected_period? %>
-          <%= format_variation(commits_measure) %>
-        <% end %>
-      </span>
+      <%= format_measure(last_commit_date, :prefix => 'Last commit on ') -%>
     </p>
   </div>
 <% end %>

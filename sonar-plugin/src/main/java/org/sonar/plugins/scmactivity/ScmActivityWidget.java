@@ -20,23 +20,18 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.sonar.api.web.AbstractRubyTemplate;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.RubyRailsWidget;
-import org.sonar.api.web.UserRole;
+import org.sonar.api.web.*;
 
-/**
- * @author Evgeny Mandrikov
- */
 @NavigationSection(NavigationSection.RESOURCE)
 @UserRole(UserRole.USER)
+@Description("Report information from the revision control system")
 public class ScmActivityWidget extends AbstractRubyTemplate implements RubyRailsWidget {
   public String getId() {
     return "scmactivity-widget";
   }
 
   public String getTitle() {
-    return "ScmActivity widget";
+    return "SCM Activity";
   }
 
   @Override
