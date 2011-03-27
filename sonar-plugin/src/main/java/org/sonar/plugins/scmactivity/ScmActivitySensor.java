@@ -175,7 +175,18 @@ public class ScmActivitySensor implements Sensor {
 
 
   private String getPreviousRevision(Project project) {
-    return getPreviousMeasure(project, CoreMetrics.SCM_REVISION);
+    // warning: upgrade from SCM plugin 1.1 to 1.2 must be detected.
+    // Data stored with SCM 1.1 is not enough for this analysis so it must be ignored.
+    // The existence of new metrics of 1.2 (authors_by_line for example) is checked
+    List<Measure> measures = getPreviousMeasures(project, CoreMetrics.SCM_REVISION, CoreMetrics.SCM_AUTHORS_BY_LINE);
+    if (measures.size()==2) {
+      for (Measure measure : measures) {
+        if (measure.getMetric().equals(CoreMetrics.SCM_REVISION)) {
+          return measure.getData();
+        }
+      }
+    }
+    return null;
   }
 
 
