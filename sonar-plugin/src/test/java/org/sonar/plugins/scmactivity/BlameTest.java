@@ -28,10 +28,8 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.netbeans.lib.cvsclient.file.FileStatus;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.IsMeasure;
@@ -42,7 +40,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;

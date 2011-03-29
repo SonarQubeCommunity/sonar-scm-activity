@@ -15,7 +15,6 @@
 
   <properties>
     <version.maven-scm>1.4</version.maven-scm>
-    <version.maven-scm-provider-svnjava>1.12</version.maven-scm-provider-svnjava>
   </properties>
 
   <dependencies>
@@ -58,12 +57,6 @@
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-provider-cvsexe</artifactId>
-      <version>${version.maven-scm}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-cvsjava</artifactId>
       <version>${version.maven-scm}</version>
     </dependency>
 
