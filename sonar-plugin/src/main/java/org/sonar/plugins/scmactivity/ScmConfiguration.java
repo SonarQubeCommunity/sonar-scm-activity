@@ -82,6 +82,14 @@ public class ScmConfiguration implements BatchExtension {
     return dirs;
   }
 
+  public boolean isVerbose() {
+    return conf.getBoolean(ScmActivityPlugin.VERBOSE_PROPERTY, ScmActivityPlugin.VERBOSE_DEFAULT_VALUE);
+  }
+
+  public File getWorkdir() {
+    return fileSystem.getSonarWorkingDirectory();
+  }
+
   public String getUrl() {
     String url = conf.getString(ScmActivityPlugin.URL_PROPERTY);
     if (StringUtils.isBlank(url)) {

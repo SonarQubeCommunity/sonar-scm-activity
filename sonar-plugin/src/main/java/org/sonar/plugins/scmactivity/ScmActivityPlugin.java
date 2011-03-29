@@ -76,6 +76,15 @@ import java.util.List;
         module = true,
         project = true,
         global = true
+    ),
+    @Property(
+        key = ScmActivityPlugin.VERBOSE_PROPERTY,
+        defaultValue = "" + ScmActivityPlugin.VERBOSE_DEFAULT_VALUE,
+        name = "Verbose mode",
+        description = "The verbose mode stores the results of SCM commands on disk",
+        module = true,
+        project = true,
+        global = false
     )})
 public final class ScmActivityPlugin implements Plugin {
 
@@ -84,6 +93,8 @@ public final class ScmActivityPlugin implements Plugin {
   public static final String URL_PROPERTY = "sonar.scm.url";
   public static final String ENABLED_PROPERTY = "sonar.scm.enabled";
   public static final boolean ENABLED_DEFAULT_VALUE = false;
+  public static final String VERBOSE_PROPERTY = "sonar.scm.verbose";
+  public static final boolean VERBOSE_DEFAULT_VALUE = false;
   public static final String USER_PROPERTY = "sonar.scm.user.secured";
   public static final String PASSWORD_PROPERTY = "sonar.scm.password.secured";
 

@@ -21,6 +21,8 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -39,7 +41,8 @@ import java.util.List;
 /**
  * @author Evgeny Mandrikov
  */
-public class ScmActivitySensor implements Sensor {
+public final class ScmActivitySensor implements Sensor {
+private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
 
   private TimeMachine timeMachine;
   private ScmConfiguration conf;
@@ -77,6 +80,7 @@ public class ScmActivitySensor implements Sensor {
     changelog.load(projectStatus, getPreviousRevision(project));
 
     TimeProfiler profiler = new TimeProfiler().start("Retrieve files SCM info");
+    LOG.debug(String.format("%d files touched in changelog", projectStatus.getFileStatuses().size()));
     for (FileStatus fileStatus : projectStatus.getFileStatuses()) {
       inspectFile(context, fileStatus);
     }
@@ -87,7 +91,7 @@ public class ScmActivitySensor implements Sensor {
   private void inspectFile(SensorContext context, FileStatus fileStatus) {
     Resource resource = toResource(context, fileStatus);
     if (resource == null) {
-      // this file is not indexed
+      LOG.debug("File not found in Sonar index: " + fileStatus.getFile());
       return;
     }
 
@@ -95,6 +99,7 @@ public class ScmActivitySensor implements Sensor {
       blameSensor.analyse(fileStatus, resource, context);
 
     } else {
+      LOG.debug("File not changed since previous analysis: " + fileStatus.getFile());
       copyPreviousFileMeasures(resource, context);
     }
   }

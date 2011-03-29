@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.*;
 import org.apache.maven.scm.command.changelog.ChangeLogScmResult;
@@ -32,6 +33,8 @@ import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class Changelog implements BatchExtension {
@@ -101,10 +104,19 @@ public class Changelog implements BatchExtension {
       if (!result.isSuccess()) {
         throw new SonarException("Unable to retrieve changelog: " + result.getCommandOutput());
       }
+
+      if (conf.isVerbose()) {
+        File output = new File(conf.getWorkdir(), "scm_changelog.xml");
+        LOG.info("Storing changelog results into: " + output.getCanonicalPath());
+        FileUtils.writeStringToFile(output, result.getChangeLog().toXML());
+      }
       return result.getChangeLog().getChangeSets();
 
     } catch (ScmException e) {
       throw new SonarException("Fail to retrieve changelog from revision " + startRevision, e);
+
+    } catch (IOException e) {
+      throw new SonarException("Fail to store changelog", e);
 
     } finally {
       profiler.stop();
