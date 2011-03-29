@@ -182,8 +182,8 @@ private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.clas
   private String getPreviousRevision(Project project) {
     // warning: upgrade from SCM plugin 1.1 to 1.2 must be detected.
     // Data stored with SCM 1.1 is not enough for this analysis so it must be ignored.
-    // The existence of new metrics of 1.2 (authors_by_line for example) is checked
-    List<Measure> measures = getPreviousMeasures(project, CoreMetrics.SCM_REVISION, CoreMetrics.SCM_AUTHORS_BY_LINE);
+    // The existence of new metrics of 1.2 (last_commit_date for example) is checked
+    List<Measure> measures = getPreviousMeasures(project, CoreMetrics.SCM_REVISION, CoreMetrics.SCM_LAST_COMMIT_DATE);
     if (measures.size()==2) {
       for (Measure measure : measures) {
         if (measure.getMetric().equals(CoreMetrics.SCM_REVISION)) {
