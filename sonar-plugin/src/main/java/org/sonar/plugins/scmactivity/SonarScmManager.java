@@ -26,10 +26,10 @@ import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
-import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +42,9 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
 
   public SonarScmManager(ScmConfiguration conf) {
     if (conf.isEnabled()) {
-      setScmProvider("svn", new SvnExeScmProvider());
+      setScmProvider("svn", new SonarSvnExeScmProvider());
       setScmProvider("cvs", new CvsExeScmProvider());
-      setScmProvider("git", new GitExeScmProvider());
+      setScmProvider("git", new SonarGitExeScmProvider());
       setScmProvider("hg", new HgScmProvider());
       setScmProvider("bazaar", new BazaarScmProvider());
       setScmProvider("clearcase", new ClearCaseScmProvider());

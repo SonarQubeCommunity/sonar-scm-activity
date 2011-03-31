@@ -25,10 +25,10 @@ import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
-import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
+import org.apache.maven.scm.provider.git.gitexe.SonarGitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
-import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.svnexe.SonarSvnExeScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 
@@ -49,13 +49,21 @@ public class SonarScmManagerTest {
   }
 
   @Test
+  public void shouldBePatchedProviders() throws Exception {
+    ScmConfiguration conf = mock(ScmConfiguration.class);
+    when(conf.isEnabled()).thenReturn(true);
+    SonarScmManager scmManager = new SonarScmManager(conf);
+
+    assertTrue(scmManager.getProviderByType("svn") instanceof SonarSvnExeScmProvider);
+    assertTrue(scmManager.getProviderByType("git") instanceof SonarGitExeScmProvider);
+  }
+
+  @Test
   public void shouldBeNativeProviders() throws Exception {
     ScmConfiguration conf = mock(ScmConfiguration.class);
     when(conf.isEnabled()).thenReturn(true);
     SonarScmManager scmManager = new SonarScmManager(conf);
 
-    assertTrue(scmManager.getProviderByType("svn") instanceof SvnExeScmProvider);
-    assertTrue(scmManager.getProviderByType("git") instanceof GitExeScmProvider);
     assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
     assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
     assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);

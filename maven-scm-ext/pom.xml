@@ -14,7 +14,7 @@
   <name>Sonar SCM Activity Plugin :: Maven SCM Ext</name>
 
   <properties>
-    <version.maven-scm>1.5</version.maven-scm>
+    <version.maven-scm>1.4</version.maven-scm>
   </properties>
 
   <dependencies>
