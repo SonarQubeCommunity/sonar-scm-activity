@@ -21,6 +21,7 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
@@ -95,7 +96,7 @@ public class Blame implements BatchExtension {
       Logs.INFO.info("Retrieve SCM info for " + file);
       BlameScmResult result = scmManager.blame(repositoryBuilder.getScmRepository(), new ScmFileSet(file.getParentFile()), file.getName());
       if (!result.isSuccess()) {
-        throw new SonarException("Fail to retrieve SCM info for file " + file + ": " + result.getProviderMessage());
+        throw new SonarException("Fail to retrieve SCM info for file " + file + ": " + result.getProviderMessage() + SystemUtils.LINE_SEPARATOR + result.getCommandOutput());
       }
       return result;
 
