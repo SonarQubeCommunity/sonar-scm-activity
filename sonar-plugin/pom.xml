@@ -18,7 +18,7 @@
 
   <properties>
     <jdk.min.version>1.5</jdk.min.version>
-    <sonar.buildVersion>2.7-SNAPSHOT</sonar.buildVersion>
+    <sonar.buildVersion>2.7</sonar.buildVersion>
     <sonar.pluginName>SCM Activity</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
   </properties>
