@@ -114,7 +114,7 @@ public final class ScmActivityPlugin implements Plugin {
     return Arrays.asList(
         ScmConfiguration.class, MavenScmConfiguration.class, SonarScmRepository.class, Changelog.class,
         SonarScmManager.class, ScmActivitySensor.class, ScmDecorator.class,
-        LocalModificationChecker.class, Blame.class,
+        LocalModificationChecker.class, Blame.class, UrlChecker.class,
         ScmActivityWidget.class);
   }
 }

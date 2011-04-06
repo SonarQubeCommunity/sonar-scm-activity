@@ -57,8 +57,4 @@ public class SonarScmRepository implements BatchExtension {
       throw new SonarException(e);
     }
   }
-
-  public void clean() {
-    repository = null;
-  }
 }

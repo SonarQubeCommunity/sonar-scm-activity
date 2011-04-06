@@ -49,13 +49,15 @@ private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.clas
   private LocalModificationChecker checkLocalModifications;
   private Changelog changelog;
   private Blame blameSensor;
+  private UrlChecker urlChecker;
 
-  public ScmActivitySensor(ScmConfiguration conf, LocalModificationChecker checkLocalModifications, Changelog changelog, Blame blameSensor, TimeMachine timeMachine) {
+  public ScmActivitySensor(ScmConfiguration conf, LocalModificationChecker checkLocalModifications, Changelog changelog, Blame blameSensor, TimeMachine timeMachine, UrlChecker urlChecker) {
     this.conf = conf;
     this.checkLocalModifications = checkLocalModifications;
     this.changelog = changelog;
     this.blameSensor = blameSensor;
     this.timeMachine = timeMachine;
+    this.urlChecker = urlChecker;
   }
 
   @DependedUpon
@@ -74,6 +76,7 @@ private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.clas
   }
 
   public void analyse(Project project, SensorContext context) {
+    urlChecker.check();
     checkLocalModifications.check();
 
     ProjectStatus projectStatus = new ProjectStatus(project);
