@@ -23,6 +23,7 @@ package org.sonar.plugins.scmactivity;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
@@ -53,6 +54,14 @@ public class ScmConfiguration implements BatchExtension {
 
   public boolean isEnabled() {
     return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && getUrl() != null;
+  }
+
+  public String getScmProvider() {
+    String url = getUrl();
+    if (StringUtils.isNotBlank(url)) {
+      return ScmUrlUtils.getProvider(url);
+    }
+    return null;
   }
 
   public String getUser() {

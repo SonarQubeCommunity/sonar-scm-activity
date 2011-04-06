@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -81,39 +82,45 @@ public class ScmConfigurationTest {
   @Test
   public void shouldBeEnabled() {
     configuration.addProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
-    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:http:xxx");
+    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:svn:http:foo");
     assertThat(scmConfiguration.isEnabled(), is(true));
   }
 
 
   @Test
   public void shouldGetMavenDeveloperUrlIfCredentials() {
-    when(mavenConf.getDeveloperUrl()).thenReturn("scm:https:writable");
+    when(mavenConf.getDeveloperUrl()).thenReturn("scm:svn:https:writable");
     configuration.addProperty(ScmActivityPlugin.USER_PROPERTY, "godin");
     configuration.addProperty(ScmActivityPlugin.PASSWORD_PROPERTY, "pass");
 
-    assertThat(scmConfiguration.getUrl(), is("scm:https:writable"));
+    assertThat(scmConfiguration.getUrl(), is("scm:svn:https:writable"));
   }
 
   @Test
   public void shouldNotGetMavenDeveloperUrlIfNoCredentials() {
-    when(mavenConf.getDeveloperUrl()).thenReturn("scm:https:writable");
-    when(mavenConf.getUrl()).thenReturn("scm:https:readonly");
+    when(mavenConf.getDeveloperUrl()).thenReturn("scm:svn:https:writable");
+    when(mavenConf.getUrl()).thenReturn("scm:svn:https:readonly");
     
-    assertThat(scmConfiguration.getUrl(), is("scm:https:readonly"));
+    assertThat(scmConfiguration.getUrl(), is("scm:svn:https:readonly"));
   }
 
   @Test
   public void shouldGetMavenUrlIfNoDeveloperUrl() {
-    when(mavenConf.getUrl()).thenReturn("scm:http:readonly");
-    assertThat(scmConfiguration.getUrl(), is("scm:http:readonly"));
+    when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
+    assertThat(scmConfiguration.getUrl(), is("scm:svn:http:readonly"));
   }
 
   @Test
   public void shouldOverrideMavenUrl() {
-    when(mavenConf.getUrl()).thenReturn("scm:http:readonly");
-    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:http:override");
+    when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
+    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:svn:http:override");
 
-    assertThat(scmConfiguration.getUrl(), is("scm:http:override"));
+    assertThat(scmConfiguration.getUrl(), is("scm:svn:http:override"));
+  }
+
+  @Test
+  public void shouldGetScmProvider() {
+    when(mavenConf.getUrl()).thenReturn("scm:svn:http:foo");
+    assertThat(scmConfiguration.getScmProvider(), is("svn"));
   }
 }

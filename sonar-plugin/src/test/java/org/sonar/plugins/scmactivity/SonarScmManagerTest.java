@@ -29,10 +29,14 @@ import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -62,5 +66,16 @@ public class SonarScmManagerTest {
     assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
     assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
     assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);
+  }
+
+  @Test
+  public void shouldInitSvn() throws Exception {
+    ScmConfiguration conf = mock(ScmConfiguration.class);
+    when(conf.isEnabled()).thenReturn(true);
+    when(conf.getScmProvider()).thenReturn("svn");
+
+    new SonarScmManager(conf);
+
+    assertThat(SvnUtil.getSettings().isTrustServerCert(), is(true));
   }
 }

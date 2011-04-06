@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
@@ -30,6 +31,7 @@ import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
+import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,20 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
       setScmProvider("accurev", new AccuRevScmProvider());
       setScmProvider("perforce", new PerforceScmProvider());
       setScmProvider("tfs", new TfsScmProvider());
+
+      if (StringUtils.equals(conf.getScmProvider(), "svn")) {
+        initSvn();
+      }
     }
+  }
+
+  private void initSvn() {
+    /*
+     http://jira.codehaus.org/browse/SONARPLUGINS-1082
+     The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
+     However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
+     */
+    SvnUtil.getSettings().setTrustServerCert(true);
   }
 
   @Override
@@ -61,7 +76,6 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
 
   private static class SonarScmLogger implements ScmLogger {
     private Logger log;
-
     SonarScmLogger(Logger log) {
       this.log = log;
     }

@@ -27,6 +27,7 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
