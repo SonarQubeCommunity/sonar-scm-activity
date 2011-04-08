@@ -27,7 +27,6 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -36,7 +35,6 @@ import org.sonar.api.measures.*;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Logs;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.util.Date;
@@ -64,29 +62,31 @@ public class Blame implements BatchExtension {
   public void analyse(ProjectStatus.FileStatus fileStatus, Resource resource, SensorContext context) {
     BlameScmResult result = retrieveBlame(fileStatus.getFile());
 
-    authorsBuilder.clear();
-    revisionsBuilder.clear();
-    datesBuilder.clear();
+    if (result != null) {
+      authorsBuilder.clear();
+      revisionsBuilder.clear();
+      datesBuilder.clear();
 
-    List lines = result.getLines();
-    for (int i = 0; i < lines.size(); i++) {
-      BlameLine line = (BlameLine) lines.get(i);
-      Date date = line.getDate();
-      String revision = line.getRevision();
-      String author = line.getAuthor();
+      List lines = result.getLines();
+      for (int i = 0; i < lines.size(); i++) {
+        BlameLine line = (BlameLine) lines.get(i);
+        Date date = line.getDate();
+        String revision = line.getRevision();
+        String author = line.getAuthor();
 
-      int lineNumber = i + 1;
-      datesBuilder.add(lineNumber, DateUtils.formatDateTime(date));
-      revisionsBuilder.add(lineNumber, revision);
-      authorsBuilder.add(lineNumber, author);
+        int lineNumber = i + 1;
+        datesBuilder.add(lineNumber, DateUtils.formatDateTime(date));
+        revisionsBuilder.add(lineNumber, revision);
+        authorsBuilder.add(lineNumber, author);
+      }
+
+
+      saveDataMeasure(context, resource, CoreMetrics.SCM_REVISION, fileStatus.getRevision(), PersistenceMode.FULL);
+      saveDataMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATE, ScmUtils.formatLastCommitDate(fileStatus.getDate()), PersistenceMode.FULL);
+      saveDataMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, datesBuilder.buildData(), PersistenceMode.DATABASE);
+      saveDataMeasure(context, resource, CoreMetrics.SCM_REVISIONS_BY_LINE, revisionsBuilder.buildData(), PersistenceMode.DATABASE);
+      saveDataMeasure(context, resource, CoreMetrics.SCM_AUTHORS_BY_LINE, authorsBuilder.buildData(), PersistenceMode.DATABASE);
     }
-
-
-    saveDataMeasure(context, resource, CoreMetrics.SCM_REVISION, fileStatus.getRevision(), PersistenceMode.FULL);
-    saveDataMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATE, ScmUtils.formatLastCommitDate(fileStatus.getDate()), PersistenceMode.FULL);
-    saveDataMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, datesBuilder.buildData(), PersistenceMode.DATABASE);
-    saveDataMeasure(context, resource, CoreMetrics.SCM_REVISIONS_BY_LINE, revisionsBuilder.buildData(), PersistenceMode.DATABASE);
-    saveDataMeasure(context, resource, CoreMetrics.SCM_AUTHORS_BY_LINE, authorsBuilder.buildData(), PersistenceMode.DATABASE);
   }
 
   private void saveDataMeasure(SensorContext context, Resource resource, Metric metricKey, String data, PersistenceMode persistence) {
