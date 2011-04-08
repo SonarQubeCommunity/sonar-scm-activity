@@ -28,6 +28,7 @@ import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.svn.util.SvnUtil;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
@@ -45,6 +46,8 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public class Blame implements BatchExtension {
+  private static final Logger LOG = LoggerFactory.getLogger(Blame.class);
+
   private ScmManager scmManager;
   private SonarScmRepository repositoryBuilder;
 
@@ -97,13 +100,14 @@ public class Blame implements BatchExtension {
       Logs.INFO.info("Retrieve SCM info for " + file);
       BlameScmResult result = scmManager.blame(repositoryBuilder.getScmRepository(), new ScmFileSet(file.getParentFile()), file.getName());
       if (!result.isSuccess()) {
-        throw new SonarException("Fail to retrieve SCM info for file " + file + ": " + result.getProviderMessage() + SystemUtils.LINE_SEPARATOR + result.getCommandOutput());
+        LOG.warn("Fail to retrieve SCM info of: " + file + ". Reason: " + result.getProviderMessage() + SystemUtils.LINE_SEPARATOR + result.getCommandOutput());
+        return null;
       }
       return result;
 
     } catch (ScmException e) {
       // See SONARPLUGINS-368. Can occur on generated source
-      LoggerFactory.getLogger(getClass()).debug("Unable to retrieve SCM info of: " + file, e);
+      LOG.warn("Fail to retrieve SCM info of: " + file, e);
       return null;
     }
   }

@@ -40,6 +40,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -69,7 +70,7 @@ public class BlameTest {
     doThrow(new ScmException("ERROR")).when(scmManager).blame(any(ScmRepository.class), any(ScmFileSet.class), anyString());
 
     File file = TestUtils.getResource(getClass(), FILENAME);
-    blame.retrieveBlame(file);
+    assertNull(blame.retrieveBlame(file));
 
     // no exception
   }
