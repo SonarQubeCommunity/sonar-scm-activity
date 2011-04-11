@@ -44,7 +44,7 @@
 
   <modules>
     <module>maven-scm-ext</module>
-    <module>sonar-plugin</module>
+    <module>sonar-scm-activity-plugin</module>
   </modules>
 
   <scm>
