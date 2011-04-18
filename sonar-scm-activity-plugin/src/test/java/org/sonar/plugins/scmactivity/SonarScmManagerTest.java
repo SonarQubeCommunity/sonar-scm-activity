@@ -23,7 +23,7 @@ package org.sonar.plugins.scmactivity;
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
-import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.clearcase.FixedClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
@@ -62,7 +62,7 @@ public class SonarScmManagerTest {
     assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
     assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
     assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
-    assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
+    assertTrue(scmManager.getProviderByType("clearcase") instanceof FixedClearCaseScmProvider);
     assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
     assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
     assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);

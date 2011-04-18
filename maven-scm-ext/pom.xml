@@ -13,7 +13,9 @@
   <name>Sonar SCM Activity Plugin :: Maven SCM Ext</name>
 
   <properties>
+    <!-- TODO Update to 1.6 and remove src/main/java/org/apache/maven/scm/provider/clearcase/ due to http://jira.codehaus.org/browse/SCM-619 -->
     <version.maven-scm>1.5</version.maven-scm>
+    <license.skip>true</license.skip>
   </properties>
 
   <dependencies>

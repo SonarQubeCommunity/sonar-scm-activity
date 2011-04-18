@@ -25,7 +25,7 @@ import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
-import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.clearcase.FixedClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
@@ -49,7 +49,7 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
       setScmProvider("git", new GitExeScmProvider());
       setScmProvider("hg", new HgScmProvider());
       setScmProvider("bazaar", new BazaarScmProvider());
-      setScmProvider("clearcase", new ClearCaseScmProvider());
+      setScmProvider("clearcase", new FixedClearCaseScmProvider());
       setScmProvider("accurev", new AccuRevScmProvider());
       setScmProvider("perforce", new PerforceScmProvider());
       setScmProvider("tfs", new TfsScmProvider());
