@@ -42,7 +42,7 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public final class ScmActivitySensor implements Sensor {
-private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
 
   private TimeMachine timeMachine;
   private ScmConfiguration conf;
@@ -61,7 +61,7 @@ private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.clas
   }
 
   @DependedUpon
-  public final List<Metric> generatesMetrics() {
+  public List<Metric> generatesMetrics() {
     return Arrays.asList(
         CoreMetrics.SCM_REVISION,
         CoreMetrics.SCM_LAST_COMMIT_DATE,

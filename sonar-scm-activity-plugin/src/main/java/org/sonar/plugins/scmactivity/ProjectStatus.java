@@ -27,7 +27,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 /**
