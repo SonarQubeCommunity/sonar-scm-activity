@@ -20,9 +20,18 @@
 
 package org.sonar.plugins.scmactivity;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.scm.*;
+import org.apache.maven.scm.ChangeFile;
+import org.apache.maven.scm.ChangeSet;
+import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.ScmRevision;
 import org.apache.maven.scm.command.changelog.ChangeLogScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
@@ -32,10 +41,6 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 public class Changelog implements BatchExtension {
 
@@ -87,7 +92,6 @@ public class Changelog implements BatchExtension {
       endVersion = new ScmRevision("BASE");
     }
 
-
     String title = "Retrieve changelog";
     if (StringUtils.isNotBlank(startRevision)) {
       title += " from revision " + startRevision;
@@ -98,7 +102,9 @@ public class Changelog implements BatchExtension {
     }
 
     try {
-      ChangeLogScmResult result = manager.changeLog(repository, new ScmFileSet(conf.getBaseDir()),
+      // Next line is required to workaround problem with TFS (see SONARPLUGINS-1291) and it should not have an impact on other SCMs.
+      ScmFileSet fileSet = new ScmFileSet(conf.getBaseDir(), Arrays.asList(new File(".")));
+      ChangeLogScmResult result = manager.changeLog(repository, fileSet,
           startRevision == null ? null : new ScmRevision(startRevision), endVersion);
 
       if (!result.isSuccess()) {
