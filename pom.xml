@@ -48,10 +48,11 @@
   </modules>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/sonar-plugins/trunk/scm-activity</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</developerConnection>
-    <url>http://svn.sonar-plugins.codehaus.org</url>
+    <connection>scm:git:git@github.com:SonarSourceEcosystem/scm-activity.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarSourceEcosystem/scm-activity.git</developerConnection>
+    <url>https://github.com/SonarSourceEcosystem/scm-activity</url>
   </scm>
+
   <issueManagement>
     <system>JIRA</system>
     <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14305</url>
