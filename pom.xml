@@ -47,9 +47,9 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/scm-activity.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/scm-activity.git</developerConnection>
-    <url>https://github.com/SonarCommunity/scm-activity</url>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-scm-activity.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-scm-activity.git</developerConnection>
+    <url>https://github.com/SonarCommunity/sonar-scm-activity</url>
   </scm>
 
   <issueManagement>
