@@ -20,10 +20,14 @@
 
 package org.sonar.plugins.scmactivity;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
-import org.apache.maven.scm.provider.clearcase.FixedClearCaseScmProvider;
+import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
@@ -32,13 +36,6 @@ import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SonarScmManagerTest {
 
@@ -62,7 +59,7 @@ public class SonarScmManagerTest {
     assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
     assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
     assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
-    assertTrue(scmManager.getProviderByType("clearcase") instanceof FixedClearCaseScmProvider);
+    assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
     assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
     assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
     assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);
