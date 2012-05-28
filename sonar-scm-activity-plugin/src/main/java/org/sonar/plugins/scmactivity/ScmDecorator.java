@@ -60,7 +60,7 @@ public class ScmDecorator implements Decorator {
         Measure revision = child.getMeasure(CoreMetrics.SCM_REVISION);
         if (MeasureUtils.hasData(lastCommit) && MeasureUtils.hasData(revision)) {
           Date date = ScmUtils.parseLastCommitDate(lastCommit.getData());
-          if (lastCommitDate == null || lastCommitDate.before(date)) {
+          if ((lastCommitDate == null) || lastCommitDate.before(date)) {
             lastCommitDate = date;
             lastRevision = revision.getData();
           }
@@ -78,8 +78,8 @@ public class ScmDecorator implements Decorator {
 
   private boolean shouldDecorate(Resource resource, DecoratorContext context) {
     return Scopes.isHigherThan(resource, Scopes.FILE) &&
-        !resource.getQualifier().equals(Qualifiers.VIEW) &&
-        !resource.getQualifier().equals(Qualifiers.SUBVIEW) &&
-        context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE) == null;
+      !resource.getQualifier().equals(Qualifiers.VIEW) &&
+      !resource.getQualifier().equals(Qualifiers.SUBVIEW) &&
+      (context.getMeasure(CoreMetrics.SCM_LAST_COMMIT_DATE) == null);
   }
 }

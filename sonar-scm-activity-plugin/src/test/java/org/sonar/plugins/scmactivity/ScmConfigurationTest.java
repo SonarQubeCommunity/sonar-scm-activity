@@ -20,17 +20,11 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.maven.model.Scm;
-import org.apache.maven.project.MavenProject;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -78,14 +72,12 @@ public class ScmConfigurationTest {
     assertThat(scmConfiguration.isEnabled(), is(false));
   }
 
-
   @Test
   public void shouldBeEnabled() {
     configuration.addProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
     configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:svn:http:foo");
     assertThat(scmConfiguration.isEnabled(), is(true));
   }
-
 
   @Test
   public void shouldGetMavenDeveloperUrlIfCredentials() {
@@ -100,7 +92,7 @@ public class ScmConfigurationTest {
   public void shouldNotGetMavenDeveloperUrlIfNoCredentials() {
     when(mavenConf.getDeveloperUrl()).thenReturn("scm:svn:https:writable");
     when(mavenConf.getUrl()).thenReturn("scm:svn:https:readonly");
-    
+
     assertThat(scmConfiguration.getUrl(), is("scm:svn:https:readonly"));
   }
 

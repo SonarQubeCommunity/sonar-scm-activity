@@ -23,7 +23,11 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -44,14 +48,15 @@ import java.util.List;
 public final class ScmActivitySensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
 
-  private TimeMachine timeMachine;
-  private ScmConfiguration conf;
-  private LocalModificationChecker checkLocalModifications;
-  private Changelog changelog;
-  private Blame blameSensor;
-  private UrlChecker urlChecker;
+  private final TimeMachine timeMachine;
+  private final ScmConfiguration conf;
+  private final LocalModificationChecker checkLocalModifications;
+  private final Changelog changelog;
+  private final Blame blameSensor;
+  private final UrlChecker urlChecker;
 
-  public ScmActivitySensor(ScmConfiguration conf, LocalModificationChecker checkLocalModifications, Changelog changelog, Blame blameSensor, TimeMachine timeMachine, UrlChecker urlChecker) {
+  public ScmActivitySensor(ScmConfiguration conf, LocalModificationChecker checkLocalModifications, Changelog changelog, Blame blameSensor, TimeMachine timeMachine,
+      UrlChecker urlChecker) {
     this.conf = conf;
     this.checkLocalModifications = checkLocalModifications;
     this.changelog = changelog;
@@ -112,9 +117,9 @@ public final class ScmActivitySensor implements Sensor {
         CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, CoreMetrics.SCM_REVISIONS_BY_LINE, CoreMetrics.SCM_AUTHORS_BY_LINE);
 
     for (Measure previousMeasure : previousMeasures) {
-      if (StringUtils.isNotBlank( previousMeasure.getData())) {
+      if (StringUtils.isNotBlank(previousMeasure.getData())) {
         PersistenceMode persistence = previousMeasure.getMetric().isDataType() ? PersistenceMode.DATABASE : PersistenceMode.FULL;
-        context.saveMeasure(resource, new Measure(previousMeasure.getMetric(),  previousMeasure.getData())).setPersistenceMode(persistence);
+        context.saveMeasure(resource, new Measure(previousMeasure.getMetric(), previousMeasure.getData())).setPersistenceMode(persistence);
       }
     }
   }
@@ -181,13 +186,12 @@ public final class ScmActivitySensor implements Sensor {
     return timeMachine.getMeasures(query);
   }
 
-
   private String getPreviousRevision(Project project) {
     // warning: upgrade from SCM plugin 1.1 to 1.2 must be detected.
     // Data stored with SCM 1.1 is not enough for this analysis so it must be ignored.
     // The existence of new metrics of 1.2 (last_commit_date for example) is checked
     List<Measure> measures = getPreviousMeasures(project, CoreMetrics.SCM_REVISION, CoreMetrics.SCM_LAST_COMMIT_DATE);
-    if (measures.size()==2) {
+    if (measures.size() == 2) {
       for (Measure measure : measures) {
         if (measure.getMetric().equals(CoreMetrics.SCM_REVISION)) {
           return measure.getData();
@@ -196,7 +200,6 @@ public final class ScmActivitySensor implements Sensor {
     }
     return null;
   }
-
 
   @Override
   public String toString() {

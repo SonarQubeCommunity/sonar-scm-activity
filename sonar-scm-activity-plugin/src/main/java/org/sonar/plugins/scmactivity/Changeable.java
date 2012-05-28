@@ -46,7 +46,7 @@ public abstract class Changeable {
   }
 
   protected void doAdd(ChangeSet changeSet) {
-    
+
   }
 
   /**

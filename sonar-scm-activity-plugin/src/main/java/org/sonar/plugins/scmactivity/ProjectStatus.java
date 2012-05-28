@@ -34,7 +34,7 @@ import java.util.List;
  */
 public final class ProjectStatus extends Changeable {
 
-  private List<FileStatus> fileStatuses = Lists.newArrayList();
+  private final List<FileStatus> fileStatuses = Lists.newArrayList();
 
   public ProjectStatus(Project project) {
     this(project.getFileSystem());
@@ -52,6 +52,7 @@ public final class ProjectStatus extends Changeable {
     }
   }
 
+  @Override
   protected void doAdd(ChangeSet changeSet) {
     for (FileStatus status : fileStatuses) {
       if (changeSet.containsFilename(status.getRelativePath())) {
@@ -65,8 +66,8 @@ public final class ProjectStatus extends Changeable {
   }
 
   static final class FileStatus extends Changeable {
-    private File file;
-    private String relativePath;
+    private final File file;
+    private final String relativePath;
 
     FileStatus(InputFile inputFile) {
       this.file = inputFile.getFile();

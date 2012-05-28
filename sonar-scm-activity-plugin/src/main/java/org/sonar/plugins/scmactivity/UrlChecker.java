@@ -30,8 +30,8 @@ public class UrlChecker implements BatchExtension {
 
   private static final String PARAMETER_MESSAGE = String.format("Please check the parameter \"%s\" or the <scm> section of Maven pom.", ScmActivityPlugin.URL_PROPERTY);
 
-  private ScmManager manager;
-  private ScmConfiguration conf;
+  private final ScmManager manager;
+  private final ScmConfiguration conf;
 
   public UrlChecker(ScmManager manager, ScmConfiguration conf) {
     this.manager = manager;
@@ -47,10 +47,12 @@ public class UrlChecker implements BatchExtension {
       throw new SonarException(String.format("SCM URL must not be blank. " + PARAMETER_MESSAGE));
     }
     if (!StringUtils.startsWith(url, "scm:")) {
-      throw new SonarException(String.format("URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: \"%s\". %s", url, PARAMETER_MESSAGE));
+      throw new SonarException(String.format("URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: \"%s\". %s", url,
+          PARAMETER_MESSAGE));
     }
     if (!isSupportedProvider(url)) {
-      throw new SonarException(String.format("SCM provider not supported: \"%s\". Compatibility matrix is available at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin", conf.getScmProvider()));
+      throw new SonarException(String.format("SCM provider not supported: \"%s\". Compatibility matrix is available at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin",
+          conf.getScmProvider()));
     }
   }
 

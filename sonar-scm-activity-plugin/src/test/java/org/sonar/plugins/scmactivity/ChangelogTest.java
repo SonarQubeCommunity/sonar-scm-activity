@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ChangelogTest {
-  
+
   @Test
   public void shouldFixMissingRevision() {
     // missing revision

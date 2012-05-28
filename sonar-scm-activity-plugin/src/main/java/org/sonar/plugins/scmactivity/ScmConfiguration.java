@@ -34,11 +34,11 @@ import java.util.List;
 
 public class ScmConfiguration implements BatchExtension {
 
-  private Configuration conf;
-  private MavenScmConfiguration mavenConf;
-  private ProjectFileSystem fileSystem;
-  private boolean isJavaProject;
-  private boolean isIgnoreLocalModifications;
+  private final Configuration conf;
+  private final MavenScmConfiguration mavenConf;
+  private final ProjectFileSystem fileSystem;
+  private final boolean isJavaProject;
+  private final boolean isIgnoreLocalModifications;
 
   public ScmConfiguration(Project project, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
     this.fileSystem = project.getFileSystem();
@@ -53,7 +53,7 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public boolean isEnabled() {
-    return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && getUrl() != null;
+    return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && (getUrl() != null);
   }
 
   public String getScmProvider() {

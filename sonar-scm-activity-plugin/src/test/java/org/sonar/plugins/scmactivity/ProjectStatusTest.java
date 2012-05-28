@@ -61,7 +61,7 @@ public class ProjectStatusTest {
 
   @Test
   public void shouldTrackProjectChanges() {
-    ProjectStatus changes = new ProjectStatus(Collections.<File>emptyList());
+    ProjectStatus changes = new ProjectStatus(Collections.<File> emptyList());
 
     changes.add(mockChangeSet(-1, "simon", "1"));
     changes.add(mockChangeSet(0, "godin", "2"));

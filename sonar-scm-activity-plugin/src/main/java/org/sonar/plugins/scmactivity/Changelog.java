@@ -20,11 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ChangeFile;
@@ -42,13 +37,18 @@ import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 public class Changelog implements BatchExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(Changelog.class);
 
-  private SonarScmRepository repositoryBuilder;
-  private ScmManager manager;
-  private ScmConfiguration conf;
+  private final SonarScmRepository repositoryBuilder;
+  private final ScmManager manager;
+  private final ScmConfiguration conf;
 
   public Changelog(ScmConfiguration conf, SonarScmRepository repositoryBuilder, ScmManager manager) {
     this.conf = conf;
@@ -64,10 +64,10 @@ public class Changelog implements BatchExtension {
         // Git excludes this revision from changelog, but Subversion not
         if (!StringUtils.equals(startRevision, changeSet.getRevision())) {
           if (LOG.isDebugEnabled()) {
-            LOG.debug("{} files changed {} ({})", new Object[]{
-                changeSet.getFiles().size(),
-                changeSet.getDateFormatted() + " " + changeSet.getTimeFormatted(),
-                changeSet.getRevision()});
+            LOG.debug("{} files changed {} ({})", new Object[] {
+              changeSet.getFiles().size(),
+              changeSet.getDateFormatted() + " " + changeSet.getTimeFormatted(),
+              changeSet.getRevision()});
           }
           status.add(changeSet);
         }

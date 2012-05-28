@@ -28,7 +28,7 @@ import org.sonar.api.batch.SupportedEnvironment;
 @SupportedEnvironment({"maven"})
 public class MavenScmConfiguration implements BatchExtension {
 
-  private MavenProject pom;
+  private final MavenProject pom;
 
   public MavenScmConfiguration(MavenProject pom) {
     this.pom = pom;

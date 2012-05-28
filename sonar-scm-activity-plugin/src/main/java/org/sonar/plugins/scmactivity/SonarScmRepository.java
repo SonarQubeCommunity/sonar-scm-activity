@@ -29,8 +29,8 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 
 public class SonarScmRepository implements BatchExtension {
-  private ScmManager manager;
-  private ScmConfiguration conf;
+  private final ScmManager manager;
+  private final ScmConfiguration conf;
   private ScmRepository repository;
 
   public SonarScmRepository(ScmManager manager, ScmConfiguration conf) {

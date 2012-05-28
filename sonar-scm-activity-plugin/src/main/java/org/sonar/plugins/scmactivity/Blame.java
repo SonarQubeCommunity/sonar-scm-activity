@@ -31,7 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Logs;
@@ -46,18 +50,17 @@ import java.util.List;
 public class Blame implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(Blame.class);
 
-  private ScmManager scmManager;
-  private SonarScmRepository repositoryBuilder;
+  private final ScmManager scmManager;
+  private final SonarScmRepository repositoryBuilder;
 
-  private PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_AUTHORS_BY_LINE);
-  private PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-  private PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_REVISIONS_BY_LINE);
+  private final PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_AUTHORS_BY_LINE);
+  private final PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+  private final PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_REVISIONS_BY_LINE);
 
   public Blame(ScmManager scmManager, SonarScmRepository repositoryBuilder) {
     this.scmManager = scmManager;
     this.repositoryBuilder = repositoryBuilder;
   }
-
 
   public void analyse(ProjectStatus.FileStatus fileStatus, Resource resource, SensorContext context) {
     BlameScmResult result = retrieveBlame(fileStatus.getFile());
@@ -79,7 +82,6 @@ public class Blame implements BatchExtension {
         revisionsBuilder.add(lineNumber, revision);
         authorsBuilder.add(lineNumber, author);
       }
-
 
       saveDataMeasure(context, resource, CoreMetrics.SCM_REVISION, fileStatus.getRevision(), PersistenceMode.FULL);
       saveDataMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATE, ScmUtils.formatLastCommitDate(fileStatus.getDate()), PersistenceMode.FULL);

@@ -35,9 +35,9 @@ import java.io.File;
 
 public class LocalModificationChecker implements BatchExtension {
 
-  private ScmManager manager;
-  private SonarScmRepository repository;
-  private ScmConfiguration config;
+  private final ScmManager manager;
+  private final SonarScmRepository repository;
+  private final ScmConfiguration config;
 
   public LocalModificationChecker(ScmConfiguration config, ScmManager manager, SonarScmRepository repository) {
     this.config = config;

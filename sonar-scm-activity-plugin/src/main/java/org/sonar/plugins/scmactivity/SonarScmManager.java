@@ -62,9 +62,9 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
 
   private void initSvn() {
     /*
-     http://jira.codehaus.org/browse/SONARPLUGINS-1082
-     The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
-     However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
+     * http://jira.codehaus.org/browse/SONARPLUGINS-1082
+     * The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
+     * However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
      */
     SvnUtil.getSettings().setTrustServerCert(true);
   }
@@ -75,7 +75,8 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
   }
 
   private static class SonarScmLogger implements ScmLogger {
-    private Logger log;
+    private final Logger log;
+
     SonarScmLogger(Logger log) {
       this.log = log;
     }
