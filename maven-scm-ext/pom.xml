@@ -32,13 +32,6 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-svntest</artifactId>
-      <version>${version.maven-scm}</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- GIT -->
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
@@ -46,25 +39,11 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-gittest</artifactId>
-      <version>${version.maven-scm}</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- CVS -->
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-provider-cvsexe</artifactId>
       <version>${version.maven-scm}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-cvstest</artifactId>
-      <version>${version.maven-scm}</version>
-      <scope>test</scope>
     </dependency>
 
     <!-- Mercurial -->
@@ -107,14 +86,6 @@
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-provider-tfs</artifactId>
       <version>${version.maven-scm}</version>
-    </dependency>
-
-    <!-- Unit tests -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.2</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
