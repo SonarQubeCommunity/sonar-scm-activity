@@ -23,48 +23,69 @@ package org.sonar.plugins.scmactivity;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SonarScmRepositoryTest {
+  ScmConfiguration conf = mock(ScmConfiguration.class);
+  ScmManager manager = mock(ScmManager.class);
+  ScmRepository repository = mock(ScmRepository.class);
+  ScmProviderRepository provider = mock(ScmProviderRepository.class);
+  SonarScmRepository repo;
+
+  @Before
+  public void setUp() {
+    repo = new SonarScmRepository(manager, conf);
+  }
 
   @Test
-  public void shouldSetCredentials() throws Exception {
-    ScmConfiguration conf = mock(ScmConfiguration.class);
+  public void should_set_credentials() throws Exception {
+    when(conf.getUrl()).thenReturn("/url");
     when(conf.getUser()).thenReturn("godin");
     when(conf.getPassword()).thenReturn("pass");
-
-    ScmManager manager = mock(ScmManager.class);
-    ScmRepository repository = mock(ScmRepository.class);
-    ScmProviderRepository provider = mock(ScmProviderRepository.class);
-    when(manager.makeScmRepository(anyString())).thenReturn(repository);
+    when(manager.makeScmRepository("/url")).thenReturn(repository);
     when(repository.getProviderRepository()).thenReturn(provider);
 
-    SonarScmRepository repo = new SonarScmRepository(manager, conf);
-    assertThat(repo.getScmRepository(), sameInstance(repo.getScmRepository()));
+    ScmRepository scmRepository = repo.getScmRepository();
 
+    assertThat(scmRepository).isSameAs(repo.getScmRepository());
     verify(provider).setUser("godin");
     verify(provider).setPassword("pass");
   }
 
   @Test
-  public void shouldNotSetCredentials() throws Exception {
-    ScmConfiguration conf = mock(ScmConfiguration.class);
+  public void should_not_set_credentials_for_blank_user() throws Exception {
+    when(conf.getUser()).thenReturn("");
+    when(conf.getPassword()).thenReturn("");
+    when(conf.getUrl()).thenReturn("/url");
+    when(manager.makeScmRepository("/url")).thenReturn(repository);
 
-    ScmManager manager = mock(ScmManager.class);
-    ScmRepository repository = mock(ScmRepository.class);
-    ScmProviderRepository provider = mock(ScmProviderRepository.class);
-    when(manager.makeScmRepository(anyString())).thenReturn(repository);
-    when(repository.getProviderRepository()).thenReturn(provider);
+    ScmRepository scmRepository = repo.getScmRepository();
 
-    SonarScmRepository repo = new SonarScmRepository(manager, conf);
-    assertThat(repo.getScmRepository(), sameInstance(repo.getScmRepository()));
-
+    assertThat(scmRepository).isSameAs(repo.getScmRepository());
     verify(provider, never()).setUser(anyString());
     verify(provider, never()).setPassword(anyString());
   }
 
+  @Test
+  public void should_set_credentials_for_blank_password() throws Exception {
+    when(conf.getUrl()).thenReturn("/url");
+    when(conf.getUser()).thenReturn("login");
+    when(conf.getPassword()).thenReturn("");
+    when(manager.makeScmRepository("/url")).thenReturn(repository);
+    when(repository.getProviderRepository()).thenReturn(provider);
+
+    ScmRepository scmRepository = repo.getScmRepository();
+
+    assertThat(scmRepository).isSameAs(repo.getScmRepository());
+    verify(provider).setUser("login");
+    verify(provider).setPassword("");
+  }
 }

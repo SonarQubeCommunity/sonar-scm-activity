@@ -20,72 +20,72 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author Evgeny Mandrikov
  */
 @Properties({
-    @Property(
-        key = ScmActivityPlugin.ENABLED_PROPERTY,
-        defaultValue = ScmActivityPlugin.ENABLED_DEFAULT_VALUE + "",
-        name = "Enable loading of SCM activity. It requires to connect to SCM server.",
-        description = "",
-        module = true,
-        project = true,
-        global = true
-    ),
-    @Property(
-        key = ScmActivityPlugin.URL_PROPERTY,
-        defaultValue = "",
-        name = "SCM URL",
-        description = "SCM URL. The format is described in <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
-            "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>",
-        module = true,
-        project = true,
-        global = false
-    ),
-    @Property(
-        key = ScmActivityPlugin.USER_PROPERTY,
-        defaultValue = "",
-        name = "User",
-        description = "User to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
-        module = false,
-        project = true,
-        global = true
-    ),
-    @Property(
-        key = ScmActivityPlugin.PASSWORD_PROPERTY,
-        defaultValue = "",
-        name = "Password",
-        description = "Password to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
-        module = false,
-        project = true,
-        global = true
-    ),
-    @Property(
-        key = ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS,
-        defaultValue = "" + ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE,
-        name = "Ignore local modifications",
-        description = "By default local modifications are forbidden in order to have consistent data with SCM repository.",
-        module = true,
-        project = true,
-        global = true
-    ),
-    @Property(
-        key = ScmActivityPlugin.VERBOSE_PROPERTY,
-        defaultValue = "" + ScmActivityPlugin.VERBOSE_DEFAULT_VALUE,
-        name = "Verbose mode",
-        description = "The verbose mode stores the results of SCM commands on disk",
-        module = true,
-        project = true,
-        global = false
-    )})
+  @Property(
+    key = ScmActivityPlugin.ENABLED_PROPERTY,
+    defaultValue = ScmActivityPlugin.ENABLED_DEFAULT_VALUE + "",
+    name = "Enable loading of SCM activity. It requires to connect to SCM server.",
+    description = "",
+    module = true,
+    project = true,
+    global = true
+  ),
+  @Property(
+    key = ScmActivityPlugin.URL_PROPERTY,
+    defaultValue = "",
+    name = "SCM URL",
+    description = "SCM URL. The format is described in <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
+      "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>",
+    module = true,
+    project = true,
+    global = false
+  ),
+  @Property(
+    key = ScmActivityPlugin.USER_PROPERTY,
+    defaultValue = "",
+    name = "User",
+    description = "User to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
+    module = false,
+    project = true,
+    global = true
+  ),
+  @Property(
+    key = ScmActivityPlugin.PASSWORD_PROPERTY,
+    defaultValue = "",
+    name = "Password",
+    description = "Password to connect with SCM. This property is usually defined in settings of project.",
+    module = false,
+    project = true,
+    global = true
+  ),
+  @Property(
+    key = ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS,
+    defaultValue = "" + ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE,
+    name = "Ignore local modifications",
+    description = "By default local modifications are forbidden in order to have consistent data with SCM repository.",
+    module = true,
+    project = true,
+    global = true
+  ),
+  @Property(
+    key = ScmActivityPlugin.VERBOSE_PROPERTY,
+    defaultValue = "" + ScmActivityPlugin.VERBOSE_DEFAULT_VALUE,
+    name = "Verbose mode",
+    description = "The verbose mode stores the results of SCM commands on disk",
+    module = true,
+    project = true,
+    global = false
+  )})
 public final class ScmActivityPlugin implements Plugin {
 
   public static final String IGNORE_LOCAL_MODIFICATIONS = "sonar.scm.ignoreLocalModifications";
@@ -111,10 +111,17 @@ public final class ScmActivityPlugin implements Plugin {
   }
 
   public List getExtensions() {
-    return Arrays.asList(
-        ScmConfiguration.class, MavenScmConfiguration.class, SonarScmRepository.class, Changelog.class,
-        SonarScmManager.class, ScmActivitySensor.class, ScmDecorator.class,
-        LocalModificationChecker.class, Blame.class, UrlChecker.class,
+    return ImmutableList.of(
+        ScmConfiguration.class,
+        MavenScmConfiguration.class,
+        SonarScmRepository.class,
+        Changelog.class,
+        SonarScmManager.class,
+        ScmActivitySensor.class,
+        ScmDecorator.class,
+        LocalModificationChecker.class,
+        Blame.class,
+        UrlChecker.class,
         ScmActivityWidget.class);
   }
 }

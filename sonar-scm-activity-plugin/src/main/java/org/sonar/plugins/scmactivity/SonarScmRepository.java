@@ -39,22 +39,24 @@ public class SonarScmRepository implements BatchExtension {
   }
 
   public ScmRepository getScmRepository() {
-    try {
-      if (repository == null) {
+    if (repository == null) {
+      try {
         String connectionUrl = conf.getUrl();
-        repository = manager.makeScmRepository(connectionUrl);
         String user = conf.getUser();
         String password = conf.getPassword();
-        if (!StringUtils.isBlank(user) && !StringUtils.isBlank(password)) {
+
+        repository = manager.makeScmRepository(connectionUrl);
+
+        if (!StringUtils.isBlank(user)) {
           ScmProviderRepository providerRepository = repository.getProviderRepository();
           providerRepository.setUser(user);
           providerRepository.setPassword(password);
         }
+      } catch (ScmException e) {
+        throw new SonarException(e);
       }
-      return repository;
-
-    } catch (ScmException e) {
-      throw new SonarException(e);
     }
+
+    return repository;
   }
 }
