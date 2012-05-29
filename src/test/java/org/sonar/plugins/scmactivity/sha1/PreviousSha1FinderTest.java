@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.scmactivity.sha1;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
@@ -37,28 +36,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PreviousSha1FinderTest {
-  PreviousSha1Finder previousSha1Finder;
   TimeMachine timeMachine = mock(TimeMachine.class);
   Resource resource = mock(Resource.class);
-
-  @Before
-  public void setUp() {
-    previousSha1Finder = new PreviousSha1Finder(timeMachine);
-  }
 
   @Test
   public void should_find_previous_sha1() {
     when(timeMachine.getMeasures(timeMachineQuery(resource, true, ScmActivityMetrics.SCM_HASH)))
         .thenReturn(Arrays.asList(sha1Measure("abcdef")));
 
-    String sha1 = previousSha1Finder.previousSha1(resource);
+    String sha1 = new PreviousSha1Finder(timeMachine).previousSha1(resource);
 
     assertThat(sha1).isEqualTo("abcdef");
   }
 
   @Test
   public void shouldnt_find_unknown_sha1() {
-    String sha1 = previousSha1Finder.previousSha1(resource);
+    String sha1 = new PreviousSha1Finder(timeMachine).previousSha1(resource);
 
     assertThat(sha1).isNull();
   }

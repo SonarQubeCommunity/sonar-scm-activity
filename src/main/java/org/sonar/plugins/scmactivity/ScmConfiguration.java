@@ -20,68 +20,65 @@
 
 package org.sonar.plugins.scmactivity;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
 import java.util.List;
 
 public class ScmConfiguration implements BatchExtension {
-
-  private final Configuration conf;
-  private final MavenScmConfiguration mavenConf;
   private final ProjectFileSystem fileSystem;
-  private final boolean isIgnoreLocalModifications;
+  private final Configuration configuration;
+  private final MavenScmConfiguration mavenConfonfiguration;
 
-  public ScmConfiguration(Project project, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
-    this.conf = configuration;
-    this.fileSystem = project.getFileSystem();
-    this.mavenConf = mavenConfiguration;
-    isIgnoreLocalModifications = configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
+  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
+    this.configuration = configuration;
+    this.fileSystem = fileSystem;
+    this.mavenConfonfiguration = mavenConfiguration;
   }
 
-  public ScmConfiguration(Project project, Configuration configuration) {
-    this(project, configuration, null /* not in maven environment */);
+  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration) {
+    this(fileSystem, configuration, null /* not in maven environment */);
   }
 
   public boolean isEnabled() {
-    return conf.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && (getUrl() != null);
+    return configuration.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && (getUrl() != null);
   }
 
   public String getScmProvider() {
     String url = getUrl();
-    if (StringUtils.isNotBlank(url)) {
-      return ScmUrlUtils.getProvider(url);
+    if (StringUtils.isBlank(url)) {
+      return null;
     }
-    return null;
+
+    return ScmUrlUtils.getProvider(url);
   }
 
   public String getUser() {
-    return conf.getString(ScmActivityPlugin.USER_PROPERTY);
+    return configuration.getString(ScmActivityPlugin.USER_PROPERTY);
   }
 
   public String getPassword() {
-    return conf.getString(ScmActivityPlugin.PASSWORD_PROPERTY);
+    return configuration.getString(ScmActivityPlugin.PASSWORD_PROPERTY);
   }
 
   public boolean isIgnoreLocalModifications() {
-    return isIgnoreLocalModifications;
+    return configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
   }
 
   public List<File> getSourceDirs() {
-    List<File> dirs = Lists.newArrayList();
-    dirs.addAll(fileSystem.getSourceDirs());
-    dirs.addAll(fileSystem.getTestDirs());
-    return dirs;
+    return ImmutableList.<File> builder()
+        .addAll(fileSystem.getSourceDirs())
+        .addAll(fileSystem.getTestDirs())
+        .build();
   }
 
   public String getUrl() {
-    String url = conf.getString(ScmActivityPlugin.URL_PROPERTY);
+    String url = configuration.getString(ScmActivityPlugin.URL_PROPERTY);
     if (StringUtils.isBlank(url)) {
       url = getMavenUrl();
     }
@@ -90,11 +87,11 @@ public class ScmConfiguration implements BatchExtension {
 
   private String getMavenUrl() {
     String url = null;
-    if (mavenConf != null) {
-      if (StringUtils.isNotBlank(mavenConf.getDeveloperUrl()) && StringUtils.isNotBlank(getUser()) && StringUtils.isNotBlank(getPassword())) {
-        url = mavenConf.getDeveloperUrl();
+    if (mavenConfonfiguration != null) {
+      if (StringUtils.isNotBlank(mavenConfonfiguration.getDeveloperUrl()) && StringUtils.isNotBlank(getUser())) {
+        url = mavenConfonfiguration.getDeveloperUrl();
       } else {
-        url = mavenConf.getUrl();
+        url = mavenConfonfiguration.getUrl();
       }
     }
     return url;

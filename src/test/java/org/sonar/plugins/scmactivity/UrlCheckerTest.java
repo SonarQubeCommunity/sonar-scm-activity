@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.maven.scm.manager.ScmManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
@@ -29,37 +28,41 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UrlCheckerTest {
-
-  private ScmConfiguration conf;
-  private ScmManager manager;
-  private UrlChecker checker;
+  ScmConfiguration configuration = mock(ScmConfiguration.class);
+  UrlChecker checker;
 
   @Before
   public void setUp() throws Exception {
-    conf = mock(ScmConfiguration.class);
-    when(conf.isEnabled()).thenReturn(true);
+    when(configuration.isEnabled()).thenReturn(true);
 
-    manager = new SonarScmManager(conf);
-    checker = new UrlChecker(manager, conf);
+    checker = new UrlChecker(new SonarScmManager(configuration), configuration);
   }
 
   @Test(expected = SonarException.class)
   public void shouldFailIfBlank() {
-    checker.check(" ");
+    when(configuration.getUrl()).thenReturn(" ");
+
+    checker.check();
   }
 
   @Test(expected = SonarException.class)
   public void shouldFailIfBadlyFormed() {
-    checker.check("http://foo");
+    when(configuration.getUrl()).thenReturn("http://foo");
+
+    checker.check();
   }
 
   @Test(expected = SonarException.class)
   public void shouldFailIfProviderNotSupported() {
-    checker.check("scm:synergy:foo");
+    when(configuration.getUrl()).thenReturn("scm:synergy:foo");
+
+    checker.check();
   }
 
   @Test
   public void shouldAcceptSvnUrl() {
-    checker.check("scm:svn:https://codehaus.org");
+    when(configuration.getUrl()).thenReturn("scm:svn:https://codehaus.org");
+
+    checker.check();
   }
 }

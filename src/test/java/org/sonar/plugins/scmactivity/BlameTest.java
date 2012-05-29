@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
@@ -31,32 +29,28 @@ import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.test.IsResource;
+import org.sonar.plugins.scmactivity.test.TemporaryFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class BlameTest {
-  @ClassRule
-  public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-
   private static final String FILENAME = "source.java";
 
   SonarScmRepository sonarScmRepository = mock(SonarScmRepository.class);
@@ -64,32 +58,23 @@ public class BlameTest {
   SensorContext context = mock(SensorContext.class);
   Blame blame;
 
+  @ClassRule
+  public static TemporaryFile temporaryFile = new TemporaryFile();
+
   @Before
   public void setUp() {
     blame = new Blame(scmManager, sonarScmRepository);
   }
 
-  /**
-   * See SONARPLUGINS-368 - can occur with generated sources
-   */
   @Test
-  public void shouldNotThrowScmException() throws Exception {
-    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString())).thenThrow(new ScmException("ERROR"));
-
-    BlameScmResult result = blame.retrieveBlame(new File("src/UNKNOWN"));
-
-    assertThat(result).isNull();
-  }
-
-  @Test
-  public void testAnalyse() throws Exception {
+  public void should_save_blame_by_line() throws Exception {
     when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
         .thenReturn(new BlameScmResult("fake", Arrays.asList(
             new BlameLine(new Date(13), "2", "godin"),
             new BlameLine(new Date(10), "1", "godin"))));
 
-    File file = file(FILENAME, "foo");
-    blame.analyse(file, new org.sonar.api.resources.File(FILENAME), context);
+    File file = temporaryFile.create(FILENAME, "foo");
+    blame.save(file, new org.sonar.api.resources.File(FILENAME), context);
 
     verify(context).saveMeasure(
         argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
@@ -103,9 +88,27 @@ public class BlameTest {
     verifyNoMoreInteractions(context);
   }
 
-  static File file(String name, String content) throws IOException {
-    File file = temporaryFolder.newFile(name);
-    Files.write(content, file, Charsets.UTF_8);
-    return file;
+  /**
+   * See SONARPLUGINS-368 - can occur with generated sources
+   * @throws ScmException 
+   */
+  @Test
+  public void should_not_throw_scm_exception() throws ScmException {
+    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
+        .thenThrow(new ScmException("ERROR"));
+
+    blame.save(new File("src/UNKNOWN"), new org.sonar.api.resources.File("UNKNOWN"), context);
+
+    verifyZeroInteractions(context);
+  }
+
+  @Test
+  public void should_not_save_measures_if_blame_is_unsuccessful() throws ScmException {
+    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
+        .thenReturn(new BlameScmResult("", "", "", false));
+
+    blame.save(new File("src/UNKNOWN"), new org.sonar.api.resources.File("UNKNOWN"), context);
+
+    verifyZeroInteractions(context);
   }
 }

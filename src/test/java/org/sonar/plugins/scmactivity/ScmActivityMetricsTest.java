@@ -20,26 +20,24 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.maven.model.Scm;
-import org.apache.maven.project.MavenProject;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.SupportedEnvironment;
+import com.google.common.collect.Iterables;
+import org.junit.Test;
+import org.sonar.api.measures.Metric;
 
-@SupportedEnvironment("maven")
-public class MavenScmConfiguration implements BatchExtension {
-  private final MavenProject pom;
+import java.util.List;
 
-  public MavenScmConfiguration(MavenProject pom) {
-    this.pom = pom;
-  }
+import static org.fest.assertions.Assertions.assertThat;
 
-  public String getDeveloperUrl() {
-    Scm scm = pom.getScm();
-    return (scm != null ? scm.getDeveloperConnection() : null);
-  }
+public class ScmActivityMetricsTest {
+  @Test
+  public void should_provide_metric() {
+    List<Metric> metrics = new ScmActivityMetrics().getMetrics();
 
-  public String getUrl() {
-    Scm scm = pom.getScm();
-    return (scm != null ? scm.getConnection() : null);
+    Metric metric = Iterables.getOnlyElement(metrics);
+
+    assertThat(metric.getDomain()).isEqualTo("SCM");
+    assertThat(metric.getKey()).isEqualTo("hash");
+    assertThat(metric.getName()).isEqualTo("Hash");
+    assertThat(metric.getType()).isEqualTo(Metric.ValueType.STRING);
   }
 }

@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -41,67 +40,59 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Logs;
 
 import java.io.File;
-import java.util.Date;
-import java.util.List;
 
-/**
- * @author Evgeny Mandrikov
- */
 public class Blame implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(Blame.class);
 
   private final ScmManager scmManager;
-  private final SonarScmRepository repositoryBuilder;
+  private final SonarScmRepository scmRepository;
 
-  public Blame(ScmManager scmManager, SonarScmRepository repositoryBuilder) {
+  public Blame(ScmManager scmManager, SonarScmRepository scmRepository) {
     this.scmManager = scmManager;
-    this.repositoryBuilder = repositoryBuilder;
+    this.scmRepository = scmRepository;
   }
 
-  public void analyse(File file, Resource resource, SensorContext context) {
+  public void save(File file, Resource resource, SensorContext context) {
     BlameScmResult result = retrieveBlame(file);
     if (result == null) {
       return;
     }
 
-    PropertiesBuilder<Integer, String> authorsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_AUTHORS_BY_LINE);
-    PropertiesBuilder<Integer, String> datesBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-    PropertiesBuilder<Integer, String> revisionsBuilder = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_REVISIONS_BY_LINE);
+    PropertiesBuilder<Integer, String> authors = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_AUTHORS_BY_LINE);
+    PropertiesBuilder<Integer, String> dates = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+    PropertiesBuilder<Integer, String> revisions = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_REVISIONS_BY_LINE);
 
-    List lines = result.getLines();
-    for (int i = 0; i < lines.size(); i++) {
-      BlameLine line = (BlameLine) lines.get(i);
-      Date date = line.getDate();
-      String revision = line.getRevision();
-      String author = line.getAuthor();
+    int lineNumber = 1;
+    for (BlameLine line : result.getLines()) {
+      authors.add(lineNumber, line.getAuthor());
+      dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
+      revisions.add(lineNumber, line.getRevision());
 
-      int lineNumber = i + 1;
-      datesBuilder.add(lineNumber, DateUtils.formatDateTime(date));
-      revisionsBuilder.add(lineNumber, revision);
-      authorsBuilder.add(lineNumber, author);
+      lineNumber++;
     }
 
-    saveDataMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, datesBuilder.buildData(), PersistenceMode.DATABASE);
-    saveDataMeasure(context, resource, CoreMetrics.SCM_REVISIONS_BY_LINE, revisionsBuilder.buildData(), PersistenceMode.DATABASE);
-    saveDataMeasure(context, resource, CoreMetrics.SCM_AUTHORS_BY_LINE, authorsBuilder.buildData(), PersistenceMode.DATABASE);
+    saveMeasure(context, resource, CoreMetrics.SCM_AUTHORS_BY_LINE, authors);
+    saveMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, dates);
+    saveMeasure(context, resource, CoreMetrics.SCM_REVISIONS_BY_LINE, revisions);
   }
 
-  private void saveDataMeasure(SensorContext context, Resource resource, Metric metricKey, String data, PersistenceMode persistence) {
-    if (StringUtils.isNotBlank(data)) {
-      context.saveMeasure(resource, new Measure(metricKey, data).setPersistenceMode(persistence));
-    }
+  private void saveMeasure(SensorContext context, Resource resource, Metric metricKey, PropertiesBuilder<Integer, String> propertiesBuilder) {
+    Measure measure = new Measure(metricKey, propertiesBuilder.buildData())
+        .setPersistenceMode(PersistenceMode.DATABASE);
+
+    context.saveMeasure(resource, measure);
   }
 
-  BlameScmResult retrieveBlame(File file) {
+  private BlameScmResult retrieveBlame(File file) {
+    Logs.INFO.info("Retrieve SCM info for " + file);
+
     try {
-      Logs.INFO.info("Retrieve SCM info for " + file);
-      BlameScmResult result = scmManager.blame(repositoryBuilder.getScmRepository(), new ScmFileSet(file.getParentFile()), file.getName());
+      BlameScmResult result = scmManager.blame(scmRepository.getScmRepository(), new ScmFileSet(file.getParentFile()), file.getName());
       if (!result.isSuccess()) {
         LOG.warn("Fail to retrieve SCM info of: " + file + ". Reason: " + result.getProviderMessage() + SystemUtils.LINE_SEPARATOR + result.getCommandOutput());
         return null;
       }
       return result;
-
     } catch (ScmException e) {
       // See SONARPLUGINS-368. Can occur on generated source
       LOG.warn("Fail to retrieve SCM info of: " + file, e);

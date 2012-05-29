@@ -18,28 +18,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.scmactivity;
+package org.sonar.plugins.scmactivity.test;
 
-import org.apache.maven.model.Scm;
-import org.apache.maven.project.MavenProject;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.SupportedEnvironment;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import org.junit.rules.ExternalResource;
+import org.junit.rules.TemporaryFolder;
 
-@SupportedEnvironment("maven")
-public class MavenScmConfiguration implements BatchExtension {
-  private final MavenProject pom;
+import java.io.File;
+import java.io.IOException;
 
-  public MavenScmConfiguration(MavenProject pom) {
-    this.pom = pom;
+public class TemporaryFile extends ExternalResource {
+  private final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  @Override
+  protected void before() throws Throwable {
+    temporaryFolder.create();
   }
 
-  public String getDeveloperUrl() {
-    Scm scm = pom.getScm();
-    return (scm != null ? scm.getDeveloperConnection() : null);
+  @Override
+  protected void after() {
+    temporaryFolder.delete();
   }
 
-  public String getUrl() {
-    Scm scm = pom.getScm();
-    return (scm != null ? scm.getConnection() : null);
+  public File create(String name, String content) throws IOException {
+    File file = temporaryFolder.newFile(name);
+    Files.write(content, file, Charsets.UTF_8);
+    return file;
   }
 }

@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.slf4j.Logger;
+
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.scm.ScmException;
@@ -34,10 +36,11 @@ import org.sonar.api.utils.TimeProfiler;
 import java.io.File;
 
 public class LocalModificationChecker implements BatchExtension {
+  private static final Logger LOG = LoggerFactory.getLogger(LocalModificationChecker.class);
 
+  private final ScmConfiguration config;
   private final ScmManager manager;
   private final SonarScmRepository repository;
-  private final ScmConfiguration config;
 
   public LocalModificationChecker(ScmConfiguration config, ScmManager manager, SonarScmRepository repository) {
     this.config = config;
@@ -55,28 +58,26 @@ public class LocalModificationChecker implements BatchExtension {
     TimeProfiler profiler = new TimeProfiler().start("Check for local modifications");
     try {
       for (File sourceDir : config.getSourceDirs()) {
-        // limitation of http://jira.codehaus.org/browse/SONAR-2266, the directory existence must be checked
-        if (sourceDir.exists()) {
-          LoggerFactory.getLogger(getClass()).debug("Check directory: " + sourceDir);
-          StatusScmResult result = manager.status(repository.getScmRepository(), new ScmFileSet(sourceDir));
+        LOG.debug("Check directory: " + sourceDir);
 
-          if (!result.isSuccess()) {
-            throw new SonarException("Unable to check for local modifications: " + result.getProviderMessage());
-          }
+        if (!sourceDir.exists()) {
+          continue; // limitation of http://jira.codehaus.org/browse/SONAR-2266, the directory existence must be checked
+        }
 
-          if (!result.getChangedFiles().isEmpty()) {
-            Joiner joiner = Joiner.on(SystemUtils.LINE_SEPARATOR + "\t");
-            throw new SonarException("Fail to load SCM data as there are local modifications: " + SystemUtils.LINE_SEPARATOR + "\t" + joiner.join(result.getChangedFiles()));
-          }
+        StatusScmResult result = manager.status(repository.getScmRepository(), new ScmFileSet(sourceDir));
+        if (!result.isSuccess()) {
+          throw new SonarException("Unable to check for local modifications: " + result.getProviderMessage());
+        }
+
+        if (!result.getChangedFiles().isEmpty()) {
+          Joiner joiner = Joiner.on(SystemUtils.LINE_SEPARATOR + "\t");
+          throw new SonarException(joiner.join("Fail to load SCM data as there are local modifications: ", result.getChangedFiles().toArray()));
         }
       }
-
     } catch (ScmException e) {
       throw new SonarException("Unable to check for local modifications", e);
-
     } finally {
       profiler.stop();
     }
   }
-
 }

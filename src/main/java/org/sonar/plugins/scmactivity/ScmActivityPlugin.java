@@ -97,6 +97,7 @@ public final class ScmActivityPlugin implements Plugin {
     return "Collects information from SCM.";
   }
 
+  @SuppressWarnings("unchecked")
   public List getExtensions() {
     return ImmutableList.of(
         Sha1Generator.class,
@@ -107,6 +108,7 @@ public final class ScmActivityPlugin implements Plugin {
         SonarScmRepository.class,
         SonarScmManager.class,
         ScmActivitySensor.class,
+        ScmActivityBlame.class,
         LocalModificationChecker.class,
         Blame.class,
         UrlChecker.class);

@@ -23,6 +23,7 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
+import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
@@ -37,27 +38,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 
-/**
- * @author Evgeny Mandrikov
- */
 public class SonarScmManager extends AbstractScmManager implements BatchExtension {
-
   public SonarScmManager(ScmConfiguration conf) {
     if (conf.isEnabled()) {
-      setScmProvider("svn", new SvnExeScmProvider());
-      setScmProvider("cvs", new CvsExeScmProvider());
-      setScmProvider("git", new GitExeScmProvider());
-      setScmProvider("hg", new HgScmProvider());
-      setScmProvider("bazaar", new BazaarScmProvider());
-      setScmProvider("clearcase", new ClearCaseScmProvider());
-      setScmProvider("accurev", new AccuRevScmProvider());
-      setScmProvider("perforce", new PerforceScmProvider());
-      setScmProvider("tfs", new TfsScmProvider());
+      register(new SvnExeScmProvider());
+      register(new CvsExeScmProvider());
+      register(new GitExeScmProvider());
+      register(new HgScmProvider());
+      register(new BazaarScmProvider());
+      register(new ClearCaseScmProvider());
+      register(new AccuRevScmProvider());
+      register(new PerforceScmProvider());
+      register(new TfsScmProvider());
 
       if (StringUtils.equals(conf.getScmProvider(), "svn")) {
         initSvn();
       }
     }
+  }
+
+  private void register(ScmProvider provider) {
+    setScmProvider(provider.getScmType(), provider);
   }
 
   private void initSvn() {

@@ -23,8 +23,10 @@ package org.sonar.plugins.scmactivity;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.SonarException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -87,5 +89,12 @@ public class SonarScmRepositoryTest {
     assertThat(scmRepository).isSameAs(repo.getScmRepository());
     verify(provider).setUser("login");
     verify(provider).setPassword("");
+  }
+
+  @Test(expected = SonarException.class)
+  public void should_report_failure() throws Exception {
+    when(manager.makeScmRepository(anyString())).thenThrow(new ScmRepositoryException("BUG"));
+
+    repo.getScmRepository();
   }
 }

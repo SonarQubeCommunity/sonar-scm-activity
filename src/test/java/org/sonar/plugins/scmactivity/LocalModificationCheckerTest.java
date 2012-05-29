@@ -20,38 +20,96 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import org.junit.Rule;
+
+import org.apache.maven.scm.ScmFile;
+
+import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.command.status.StatusScmResult;
+import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.repository.ScmRepository;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.utils.SonarException;
+
+import java.io.File;
+import java.util.Arrays;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class LocalModificationCheckerTest {
+  LocalModificationChecker checker;
+  ScmConfiguration configuration = mock(ScmConfiguration.class);
+  ScmManager manager = mock(ScmManager.class);
+  SonarScmRepository repository = mock(SonarScmRepository.class);
+  StatusScmResult statusScmResult = mock(StatusScmResult.class);
 
-  @Test
-  public void shouldIgnore() {
-    ScmConfiguration configuration = mock(ScmConfiguration.class);
-    when(configuration.isIgnoreLocalModifications()).thenReturn(true);
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
-    LocalModificationChecker checker = spy(new LocalModificationChecker(configuration, null, null));
-
-    checker.check();
-
-    verify(checker, never()).doCheck();
+  @Before
+  public void setUp() {
+    checker = new LocalModificationChecker(configuration, manager, repository);
   }
 
   @Test
-  public void shouldCheck() {
-    ScmConfiguration configuration = mock(ScmConfiguration.class);
-    when(configuration.isIgnoreLocalModifications()).thenReturn(false);
-
-    LocalModificationChecker checker = spy(new LocalModificationChecker(configuration, null, null));
+  public void should_ignore() {
+    when(configuration.isIgnoreLocalModifications()).thenReturn(true);
 
     checker.check();
 
-    verify(checker, times(1)).doCheck();
+    verifyZeroInteractions(manager, repository);
+  }
+
+  @Test
+  public void should_check_there_is_no_changes() throws ScmException {
+    when(configuration.getSourceDirs()).thenReturn(Arrays.asList(new File("src"), new File("other")));
+    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenReturn(statusScmResult);
+    when(statusScmResult.isSuccess()).thenReturn(true);
+
+    checker.check();
+  }
+
+  @Test
+  public void should_fail_when_unable_to_check() throws ScmException {
+    when(configuration.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
+    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenReturn(statusScmResult);
+    when(statusScmResult.isSuccess()).thenReturn(false);
+    when(statusScmResult.getProviderMessage()).thenReturn("BUG");
+
+    exception.expect(SonarException.class);
+    exception.expectMessage("Unable to check for local modifications: BUG");
+
+    checker.check();
+  }
+
+  @Test
+  public void should_fail_on_error() throws ScmException {
+    when(configuration.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
+    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenThrow(new ScmException("BUG"));
+
+    exception.expect(SonarException.class);
+    exception.expectMessage("Unable to check for local modifications");
+
+    checker.check();
+  }
+
+  @Test
+  public void should_fail_with_local_changes() throws ScmException {
+    when(configuration.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
+    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenReturn(statusScmResult);
+    when(statusScmResult.isSuccess()).thenReturn(true);
+    when(statusScmResult.getChangedFiles()).thenReturn(Arrays.asList(new ScmFile("source.java", null)));
+
+    exception.expect(SonarException.class);
+    exception.expectMessage("Fail to load SCM data as there are local modifications");
+
+    checker.check();
   }
 }

@@ -22,12 +22,10 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.provider.ScmProvider;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 
 public class UrlChecker implements BatchExtension {
-
   private static final String PARAMETER_MESSAGE = String.format("Please check the parameter \"%s\" or the <scm> section of Maven pom.", ScmActivityPlugin.URL_PROPERTY);
 
   private final ScmManager manager;
@@ -39,12 +37,10 @@ public class UrlChecker implements BatchExtension {
   }
 
   public void check() {
-    check(conf.getUrl());
-  }
+    String url = conf.getUrl();
 
-  void check(String url) {
     if (StringUtils.isBlank(url)) {
-      throw new SonarException(String.format("SCM URL must not be blank. " + PARAMETER_MESSAGE));
+      throw new SonarException("SCM URL must not be blank. " + PARAMETER_MESSAGE);
     }
     if (!StringUtils.startsWith(url, "scm:")) {
       throw new SonarException(String.format("URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: \"%s\". %s", url,
@@ -58,8 +54,8 @@ public class UrlChecker implements BatchExtension {
 
   private boolean isSupportedProvider(String url) {
     try {
-      ScmProvider provider = manager.getProviderByUrl(url);
-      return provider != null;
+      manager.getProviderByUrl(url);
+      return true;
     } catch (Exception e) {
       return false;
     }

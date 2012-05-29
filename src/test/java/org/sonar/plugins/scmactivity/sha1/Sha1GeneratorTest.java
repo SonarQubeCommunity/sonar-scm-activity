@@ -20,12 +20,9 @@
 
 package org.sonar.plugins.scmactivity.sha1;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.sonar.plugins.scmactivity.test.TemporaryFile;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,44 +34,29 @@ import static org.fest.assertions.Assertions.assertThat;
  * For examples of SHA1, see <a href="http://en.wikipedia.org/wiki/SHA-1#Example_hashes">wikipedia</a>
  */
 public class Sha1GeneratorTest {
-  Sha1Generator sha1Generator;
-
   @ClassRule
-  public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  @Before
-  public void setUp() {
-    sha1Generator = new Sha1Generator();
-  }
+  public static TemporaryFile temporaryFile = new TemporaryFile();
 
   @Test
   public void should_generate_sha1_of_empty_file() throws IOException {
-    File emptyFile = file("empty.java", "");
+    File emptyFile = temporaryFile.create("empty.java", "");
 
-    String sha1 = sha1Generator.sha1(emptyFile);
+    String sha1 = new Sha1Generator().sha1(emptyFile);
 
     assertThat(sha1).isEqualTo("da39a3ee5e6b4b0d3255bfef95601890afd80709");
   }
 
   @Test
   public void should_generate_sha1_of_file() throws IOException {
-    File file = file("quickBrownFox.java", "The quick brown fox jumps over the lazy dog");
+    File file = temporaryFile.create("quickBrownFox.java", "The quick brown fox jumps over the lazy dog");
 
-    String sha1 = sha1Generator.sha1(file);
+    String sha1 = new Sha1Generator().sha1(file);
 
     assertThat(sha1).isEqualTo("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
   }
 
   @Test(expected = FileNotFoundException.class)
   public void should_fail_on_unkown_file() throws IOException {
-    File unknownFile = new File("UNNOWN");
-
-    sha1Generator.sha1(unknownFile);
-  }
-
-  static File file(String name, String content) throws IOException {
-    File file = temporaryFolder.newFile(name);
-    Files.write(content, file, Charsets.UTF_8);
-    return file;
+    new Sha1Generator().sha1(new File("UNKNOWN"));
   }
 }

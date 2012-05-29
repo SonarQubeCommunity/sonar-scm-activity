@@ -33,48 +33,45 @@ import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SonarScmManagerTest {
+  ScmConfiguration conf = mock(ScmConfiguration.class);
 
   @Test(expected = NoSuchScmProviderException.class)
   public void shouldNotRegisterProvidersIfDisabled() throws Exception {
-    ScmConfiguration conf = mock(ScmConfiguration.class);
     when(conf.isEnabled()).thenReturn(false);
-    SonarScmManager scmManager = new SonarScmManager(conf);
 
+    SonarScmManager scmManager = new SonarScmManager(conf);
     scmManager.getProviderByType("svn");
   }
 
   @Test
-  public void shouldBeNativeProviders() throws Exception {
-    ScmConfiguration conf = mock(ScmConfiguration.class);
+  public void should_use_native_providers() throws NoSuchScmProviderException {
     when(conf.isEnabled()).thenReturn(true);
+
     SonarScmManager scmManager = new SonarScmManager(conf);
 
-    assertTrue(scmManager.getProviderByType("svn") instanceof SvnExeScmProvider);
-    assertTrue(scmManager.getProviderByType("git") instanceof GitExeScmProvider);
-    assertTrue(scmManager.getProviderByType("cvs") instanceof CvsExeScmProvider);
-    assertTrue(scmManager.getProviderByType("hg") instanceof HgScmProvider);
-    assertTrue(scmManager.getProviderByType("bazaar") instanceof BazaarScmProvider);
-    assertTrue(scmManager.getProviderByType("clearcase") instanceof ClearCaseScmProvider);
-    assertTrue(scmManager.getProviderByType("accurev") instanceof AccuRevScmProvider);
-    assertTrue(scmManager.getProviderByType("perforce") instanceof PerforceScmProvider);
-    assertTrue(scmManager.getProviderByType("tfs") instanceof TfsScmProvider);
+    assertThat(scmManager.getProviderByType("svn")).isInstanceOf(SvnExeScmProvider.class);
+    assertThat(scmManager.getProviderByType("git")).isInstanceOf(GitExeScmProvider.class);
+    assertThat(scmManager.getProviderByType("cvs")).isInstanceOf(CvsExeScmProvider.class);
+    assertThat(scmManager.getProviderByType("hg")).isInstanceOf(HgScmProvider.class);
+    assertThat(scmManager.getProviderByType("bazaar")).isInstanceOf(BazaarScmProvider.class);
+    assertThat(scmManager.getProviderByType("clearcase")).isInstanceOf(ClearCaseScmProvider.class);
+    assertThat(scmManager.getProviderByType("accurev")).isInstanceOf(AccuRevScmProvider.class);
+    assertThat(scmManager.getProviderByType("perforce")).isInstanceOf(PerforceScmProvider.class);
+    assertThat(scmManager.getProviderByType("tfs")).isInstanceOf(TfsScmProvider.class);
   }
 
   @Test
-  public void shouldInitSvn() throws Exception {
-    ScmConfiguration conf = mock(ScmConfiguration.class);
+  public void shouldInitSvn() {
     when(conf.isEnabled()).thenReturn(true);
     when(conf.getScmProvider()).thenReturn("svn");
 
     new SonarScmManager(conf);
 
-    assertThat(SvnUtil.getSettings().isTrustServerCert(), is(true));
+    assertThat(SvnUtil.getSettings().isTrustServerCert()).isTrue();
   }
 }
