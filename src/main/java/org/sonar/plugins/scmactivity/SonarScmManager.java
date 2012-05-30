@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
@@ -29,8 +27,10 @@ import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.integrity.IntegrityScmProvider;
 import org.apache.maven.scm.provider.jazz.JazzScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
@@ -56,6 +56,7 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     register(new PerforceScmProvider());
     register(new TfsScmProvider());
     register(new JazzScmProvider());
+    register(new IntegrityScmProvider());
 
     if (StringUtils.equals(conf.getScmProvider(), "svn")) {
       /*

@@ -151,6 +151,13 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
+    <!-- Integrity -->
+    <dependency>
+      <groupId>org.apache.maven.scm</groupId>
+      <artifactId>maven-scm-provider-integrity</artifactId>
+      <version>${version.maven-scm}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
