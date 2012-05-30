@@ -30,6 +30,7 @@ import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.jazz.JazzScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.util.SvnUtil;
@@ -53,6 +54,7 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     register(new AccuRevScmProvider());
     register(new PerforceScmProvider());
     register(new TfsScmProvider());
+    register(new JazzScmProvider());
 
     if (StringUtils.equals(conf.getScmProvider(), "svn")) {
       /*

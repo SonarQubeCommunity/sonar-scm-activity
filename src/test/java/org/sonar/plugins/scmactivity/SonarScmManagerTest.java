@@ -27,6 +27,7 @@ import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
 import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
+import org.apache.maven.scm.provider.jazz.JazzScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.util.SvnUtil;
@@ -63,6 +64,7 @@ public class SonarScmManagerTest {
     assertThat(scmManager.getProviderByType("accurev")).isInstanceOf(AccuRevScmProvider.class);
     assertThat(scmManager.getProviderByType("perforce")).isInstanceOf(PerforceScmProvider.class);
     assertThat(scmManager.getProviderByType("tfs")).isInstanceOf(TfsScmProvider.class);
+    assertThat(scmManager.getProviderByType("jazz")).isInstanceOf(JazzScmProvider.class);
   }
 
   @Test
