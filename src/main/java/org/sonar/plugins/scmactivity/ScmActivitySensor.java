@@ -22,8 +22,6 @@ package org.sonar.plugins.scmactivity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -32,28 +30,21 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.TimeProfiler;
 
-import java.io.IOException;
 import java.util.List;
 
 public final class ScmActivitySensor implements Sensor {
-  private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
-
+  private final ScmConfiguration configuration;
   private final ScmActivityBlame scmActivityBlame;
-  private final ScmConfiguration conf;
   private final UrlChecker urlChecker;
   private final LocalModificationChecker checkLocalModifications;
-  private final ProjectFileSystem projectFileSystem;
 
-  public ScmActivitySensor(ScmActivityBlame scmActivityBlame, ScmConfiguration conf, UrlChecker urlChecker, LocalModificationChecker checkLocalModifications,
-      ProjectFileSystem projectFileSystem) {
+  public ScmActivitySensor(ScmConfiguration configuration, ScmActivityBlame scmActivityBlame, UrlChecker urlChecker, LocalModificationChecker checkLocalModifications) {
+    this.configuration = configuration;
     this.scmActivityBlame = scmActivityBlame;
-    this.conf = conf;
     this.urlChecker = urlChecker;
     this.checkLocalModifications = checkLocalModifications;
-    this.projectFileSystem = projectFileSystem;
   }
 
   @DependedUpon
@@ -66,30 +57,24 @@ public final class ScmActivitySensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return conf.isEnabled();
+    return configuration.isEnabled();
   }
 
   public void analyse(Project project, SensorContext context) {
     urlChecker.check();
     checkLocalModifications.check();
 
-    TimeProfiler profiler = new TimeProfiler().start("Retrieve files SCM info");
+    TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
 
-    for (InputFile inputFile : allFiles(projectFileSystem)) {
-      try {
-        scmActivityBlame.storeBlame(inputFile, context);
-      } catch (IOException e) {
-        LOG.debug("Unable to get scm information: " + inputFile.getFile());
-      }
+    for (InputFile file : allFiles(project)) {
+      scmActivityBlame.storeBlame(file.getFile(), context);
     }
 
     profiler.stop();
   }
 
-  private static Iterable<InputFile> allFiles(ProjectFileSystem fileSystem) {
-    List<InputFile> mainFiles = fileSystem.mainFiles(Java.KEY);
-    List<InputFile> testFiles = fileSystem.testFiles(Java.KEY);
-    return Iterables.concat(mainFiles, testFiles);
+  private static Iterable<InputFile> allFiles(Project project) {
+    return Iterables.concat(project.getFileSystem().mainFiles(Java.KEY), project.getFileSystem().testFiles(Java.KEY));
   }
 
   @Override

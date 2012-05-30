@@ -30,12 +30,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -43,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 public class ScmActivitySensorTest {
   ScmActivitySensor scmActivitySensor;
+
   ScmActivityBlame scmActivityBlame = mock(ScmActivityBlame.class);
   ScmConfiguration conf = mock(ScmConfiguration.class);
   UrlChecker urlChecker = mock(UrlChecker.class);
@@ -53,7 +52,7 @@ public class ScmActivitySensorTest {
 
   @Before
   public void setUp() {
-    scmActivitySensor = new ScmActivitySensor(scmActivityBlame, conf, urlChecker, checkLocalModifications, projectFileSystem);
+    scmActivitySensor = new ScmActivitySensor(conf, scmActivityBlame, urlChecker, checkLocalModifications);
   }
 
   @Test
@@ -83,6 +82,8 @@ public class ScmActivitySensorTest {
 
   @Test
   public void should_execute_checks() {
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
+
     scmActivitySensor.analyse(project, context);
 
     InOrder inOrder = inOrder(urlChecker, checkLocalModifications);
@@ -91,30 +92,17 @@ public class ScmActivitySensorTest {
   }
 
   @Test
-  public void should_get_blame_information() throws IOException {
-    InputFile source = file("source.jave");
+  public void should_get_blame_information() {
+    InputFile source = file("source.java");
     InputFile test = file("test.java");
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
     when(projectFileSystem.testFiles("java")).thenReturn(Arrays.asList(test));
 
     scmActivitySensor.analyse(project, context);
 
-    verify(scmActivityBlame).storeBlame(source, context);
-    verify(scmActivityBlame).storeBlame(test, context);
-  }
-
-  @Test
-  public void should_continue_after_error() throws IOException {
-    InputFile source = file("source.jave");
-    InputFile test = file("test.java");
-    when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
-    when(projectFileSystem.testFiles("java")).thenReturn(Arrays.asList(test));
-    doThrow(new IOException("BUG")).when(scmActivityBlame).storeBlame(source, context);
-
-    scmActivitySensor.analyse(project, context);
-
-    verify(scmActivityBlame).storeBlame(source, context);
-    verify(scmActivityBlame).storeBlame(test, context);
+    verify(scmActivityBlame).storeBlame(new File("source.java"), context);
+    verify(scmActivityBlame).storeBlame(new File("test.java"), context);
   }
 
   @Test

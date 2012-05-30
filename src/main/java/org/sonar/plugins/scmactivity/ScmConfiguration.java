@@ -20,33 +20,22 @@
 
 package org.sonar.plugins.scmactivity;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.ProjectFileSystem;
-
-import java.io.File;
-import java.util.List;
 
 public class ScmConfiguration implements BatchExtension {
-  private final ProjectFileSystem fileSystem;
   private final Configuration configuration;
   private final MavenScmConfiguration mavenConfonfiguration;
 
-  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration, MavenScmConfiguration mavenConfiguration) {
+  public ScmConfiguration(Configuration configuration, MavenScmConfiguration mavenConfiguration) {
     this.configuration = configuration;
-    this.fileSystem = fileSystem;
     this.mavenConfonfiguration = mavenConfiguration;
   }
 
-  public ScmConfiguration(ProjectFileSystem fileSystem, Configuration configuration) {
-    this(fileSystem, configuration, null /* not in maven environment */);
-  }
-
-  public boolean isEnabled() {
-    return configuration.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && (getUrl() != null);
+  public ScmConfiguration(Configuration configuration) {
+    this(configuration, null /* not in maven environment */);
   }
 
   public String getScmProvider() {
@@ -56,6 +45,10 @@ public class ScmConfiguration implements BatchExtension {
     }
 
     return ScmUrlUtils.getProvider(url);
+  }
+
+  public boolean isEnabled() {
+    return configuration.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && (getUrl() != null);
   }
 
   public String getUser() {
@@ -70,31 +63,19 @@ public class ScmConfiguration implements BatchExtension {
     return configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
   }
 
-  public List<File> getSourceDirs() {
-    return ImmutableList.<File> builder()
-        .addAll(fileSystem.getSourceDirs())
-        .addAll(fileSystem.getTestDirs())
-        .build();
-  }
-
   public String getUrl() {
-    String url = configuration.getString(ScmActivityPlugin.URL_PROPERTY);
-    if (StringUtils.isBlank(url)) {
-      url = getMavenUrl();
-    }
+    String urlProperty = configuration.getString(ScmActivityPlugin.URL_PROPERTY);
+    String url = StringUtils.defaultIfBlank(urlProperty, getMavenUrl());
     return StringUtils.defaultIfBlank(url, null);
   }
 
   private String getMavenUrl() {
-    String url = null;
-    if (mavenConfonfiguration != null) {
-      if (StringUtils.isNotBlank(mavenConfonfiguration.getDeveloperUrl()) && StringUtils.isNotBlank(getUser())) {
-        url = mavenConfonfiguration.getDeveloperUrl();
-      } else {
-        url = mavenConfonfiguration.getUrl();
-      }
+    if (mavenConfonfiguration == null) {
+      return null;
     }
-    return url;
+    if (StringUtils.isNotBlank(mavenConfonfiguration.getDeveloperUrl()) && StringUtils.isNotBlank(getUser())) {
+      return mavenConfonfiguration.getDeveloperUrl();
+    }
+    return mavenConfonfiguration.getUrl();
   }
-
 }

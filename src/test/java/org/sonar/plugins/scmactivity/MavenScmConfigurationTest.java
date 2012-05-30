@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 
 public class MavenScmConfigurationTest {
   MavenScmConfiguration mavenScmConfiguration;
+
   MavenProject mavenProject = mock(MavenProject.class);
   Scm scm = mock(Scm.class);
 

@@ -36,11 +36,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SonarScmRepositoryTest {
+  SonarScmRepository repo;
+
   ScmConfiguration conf = mock(ScmConfiguration.class);
   ScmManager manager = mock(ScmManager.class);
   ScmRepository repository = mock(ScmRepository.class);
   ScmProviderRepository provider = mock(ScmProviderRepository.class);
-  SonarScmRepository repo;
 
   @Before
   public void setUp() {

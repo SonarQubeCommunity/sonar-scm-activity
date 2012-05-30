@@ -28,8 +28,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UrlCheckerTest {
-  ScmConfiguration configuration = mock(ScmConfiguration.class);
   UrlChecker checker;
+
+  ScmConfiguration configuration = mock(ScmConfiguration.class);
 
   @Before
   public void setUp() throws Exception {

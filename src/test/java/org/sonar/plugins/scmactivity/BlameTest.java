@@ -53,10 +53,11 @@ import static org.mockito.Mockito.when;
 public class BlameTest {
   private static final String FILENAME = "source.java";
 
+  Blame blame;
+
   SonarScmRepository sonarScmRepository = mock(SonarScmRepository.class);
   ScmManager scmManager = mock(ScmManager.class);
   SensorContext context = mock(SensorContext.class);
-  Blame blame;
 
   @ClassRule
   public static TemporaryFile temporaryFile = new TemporaryFile();

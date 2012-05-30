@@ -40,34 +40,32 @@ import org.sonar.api.BatchExtension;
 
 public class SonarScmManager extends AbstractScmManager implements BatchExtension {
   public SonarScmManager(ScmConfiguration conf) {
-    if (conf.isEnabled()) {
-      register(new SvnExeScmProvider());
-      register(new CvsExeScmProvider());
-      register(new GitExeScmProvider());
-      register(new HgScmProvider());
-      register(new BazaarScmProvider());
-      register(new ClearCaseScmProvider());
-      register(new AccuRevScmProvider());
-      register(new PerforceScmProvider());
-      register(new TfsScmProvider());
+    if (!conf.isEnabled()) {
+      return;
+    }
 
-      if (StringUtils.equals(conf.getScmProvider(), "svn")) {
-        initSvn();
-      }
+    register(new SvnExeScmProvider());
+    register(new CvsExeScmProvider());
+    register(new GitExeScmProvider());
+    register(new HgScmProvider());
+    register(new BazaarScmProvider());
+    register(new ClearCaseScmProvider());
+    register(new AccuRevScmProvider());
+    register(new PerforceScmProvider());
+    register(new TfsScmProvider());
+
+    if (StringUtils.equals(conf.getScmProvider(), "svn")) {
+      /*
+       * http://jira.codehaus.org/browse/SONARPLUGINS-1082
+       * The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
+       * However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
+       */
+      SvnUtil.getSettings().setTrustServerCert(true);
     }
   }
 
   private void register(ScmProvider provider) {
     setScmProvider(provider.getScmType(), provider);
-  }
-
-  private void initSvn() {
-    /*
-     * http://jira.codehaus.org/browse/SONARPLUGINS-1082
-     * The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
-     * However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
-     */
-    SvnUtil.getSettings().setTrustServerCert(true);
   }
 
   @Override

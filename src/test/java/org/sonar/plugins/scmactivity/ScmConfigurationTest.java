@@ -23,26 +23,20 @@ package org.sonar.plugins.scmactivity;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.ProjectFileSystem;
-
-import java.io.File;
-import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ScmConfigurationTest {
+  ScmConfiguration scmConfiguration;
 
-  private ScmConfiguration scmConfiguration;
-  private PropertiesConfiguration configuration;
-  private final MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
-  private final ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  PropertiesConfiguration configuration = new PropertiesConfiguration();
+  MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
 
   @Before
   public void setUp() {
-    configuration = new PropertiesConfiguration();
-    scmConfiguration = new ScmConfiguration(projectFileSystem, configuration, mavenConf);
+    scmConfiguration = new ScmConfiguration(configuration, mavenConf);
   }
 
   @Test
@@ -146,16 +140,8 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_get_maven_url_in_non_maven_environment() {
-    scmConfiguration = new ScmConfiguration(projectFileSystem, configuration);
+    scmConfiguration = new ScmConfiguration(configuration);
 
     assertThat(scmConfiguration.getUrl()).isNull();
-  }
-
-  @Test
-  public void should_get_source_dirs() {
-    when(projectFileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
-    when(projectFileSystem.getTestDirs()).thenReturn(Arrays.asList(new File("test")));
-
-    assertThat(scmConfiguration.getSourceDirs()).containsExactly(new File("src"), new File("test"));
   }
 }

@@ -21,6 +21,7 @@
 package org.sonar.plugins.scmactivity;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
@@ -29,6 +30,7 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 
@@ -37,11 +39,13 @@ import java.io.File;
 public class LocalModificationChecker implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(LocalModificationChecker.class);
 
+  private final ProjectFileSystem fileSystem;
   private final ScmConfiguration config;
   private final ScmManager manager;
   private final SonarScmRepository repository;
 
-  public LocalModificationChecker(ScmConfiguration config, ScmManager manager, SonarScmRepository repository) {
+  public LocalModificationChecker(ProjectFileSystem fileSystem, ScmConfiguration config, ScmManager manager, SonarScmRepository repository) {
+    this.fileSystem = fileSystem;
     this.config = config;
     this.manager = manager;
     this.repository = repository;
@@ -56,7 +60,7 @@ public class LocalModificationChecker implements BatchExtension {
   void doCheck() {
     TimeProfiler profiler = new TimeProfiler().start("Check for local modifications");
     try {
-      for (File sourceDir : config.getSourceDirs()) {
+      for (File sourceDir : Iterables.concat(fileSystem.getSourceDirs(), fileSystem.getTestDirs())) {
         LOG.debug("Check directory: " + sourceDir);
 
         if (!sourceDir.exists()) {

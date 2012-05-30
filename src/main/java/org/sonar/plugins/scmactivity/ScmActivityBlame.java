@@ -29,15 +29,12 @@ import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class ScmActivityBlame implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmActivityBlame.class);
@@ -56,40 +53,44 @@ public class ScmActivityBlame implements BatchExtension {
     this.previousSha1Finder = previousSha1Finder;
   }
 
-  public void storeBlame(InputFile inputFile, SensorContext context) throws IOException {
-    File file = inputFile.getFile();
+  public void storeBlame(File file, SensorContext context) {
+    try {
+      Resource resource = context.getResource(projectFileSystem.toResource(file));
+      if (resource == null) {
+        LOG.debug("File not found in Sonar index: " + file);
+        return;
+      }
 
-    Resource resource = context.getResource(projectFileSystem.toResource(file));
-    if (resource == null) {
-      LOG.debug("File not found in Sonar index: " + file);
-      return;
-    }
+      String currentSha1 = sha1Generator.sha1(file);
+      String previousSha1 = previousSha1Finder.previousSha1(resource);
 
-    String currentSha1 = sha1Generator.sha1(file);
-    String previousSha1 = previousSha1Finder.previousSha1(resource);
+      if (currentSha1.equals(previousSha1)) {
+        LOG.debug("File not changed since previous analysis: " + file);
 
-    if (currentSha1.equals(previousSha1)) {
-      LOG.debug("File not changed since previous analysis: " + file);
+        copyPreviousFileMeasures(resource, context);
+      } else {
+        blameSensor.save(file, resource, context);
 
-      copyPreviousFileMeasures(resource, context);
-    } else {
-      context.saveMeasure(resource, new Measure(ScmActivityMetrics.SCM_HASH, currentSha1).setPersistenceMode(PersistenceMode.DATABASE));
-
-      blameSensor.save(file, resource, context);
+        context.saveMeasure(resource, new Measure(ScmActivityMetrics.SCM_HASH, currentSha1).setPersistenceMode(PersistenceMode.DATABASE));
+      }
+    } catch (IOException e) {
+      LOG.debug("Unable to get scm information: " + file);
     }
   }
 
   private void copyPreviousFileMeasures(Resource resource, SensorContext context) {
-    List<Measure> previousMeasures = timeMachine.getMeasures(new TimeMachineQuery(resource).setOnlyLastAnalysis(true).setMetrics(
-        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-        CoreMetrics.SCM_REVISIONS_BY_LINE,
-        CoreMetrics.SCM_AUTHORS_BY_LINE));
+    TimeMachineQuery query = new TimeMachineQuery(resource)
+        .setOnlyLastAnalysis(true)
+        .setMetrics(
+            CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+            CoreMetrics.SCM_REVISIONS_BY_LINE,
+            CoreMetrics.SCM_AUTHORS_BY_LINE
+        );
 
-    for (Measure previousMeasure : previousMeasures) {
+    for (Measure previousMeasure : timeMachine.getMeasures(query)) {
       String data = previousMeasure.getData();
       if (StringUtils.isNotBlank(data)) {
-        Metric metric = previousMeasure.getMetric();
-        context.saveMeasure(resource, new Measure(metric, data).setPersistenceMode(PersistenceMode.DATABASE));
+        context.saveMeasure(resource, new Measure(previousMeasure.getMetric(), data).setPersistenceMode(PersistenceMode.DATABASE));
       }
     }
   }
