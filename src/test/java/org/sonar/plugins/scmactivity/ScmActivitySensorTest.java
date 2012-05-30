@@ -26,6 +26,7 @@ import org.mockito.InOrder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 
@@ -82,6 +83,7 @@ public class ScmActivitySensorTest {
 
   @Test
   public void should_execute_checks() {
+    when(project.getLanguage()).thenReturn(new Java());
     when(project.getFileSystem()).thenReturn(projectFileSystem);
 
     scmActivitySensor.analyse(project, context);
@@ -95,6 +97,7 @@ public class ScmActivitySensorTest {
   public void should_get_blame_information() {
     InputFile source = file("source.java");
     InputFile test = file("test.java");
+    when(project.getLanguage()).thenReturn(new Java());
     when(project.getFileSystem()).thenReturn(projectFileSystem);
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
     when(projectFileSystem.testFiles("java")).thenReturn(Arrays.asList(test));

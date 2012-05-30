@@ -28,8 +28,8 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.TimeProfiler;
 
 import java.util.List;
@@ -74,7 +74,10 @@ public final class ScmActivitySensor implements Sensor {
   }
 
   private static Iterable<InputFile> allFiles(Project project) {
-    return Iterables.concat(project.getFileSystem().mainFiles(Java.KEY), project.getFileSystem().testFiles(Java.KEY));
+    String language = project.getLanguage().getKey();
+    ProjectFileSystem fileSystem = project.getFileSystem();
+
+    return Iterables.concat(fileSystem.mainFiles(language), fileSystem.testFiles(language));
   }
 
   @Override
