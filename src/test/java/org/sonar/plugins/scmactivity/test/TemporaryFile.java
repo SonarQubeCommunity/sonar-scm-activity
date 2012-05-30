@@ -20,8 +20,7 @@
 
 package org.sonar.plugins.scmactivity.test;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;
 
@@ -43,7 +42,7 @@ public class TemporaryFile extends ExternalResource {
 
   public File create(String name, String content) throws IOException {
     File file = temporaryFolder.newFile(name);
-    Files.write(content, file, Charsets.UTF_8);
+    FileUtils.write(file, content, "UTF-8");
     return file;
   }
 }

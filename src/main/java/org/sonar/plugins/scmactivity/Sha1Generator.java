@@ -20,8 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
-import com.google.common.io.Closeables;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.BatchExtension;
 
 import java.io.BufferedInputStream;
@@ -37,7 +37,7 @@ public class Sha1Generator implements BatchExtension {
       input = new BufferedInputStream(new FileInputStream(file));
       return DigestUtils.shaHex(input);
     } finally {
-      Closeables.closeQuietly(input);
+      IOUtils.closeQuietly(input);
     }
   }
 }
