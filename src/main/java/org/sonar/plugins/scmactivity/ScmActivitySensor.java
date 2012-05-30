@@ -20,6 +20,9 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.sonar.api.batch.DependedUpon;
@@ -33,8 +36,13 @@ import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.TimeProfiler;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public final class ScmActivitySensor implements Sensor {
+  private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
+
   private final ScmConfiguration configuration;
   private final ScmActivityBlame scmActivityBlame;
   private final UrlChecker urlChecker;
@@ -60,21 +68,34 @@ public final class ScmActivitySensor implements Sensor {
     return configuration.isEnabled();
   }
 
-  public void analyse(Project project, SensorContext context) {
+  public void analyse(Project project, final SensorContext context) {
     urlChecker.check();
     checkLocalModifications.check();
 
     TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
 
-    for (InputFile file : allFiles(project)) {
-      scmActivityBlame.storeBlame(file.getFile(), context);
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    for (final InputFile file : allFiles(project)) {
+      executor.submit(new Runnable() {
+        public void run() {
+          scmActivityBlame.storeBlame(file.getFile(), context);
+        }
+      });
+    }
+
+    executor.shutdown();
+    try {
+      executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      LOG.error("Unable to await termination of blame retrieval process", e);
     }
 
     profiler.stop();
   }
 
   private static Iterable<InputFile> allFiles(Project project) {
-    String language = project.getLanguage().getKey();
+    String language = project.getLanguageKey();
     ProjectFileSystem fileSystem = project.getFileSystem();
 
     return Iterables.concat(fileSystem.mainFiles(language), fileSystem.testFiles(language));
