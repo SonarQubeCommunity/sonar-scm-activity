@@ -98,6 +98,7 @@ public final class ScmActivityPlugin implements Plugin {
   @SuppressWarnings("unchecked")
   public List getExtensions() {
     return ImmutableList.of(
+        FileToResource.class,
         Sha1Generator.class,
         PreviousSha1Finder.class,
         ScmActivityMetrics.class,

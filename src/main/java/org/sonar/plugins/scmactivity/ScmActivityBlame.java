@@ -30,10 +30,9 @@ import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Resource;
 
-import java.io.File;
 import java.io.IOException;
 
 public class ScmActivityBlame implements BatchExtension {
@@ -41,27 +40,27 @@ public class ScmActivityBlame implements BatchExtension {
 
   private final Blame blameSensor;
   private final TimeMachine timeMachine;
-  private final ProjectFileSystem projectFileSystem;
   private final Sha1Generator sha1Generator;
   private final PreviousSha1Finder previousSha1Finder;
+  private final FileToResource fileToResource;
 
-  public ScmActivityBlame(Blame blameSensor, TimeMachine timeMachine, ProjectFileSystem projectFileSystem, Sha1Generator sha1Generator, PreviousSha1Finder previousSha1Finder) {
+  public ScmActivityBlame(Blame blameSensor, TimeMachine timeMachine, Sha1Generator sha1Generator, PreviousSha1Finder previousSha1Finder, FileToResource fileToResource) {
     this.blameSensor = blameSensor;
     this.timeMachine = timeMachine;
-    this.projectFileSystem = projectFileSystem;
     this.sha1Generator = sha1Generator;
     this.previousSha1Finder = previousSha1Finder;
+    this.fileToResource = fileToResource;
   }
 
-  public void storeBlame(File file, SensorContext context) {
+  public void storeBlame(InputFile file, SensorContext context) {
     try {
-      Resource resource = context.getResource(projectFileSystem.toResource(file));
+      Resource resource = fileToResource.toResource(file, context);
       if (resource == null) {
         LOG.debug("File not found in Sonar index: " + file);
         return;
       }
 
-      String currentSha1 = sha1Generator.sha1(file);
+      String currentSha1 = sha1Generator.sha1(file.getFile());
       String previousSha1 = previousSha1Finder.previousSha1(resource);
 
       if (currentSha1.equals(previousSha1)) {
@@ -69,12 +68,14 @@ public class ScmActivityBlame implements BatchExtension {
 
         copyPreviousFileMeasures(resource, context);
       } else {
-        blameSensor.save(file, resource, context);
+        LOG.debug("File changed since previous analysis: " + file);
+
+        blameSensor.save(file.getFile(), resource, context);
 
         context.saveMeasure(resource, new Measure(ScmActivityMetrics.SCM_HASH, currentSha1).setPersistenceMode(PersistenceMode.DATABASE));
       }
     } catch (IOException e) {
-      LOG.debug("Unable to get scm information: " + file);
+      LOG.error("Unable to get scm information: " + file, e);
     }
   }
 

@@ -103,8 +103,8 @@ public class ScmActivitySensorTest {
 
     scmActivitySensor.analyse(project, context);
 
-    verify(scmActivityBlame).storeBlame(new File("source.java"), context);
-    verify(scmActivityBlame).storeBlame(new File("test.java"), context);
+    verify(scmActivityBlame).storeBlame(source, context);
+    verify(scmActivityBlame).storeBlame(test, context);
   }
 
   @Test

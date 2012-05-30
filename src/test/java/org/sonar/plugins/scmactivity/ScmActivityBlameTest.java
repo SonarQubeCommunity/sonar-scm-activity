@@ -27,6 +27,7 @@ import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
@@ -54,57 +55,58 @@ public class ScmActivityBlameTest {
   PreviousSha1Finder previousSha1Finder = mock(PreviousSha1Finder.class);
   SensorContext context = mock(SensorContext.class);
   Resource resource = mock(Resource.class);
+  FileToResource fileToResource = mock(FileToResource.class);
 
   @Before
   public void setUp() {
-    scmActivityBlame = new ScmActivityBlame(blameSensor, timeMachine, projectFileSystem, sha1Generator, previousSha1Finder);
+    scmActivityBlame = new ScmActivityBlame(blameSensor, timeMachine, sha1Generator, previousSha1Finder, fileToResource);
   }
 
   @Test
   public void should_store_hash() throws IOException {
-    File file = new File("source.java");
-    when(projectFileSystem.toResource(file)).thenReturn(resource);
-    when(context.getResource(resource)).thenReturn(resource);
+    File file = new File("unknown.java");
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
     when(sha1Generator.sha1(file)).thenReturn("SHA1");
 
-    scmActivityBlame.storeBlame(file, context);
+    scmActivityBlame.storeBlame(inputFile, context);
 
     verify(context).saveMeasure(same(resource), argThat(new IsMeasure(ScmActivityMetrics.SCM_HASH, "SHA1")));
   }
 
   @Test
   public void should_save_blame_when_hashes_are_different() throws IOException {
-    File file = new File("source.java");
-    when(projectFileSystem.toResource(file)).thenReturn(resource);
-    when(context.getResource(resource)).thenReturn(resource);
+    File file = new File("unknown.java");
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
     when(sha1Generator.sha1(file)).thenReturn("SHA1");
     when(previousSha1Finder.previousSha1(resource)).thenReturn("OLD SHA1");
 
-    scmActivityBlame.storeBlame(file, context);
+    scmActivityBlame.storeBlame(inputFile, context);
 
     verify(blameSensor).save(file, resource, context);
   }
 
   @Test
   public void should_not_save_blame_when_hashes_are_the_same() throws IOException {
-    File file = new File("source.java");
-    when(projectFileSystem.toResource(file)).thenReturn(resource);
-    when(context.getResource(resource)).thenReturn(resource);
+    File file = new File("unknown.java");
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
     when(sha1Generator.sha1(file)).thenReturn("SHA1");
     when(previousSha1Finder.previousSha1(resource)).thenReturn("SHA1");
 
-    scmActivityBlame.storeBlame(file, context);
+    scmActivityBlame.storeBlame(inputFile, context);
 
     verify(blameSensor, never()).save(file, resource, context);
   }
 
   @Test
   public void should_ignore_unknown_file() {
-    File file = new File("source.java");
-    when(projectFileSystem.toResource(file)).thenReturn(resource);
-    when(context.getResource(resource)).thenReturn(null);
+    File file = new File("unknown.java");
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(null);
 
-    scmActivityBlame.storeBlame(file, context);
+    scmActivityBlame.storeBlame(inputFile, context);
 
     verifyZeroInteractions(blameSensor, sha1Generator, previousSha1Finder);
   }
@@ -112,11 +114,11 @@ public class ScmActivityBlameTest {
   @Test
   public void should_ignore_error() throws IOException {
     File file = new File("source.java");
-    when(projectFileSystem.toResource(file)).thenReturn(resource);
-    when(context.getResource(resource)).thenReturn(resource);
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
     when(sha1Generator.sha1(file)).thenThrow(new IOException("BUG"));
 
-    scmActivityBlame.storeBlame(file, context);
+    scmActivityBlame.storeBlame(inputFile, context);
 
     verifyZeroInteractions(blameSensor, previousSha1Finder);
   }
@@ -124,8 +126,8 @@ public class ScmActivityBlameTest {
   @Test
   public void should_copy_old_measures_when_hashes_are_the_same() throws IOException {
     File file = new File("source.java");
-    when(projectFileSystem.toResource(file)).thenReturn(resource);
-    when(context.getResource(resource)).thenReturn(resource);
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
     when(sha1Generator.sha1(file)).thenReturn("SHA1");
     when(previousSha1Finder.previousSha1(resource)).thenReturn("SHA1");
     when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(
@@ -133,10 +135,16 @@ public class ScmActivityBlameTest {
         new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "Measure2"),
         new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "Measure3")));
 
-    scmActivityBlame.storeBlame(file, context);
+    scmActivityBlame.storeBlame(inputFile, context);
 
     verify(context).saveMeasure(same(resource), argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "Measure1")));
     verify(context).saveMeasure(same(resource), argThat(new IsMeasure(CoreMetrics.SCM_REVISIONS_BY_LINE, "Measure2")));
     verify(context).saveMeasure(same(resource), argThat(new IsMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE, "Measure3")));
+  }
+
+  static InputFile inputFile(File file) {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(file);
+    return inputFile;
   }
 }
