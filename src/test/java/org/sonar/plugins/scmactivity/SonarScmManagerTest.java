@@ -24,7 +24,7 @@ import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
-import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.jazz.JazzScmProvider;
@@ -57,7 +57,7 @@ public class SonarScmManagerTest {
 
     assertThat(scmManager.getProviderByType("svn")).isInstanceOf(SvnExeScmProvider.class);
     assertThat(scmManager.getProviderByType("git")).isInstanceOf(GitExeScmProvider.class);
-    assertThat(scmManager.getProviderByType("cvs")).isInstanceOf(CvsExeScmProvider.class);
+    assertThat(scmManager.getProviderByType("cvs")).isInstanceOf(CvsJavaScmProvider.class);
     assertThat(scmManager.getProviderByType("hg")).isInstanceOf(HgScmProvider.class);
     assertThat(scmManager.getProviderByType("bazaar")).isInstanceOf(BazaarScmProvider.class);
     assertThat(scmManager.getProviderByType("clearcase")).isInstanceOf(ClearCaseScmProvider.class);

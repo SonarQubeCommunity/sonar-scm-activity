@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
@@ -27,7 +29,6 @@ import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
-import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.jazz.JazzScmProvider;
@@ -46,7 +47,7 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     }
 
     register(new SvnExeScmProvider());
-    register(new CvsExeScmProvider());
+    register(new CvsJavaScmProvider());
     register(new GitExeScmProvider());
     register(new HgScmProvider());
     register(new BazaarScmProvider());
