@@ -20,24 +20,20 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.sonar.api.measures.Metric;
-
-import org.sonar.api.BatchExtension;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
-import org.sonar.plugins.scmactivity.sha1.PreviousSha1Finder;
-import org.sonar.plugins.scmactivity.sha1.Sha1Generator;
 
 import java.io.File;
 import java.io.IOException;

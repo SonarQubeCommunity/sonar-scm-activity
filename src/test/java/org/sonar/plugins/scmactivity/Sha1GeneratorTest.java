@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.scmactivity.sha1;
+package org.sonar.plugins.scmactivity;
 
 import org.junit.ClassRule;
 import org.junit.Test;

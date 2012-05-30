@@ -20,19 +20,16 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.rules.ExpectedException;
-
-import org.junit.Rule;
-
-import org.apache.maven.scm.ScmFile;
-
 import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFile;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;

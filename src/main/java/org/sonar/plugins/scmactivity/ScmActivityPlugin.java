@@ -24,8 +24,6 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.plugins.scmactivity.sha1.PreviousSha1Finder;
-import org.sonar.plugins.scmactivity.sha1.Sha1Generator;
 
 import java.util.List;
 

@@ -20,14 +20,13 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.slf4j.Logger;
-
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;

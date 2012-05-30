@@ -31,8 +31,6 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.plugins.scmactivity.sha1.PreviousSha1Finder;
-import org.sonar.plugins.scmactivity.sha1.Sha1Generator;
 
 import java.io.File;
 import java.io.IOException;

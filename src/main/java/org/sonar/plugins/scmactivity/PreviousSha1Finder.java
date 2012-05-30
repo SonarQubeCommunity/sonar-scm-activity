@@ -18,14 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.scmactivity.sha1;
+package org.sonar.plugins.scmactivity;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Resource;
-import org.sonar.plugins.scmactivity.ScmActivityMetrics;
 
 import java.util.List;
 

@@ -20,10 +20,9 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.Before;
-
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

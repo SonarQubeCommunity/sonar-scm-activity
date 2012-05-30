@@ -36,8 +36,8 @@ public class ScmConfigurationTest {
 
   private ScmConfiguration scmConfiguration;
   private PropertiesConfiguration configuration;
-  private MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
-  private ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  private final MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
+  private final ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
 
   @Before
   public void setUp() {

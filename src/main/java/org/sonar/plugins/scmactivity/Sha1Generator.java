@@ -18,10 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.scmactivity.sha1;
+package org.sonar.plugins.scmactivity;
 
 import com.google.common.io.Closeables;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.BatchExtension;
 

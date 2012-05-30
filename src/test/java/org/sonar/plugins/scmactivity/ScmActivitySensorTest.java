@@ -41,7 +41,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 public class ScmActivitySensorTest {
   ScmActivitySensor scmActivitySensor;
   ScmActivityBlame scmActivityBlame = mock(ScmActivityBlame.class);
