@@ -22,6 +22,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
@@ -36,17 +37,25 @@ public class FileToResource implements BatchExtension {
   }
 
   public Resource toResource(InputFile file, SensorContext context) {
-    Resource resource = null;
+    Resource resource;
+
     if (Java.KEY.equals(project.getLanguageKey())) {
-      if (Java.isJavaFile(file.getFile())) {
-        resource = JavaFile.fromRelativePath(file.getRelativePath(), false);
-      }
+      resource = resourceForJavaProject(file);
     } else {
-      resource = new org.sonar.api.resources.File(file.getRelativePath());
+      resource = resourceForOtherProject(file);
     }
-    if (resource != null) {
-      return context.getResource(resource);
+
+    return (resource == null) ? null : context.getResource(resource);
+  }
+
+  private static Resource resourceForJavaProject(InputFile file) {
+    if (Java.isJavaFile(file.getFile())) {
+      return JavaFile.fromRelativePath(file.getRelativePath(), false);
     }
     return null;
+  }
+
+  private static Resource resourceForOtherProject(InputFile file) {
+    return new File(file.getRelativePath());
   }
 }

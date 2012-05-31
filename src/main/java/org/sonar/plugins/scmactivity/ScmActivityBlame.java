@@ -33,6 +33,7 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Resource;
 
+import java.io.File;
 import java.io.IOException;
 
 public class ScmActivityBlame implements BatchExtension {
@@ -52,15 +53,16 @@ public class ScmActivityBlame implements BatchExtension {
     this.fileToResource = fileToResource;
   }
 
-  public void storeBlame(InputFile file, SensorContext context) {
+  public void storeBlame(InputFile inputFile, SensorContext context) {
+    File file = inputFile.getFile();
     try {
-      Resource resource = fileToResource.toResource(file, context);
+      Resource resource = fileToResource.toResource(inputFile, context);
       if (resource == null) {
         LOG.debug("File not found in Sonar index: " + file);
         return;
       }
 
-      String currentSha1 = sha1Generator.sha1(file.getFile());
+      String currentSha1 = sha1Generator.sha1(file);
       String previousSha1 = previousSha1Finder.previousSha1(resource);
 
       if (currentSha1.equals(previousSha1)) {
@@ -70,7 +72,7 @@ public class ScmActivityBlame implements BatchExtension {
       } else {
         LOG.debug("File changed since previous analysis: " + file);
 
-        blameSensor.save(file.getFile(), resource, context);
+        blameSensor.save(file, resource, context);
 
         context.saveMeasure(resource, new Measure(ScmActivityMetrics.SCM_HASH, currentSha1).setPersistenceMode(PersistenceMode.DATABASE));
       }
