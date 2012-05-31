@@ -29,11 +29,8 @@ import org.apache.maven.scm.manager.ScmManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
@@ -52,10 +49,10 @@ public class Blame implements BatchExtension {
     this.scmRepository = scmRepository;
   }
 
-  public void save(File file, Resource resource, SensorContext context) {
+  public MeasureUpdate save(File file, Resource resource, String sha1) {
     BlameScmResult result = retrieveBlame(file);
     if (result == null) {
-      return;
+      return new CopyPreviousMeasures(resource);
     }
 
     PropertiesBuilder<Integer, String> authors = new PropertiesBuilder<Integer, String>(CoreMetrics.SCM_AUTHORS_BY_LINE);
@@ -71,16 +68,7 @@ public class Blame implements BatchExtension {
       lineNumber++;
     }
 
-    saveMeasure(context, resource, CoreMetrics.SCM_AUTHORS_BY_LINE, authors);
-    saveMeasure(context, resource, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, dates);
-    saveMeasure(context, resource, CoreMetrics.SCM_REVISIONS_BY_LINE, revisions);
-  }
-
-  private void saveMeasure(SensorContext context, Resource resource, Metric metricKey, PropertiesBuilder<Integer, String> propertiesBuilder) {
-    Measure measure = new Measure(metricKey, propertiesBuilder.buildData())
-        .setPersistenceMode(PersistenceMode.DATABASE);
-
-    context.saveMeasure(resource, measure);
+    return new SaveNewMeasures(resource, authors.build(), dates.build(), revisions.build(), new Measure(ScmActivityMetrics.SCM_HASH, sha1));
   }
 
   private BlameScmResult retrieveBlame(File file) {

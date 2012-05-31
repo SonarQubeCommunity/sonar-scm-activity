@@ -24,10 +24,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 
 import java.io.File;
 import java.util.Arrays;
@@ -42,17 +44,22 @@ import static org.mockito.Mockito.when;
 public class ScmActivitySensorTest {
   ScmActivitySensor scmActivitySensor;
 
-  ScmActivityBlame scmActivityBlame = mock(ScmActivityBlame.class);
+  ChangeDetector changeDetector = mock(ChangeDetector.class);
   ScmConfiguration conf = mock(ScmConfiguration.class);
   UrlChecker urlChecker = mock(UrlChecker.class);
   LocalModificationChecker checkLocalModifications = mock(LocalModificationChecker.class);
   ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
   Project project = mock(Project.class);
   SensorContext context = mock(SensorContext.class);
+  FileToResource fileToResource = mock(FileToResource.class);
+  PreviousSha1Finder previousSha1Finder = mock(PreviousSha1Finder.class);
+  TimeMachine timeMachine = mock(TimeMachine.class);
+  Resource resource = mock(Resource.class);
+  MeasureUpdate measureUpdate = mock(MeasureUpdate.class);
 
   @Before
   public void setUp() {
-    scmActivitySensor = new ScmActivitySensor(conf, scmActivityBlame, urlChecker, checkLocalModifications);
+    scmActivitySensor = new ScmActivitySensor(conf, changeDetector, urlChecker, checkLocalModifications, fileToResource, previousSha1Finder, timeMachine);
   }
 
   @Test
@@ -93,18 +100,38 @@ public class ScmActivitySensorTest {
   }
 
   @Test
-  public void should_get_blame_information() {
+  public void should_execute_measure_update_for_known_files() {
     InputFile source = file("source.java");
-    InputFile test = file("test.java");
+    InputFile test = file("UNKNOWN.java");
     when(project.getLanguageKey()).thenReturn("java");
     when(project.getFileSystem()).thenReturn(projectFileSystem);
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
     when(projectFileSystem.testFiles("java")).thenReturn(Arrays.asList(test));
+    when(fileToResource.toResource(source, context)).thenReturn(resource);
+    when(previousSha1Finder.previousSha1(resource)).thenReturn("SHA1");
+    when(changeDetector.detectChange(source, context, "SHA1")).thenReturn(measureUpdate);
 
     scmActivitySensor.analyse(project, context);
 
-    verify(scmActivityBlame).storeBlame(source, context);
-    verify(scmActivityBlame).storeBlame(test, context);
+    verify(measureUpdate).execute(timeMachine, context);
+  }
+
+  @Test
+  public void should_carry_on_after_error() {
+    InputFile first = file("source.java");
+    InputFile second = file("UNKNOWN.java");
+    when(project.getLanguageKey()).thenReturn("java");
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
+    when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(first, second));
+    when(fileToResource.toResource(first, context)).thenReturn(resource);
+    when(fileToResource.toResource(second, context)).thenReturn(resource);
+    when(previousSha1Finder.previousSha1(resource)).thenReturn("SHA1");
+    when(changeDetector.detectChange(first, context, "SHA1")).thenThrow(new RuntimeException("BUG"));
+    when(changeDetector.detectChange(second, context, "SHA1")).thenReturn(measureUpdate);
+
+    scmActivitySensor.analyse(project, context);
+
+    verify(measureUpdate).execute(timeMachine, context);
   }
 
   @Test

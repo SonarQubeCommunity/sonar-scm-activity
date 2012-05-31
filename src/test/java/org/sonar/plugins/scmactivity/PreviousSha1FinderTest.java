@@ -21,7 +21,6 @@
 package org.sonar.plugins.scmactivity;
 
 import org.junit.Before;
-
 import org.junit.Test;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;

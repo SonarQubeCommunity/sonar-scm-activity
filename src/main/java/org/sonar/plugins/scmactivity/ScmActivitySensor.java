@@ -22,36 +22,48 @@ package org.sonar.plugins.scmactivity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 public final class ScmActivitySensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
 
   private final ScmConfiguration configuration;
-  private final ScmActivityBlame scmActivityBlame;
+  private final ChangeDetector changeDetector;
   private final UrlChecker urlChecker;
   private final LocalModificationChecker checkLocalModifications;
+  private final FileToResource fileToResource;
+  private final PreviousSha1Finder previousSha1Finder;
+  private final TimeMachine timeMachine;
 
-  public ScmActivitySensor(ScmConfiguration configuration, ScmActivityBlame scmActivityBlame, UrlChecker urlChecker, LocalModificationChecker checkLocalModifications) {
+  public ScmActivitySensor(ScmConfiguration configuration, ChangeDetector scmActivityBlame, UrlChecker urlChecker, LocalModificationChecker checkLocalModifications,
+      FileToResource fileToResource, PreviousSha1Finder previousSha1Finder, TimeMachine timeMachine) {
     this.configuration = configuration;
-    this.scmActivityBlame = scmActivityBlame;
+    this.changeDetector = scmActivityBlame;
     this.urlChecker = urlChecker;
     this.checkLocalModifications = checkLocalModifications;
+    this.fileToResource = fileToResource;
+    this.previousSha1Finder = previousSha1Finder;
+    this.timeMachine = timeMachine;
   }
 
   @DependedUpon
@@ -73,24 +85,49 @@ public final class ScmActivitySensor implements Sensor {
 
     TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    for (final InputFile file : allFiles(project)) {
-      executor.submit(new Runnable() {
-        public void run() {
-          scmActivityBlame.storeBlame(file, context);
-        }
-      });
-    }
-
-    executor.shutdown();
+    // Use multiple threads for the change detection and the blame retrieval
+    // However all measures read/write should be done on main thread
+    //
+    ExecutorService executor = createExecutor();
     try {
-      executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      LOG.error("Unable to await termination of blame retrieval process", e);
+      Iterable<InputFile> allFiles = allFiles(project);
+
+      List<Future<MeasureUpdate>> updates = Lists.newArrayList();
+      collect(updates, context, allFiles, executor);
+      execute(updates, context);
+    } finally {
+      executor.shutdown();
     }
 
     profiler.stop();
+  }
+
+  private void collect(List<Future<MeasureUpdate>> updates, final SensorContext context, Iterable<InputFile> allFiles, ExecutorService executor) {
+    for (final InputFile inputFile : allFiles) {
+      Resource resource = fileToResource.toResource(inputFile, context);
+
+      if (resource == null) {
+        LOG.debug("File not found in Sonar index: " + inputFile.getFile());
+      } else {
+        final String previousSha1 = previousSha1Finder.previousSha1(resource);
+
+        updates.add(executor.submit(new Callable<MeasureUpdate>() {
+          public MeasureUpdate call() {
+            return changeDetector.detectChange(inputFile, context, previousSha1);
+          }
+        }));
+      }
+    }
+  }
+
+  private void execute(List<Future<MeasureUpdate>> updates, SensorContext context) {
+    for (Future<MeasureUpdate> update : updates) {
+      try {
+        update.get().execute(timeMachine, context);
+      } catch (Exception e) {
+        LOG.error("Failure during SCM blame retrieval", ExceptionUtils.getRootCause(e));
+      }
+    }
   }
 
   private static Iterable<InputFile> allFiles(Project project) {
@@ -98,6 +135,11 @@ public final class ScmActivitySensor implements Sensor {
     ProjectFileSystem fileSystem = project.getFileSystem();
 
     return Iterables.concat(fileSystem.mainFiles(language), fileSystem.testFiles(language));
+  }
+
+  private static ExecutorService createExecutor() {
+    int virtualCores = Runtime.getRuntime().availableProcessors();
+    return Executors.newFixedThreadPool(virtualCores);
   }
 
   @Override

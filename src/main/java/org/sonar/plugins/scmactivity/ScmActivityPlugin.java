@@ -98,18 +98,18 @@ public final class ScmActivityPlugin implements Plugin {
   @SuppressWarnings("unchecked")
   public List getExtensions() {
     return ImmutableList.of(
+        Blame.class,
+        ChangeDetector.class,
         FileToResource.class,
-        Sha1Generator.class,
+        LocalModificationChecker.class,
+        MavenScmConfiguration.class,
         PreviousSha1Finder.class,
         ScmActivityMetrics.class,
-        ScmConfiguration.class,
-        MavenScmConfiguration.class,
-        SonarScmRepository.class,
-        SonarScmManager.class,
         ScmActivitySensor.class,
-        ScmActivityBlame.class,
-        LocalModificationChecker.class,
-        Blame.class,
+        ScmConfiguration.class,
+        Sha1Generator.class,
+        SonarScmManager.class,
+        SonarScmRepository.class,
         UrlChecker.class);
   }
 }

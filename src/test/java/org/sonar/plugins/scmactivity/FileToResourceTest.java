@@ -20,11 +20,10 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.sonar.api.resources.InputFile;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;

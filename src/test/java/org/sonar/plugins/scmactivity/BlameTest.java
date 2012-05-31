@@ -27,40 +27,31 @@ import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
-import org.sonar.api.test.IsMeasure;
-import org.sonar.api.test.IsResource;
-import org.sonar.plugins.scmactivity.test.TemporaryFile;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.resources.Resource;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.scmactivity.test.MoreConditions.reflectionEqualTo;
 
 public class BlameTest {
   private static final String FILENAME = "source.java";
+  private static final String UNKNOWN = "UNKNOWN";
 
   Blame blame;
 
-  SonarScmRepository sonarScmRepository = mock(SonarScmRepository.class);
   ScmManager scmManager = mock(ScmManager.class);
-  SensorContext context = mock(SensorContext.class);
-
-  @ClassRule
-  public static TemporaryFile temporaryFile = new TemporaryFile();
+  SonarScmRepository sonarScmRepository = mock(SonarScmRepository.class);
+  ScmRepository scmRepository = mock(ScmRepository.class);
 
   @Before
   public void setUp() {
@@ -68,25 +59,18 @@ public class BlameTest {
   }
 
   @Test
-  public void should_save_blame_by_line() throws Exception {
-    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
+  public void should_save_blame_measures_and_sha1() throws Exception {
+    when(sonarScmRepository.getScmRepository()).thenReturn(scmRepository);
+    when(scmManager.blame(eq(scmRepository), refEq(new ScmFileSet(new File("src"))), eq(FILENAME)))
         .thenReturn(new BlameScmResult("fake", Arrays.asList(
-            new BlameLine(new Date(13), "2", "godin"),
-            new BlameLine(new Date(10), "1", "godin"))));
+            new BlameLine(new Date(13), "20", "godin"),
+            new BlameLine(new Date(10), "21", "godin"))));
 
-    File file = temporaryFile.create(FILENAME, "foo");
-    blame.save(file, new org.sonar.api.resources.File(FILENAME), context);
+    MeasureUpdate update = blame.save(file(FILENAME), resource(FILENAME), "SHA1");
 
-    verify(context).saveMeasure(
-        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
-        argThat(new IsMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE)));
-    verify(context).saveMeasure(
-        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
-        argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE)));
-    verify(context).saveMeasure(
-        argThat(new IsResource(Scopes.FILE, Qualifiers.FILE, FILENAME)),
-        argThat(new IsMeasure(CoreMetrics.SCM_REVISIONS_BY_LINE)));
-    verifyNoMoreInteractions(context);
+    assertThat(((SaveNewMeasures) update).getAuthors()).is(reflectionEqualTo(new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "1=godin;2=godin")));
+    assertThat(((SaveNewMeasures) update).getRevisions()).is(reflectionEqualTo(new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "1=20;2=21")));
+    assertThat(((SaveNewMeasures) update).getSha1()).is(reflectionEqualTo(new Measure(ScmActivityMetrics.SCM_HASH, "SHA1")));
   }
 
   /**
@@ -95,21 +79,31 @@ public class BlameTest {
    */
   @Test
   public void should_not_throw_scm_exception() throws ScmException {
-    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
+    when(sonarScmRepository.getScmRepository()).thenReturn(scmRepository);
+    when(scmManager.blame(eq(scmRepository), refEq(new ScmFileSet(new File("src"))), eq(UNKNOWN)))
         .thenThrow(new ScmException("ERROR"));
 
-    blame.save(new File("src/UNKNOWN"), new org.sonar.api.resources.File("UNKNOWN"), context);
+    MeasureUpdate update = blame.save(file(UNKNOWN), resource(UNKNOWN), "SHA1");
 
-    verifyZeroInteractions(context);
+    assertThat(update).isInstanceOf(CopyPreviousMeasures.class);
   }
 
   @Test
   public void should_not_save_measures_if_blame_is_unsuccessful() throws ScmException {
-    when(scmManager.blame(any(ScmRepository.class), any(ScmFileSet.class), anyString()))
+    when(sonarScmRepository.getScmRepository()).thenReturn(scmRepository);
+    when(scmManager.blame(eq(scmRepository), refEq(new ScmFileSet(new File("src"))), eq(UNKNOWN)))
         .thenReturn(new BlameScmResult("", "", "", false));
 
-    blame.save(new File("src/UNKNOWN"), new org.sonar.api.resources.File("UNKNOWN"), context);
+    MeasureUpdate update = blame.save(file(UNKNOWN), resource(UNKNOWN), "SHA1");
 
-    verifyZeroInteractions(context);
+    assertThat(update).isInstanceOf(CopyPreviousMeasures.class);
+  }
+
+  static File file(String name) {
+    return new File("src", name);
+  }
+
+  static Resource resource(String name) {
+    return new org.sonar.api.resources.File(name);
   }
 }
