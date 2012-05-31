@@ -85,8 +85,7 @@ public class ScmActivityBlame implements BatchExtension {
         .setMetrics(
             CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
             CoreMetrics.SCM_REVISIONS_BY_LINE,
-            CoreMetrics.SCM_AUTHORS_BY_LINE
-        );
+            CoreMetrics.SCM_AUTHORS_BY_LINE);
 
     for (Measure previousMeasure : timeMachine.getMeasures(query)) {
       String data = previousMeasure.getData();
