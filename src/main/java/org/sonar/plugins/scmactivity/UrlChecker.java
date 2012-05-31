@@ -22,11 +22,15 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.manager.ScmManager;
+import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 
 public class UrlChecker implements BatchExtension {
   private static final String PARAMETER_MESSAGE = String.format("Please check the parameter \"%s\" or the <scm> section of Maven pom.", ScmActivityPlugin.URL_PROPERTY);
+  private static final String FAILURE_BLANK = "SCM URL must not be blank";
+  private static final String FAILURE_FORMAT = "URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: [%s]";
+  private static final String FAILURE_NOT_SUPPORTED = "SCM provider not supported: [%s]. Compatibility matrix is available at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin";
 
   private final ScmManager manager;
   private final ScmConfiguration conf;
@@ -40,19 +44,21 @@ public class UrlChecker implements BatchExtension {
     String url = conf.getUrl();
 
     if (StringUtils.isBlank(url)) {
-      throw new SonarException("SCM URL must not be blank. " + PARAMETER_MESSAGE);
+      throw failure(FAILURE_BLANK);
     }
-    if (!StringUtils.startsWith(url, "scm:")) {
-      throw new SonarException(String.format("URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: \"%s\". %s", url,
-          PARAMETER_MESSAGE));
+    if (!ScmUrlUtils.isValid(url)) {
+      throw failure(FAILURE_FORMAT, url);
     }
-    if (!isSupportedProvider(url)) {
-      throw new SonarException(String.format("SCM provider not supported: \"%s\". Compatibility matrix is available at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin",
-          conf.getScmProvider()));
+    if (!isSupported(url)) {
+      throw failure(FAILURE_NOT_SUPPORTED, ScmUrlUtils.getProvider(url));
     }
   }
 
-  private boolean isSupportedProvider(String url) {
+  private static SonarException failure(String format, Object... args) {
+    return new SonarException(String.format(format, args) + ". " + PARAMETER_MESSAGE);
+  }
+
+  private boolean isSupported(String url) {
     try {
       manager.getProviderByUrl(url);
       return true;

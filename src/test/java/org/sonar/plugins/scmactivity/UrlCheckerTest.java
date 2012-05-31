@@ -21,7 +21,9 @@
 package org.sonar.plugins.scmactivity;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.SonarException;
 
 import static org.mockito.Mockito.mock;
@@ -32,6 +34,9 @@ public class UrlCheckerTest {
 
   ScmConfiguration configuration = mock(ScmConfiguration.class);
 
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
+
   @Before
   public void setUp() throws Exception {
     when(configuration.isEnabled()).thenReturn(true);
@@ -39,23 +44,34 @@ public class UrlCheckerTest {
     checker = new UrlChecker(new SonarScmManager(configuration), configuration);
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void shouldFailIfBlank() {
     when(configuration.getUrl()).thenReturn(" ");
 
+    exception.expect(SonarException.class);
+    exception.expectMessage("SCM URL must not be blank");
+
     checker.check();
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void shouldFailIfBadlyFormed() {
     when(configuration.getUrl()).thenReturn("http://foo");
 
+    exception.expect(SonarException.class);
+    exception.expectMessage("URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html");
+    exception.expectMessage("[http://foo]");
+
     checker.check();
   }
 
-  @Test(expected = SonarException.class)
+  @Test
   public void shouldFailIfProviderNotSupported() {
     when(configuration.getUrl()).thenReturn("scm:synergy:foo");
+
+    exception.expect(SonarException.class);
+    exception.expectMessage("SCM provider not supported");
+    exception.expectMessage("[synergy]");
 
     checker.check();
   }
