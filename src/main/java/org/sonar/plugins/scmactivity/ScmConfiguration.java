@@ -48,23 +48,27 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public boolean isEnabled() {
-    return configuration.getBoolean(ScmActivityPlugin.ENABLED_PROPERTY, ScmActivityPlugin.ENABLED_DEFAULT_VALUE) && (getUrl() != null);
+    return configuration.getBoolean(ScmActivityPlugin.ENABLED, ScmActivityPlugin.ENABLED_DEFAULT) && (getUrl() != null);
   }
 
   public String getUser() {
-    return configuration.getString(ScmActivityPlugin.USER_PROPERTY);
+    return configuration.getString(ScmActivityPlugin.USER);
   }
 
   public String getPassword() {
-    return configuration.getString(ScmActivityPlugin.PASSWORD_PROPERTY);
+    return configuration.getString(ScmActivityPlugin.PASSWORD);
   }
 
   public boolean isIgnoreLocalModifications() {
-    return configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE);
+    return configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT);
+  }
+
+  public int getThreadCount() {
+    return configuration.getInt(ScmActivityPlugin.THREAD_COUNT, ScmActivityPlugin.THREAD_COUNT_DEFAULT);
   }
 
   public String getUrl() {
-    String urlProperty = configuration.getString(ScmActivityPlugin.URL_PROPERTY);
+    String urlProperty = configuration.getString(ScmActivityPlugin.URL);
     String url = StringUtils.defaultIfBlank(urlProperty, getMavenUrl());
     return StringUtils.defaultIfBlank(url, null);
   }

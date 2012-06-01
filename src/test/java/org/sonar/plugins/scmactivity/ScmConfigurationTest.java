@@ -41,28 +41,28 @@ public class ScmConfigurationTest {
 
   @Test
   public void shouldReturnUsername() {
-    configuration.addProperty(ScmActivityPlugin.USER_PROPERTY, "godin");
+    configuration.addProperty(ScmActivityPlugin.USER, "godin");
 
     assertThat(scmConfiguration.getUser()).isEqualTo("godin");
   }
 
   @Test
   public void shouldReturnPassword() {
-    configuration.addProperty(ScmActivityPlugin.PASSWORD_PROPERTY, "pass");
+    configuration.addProperty(ScmActivityPlugin.PASSWORD, "pass");
 
     assertThat(scmConfiguration.getPassword()).isEqualTo("pass");
   }
 
   @Test
   public void shouldReturnUrlFromConfiguration() {
-    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "http://test");
+    configuration.addProperty(ScmActivityPlugin.URL, "http://test");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("http://test");
   }
 
   @Test
   public void shouldBeDisabledIfNoUrl() {
-    configuration.addProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
+    configuration.addProperty(ScmActivityPlugin.ENABLED, true);
 
     assertThat(scmConfiguration.isEnabled()).isFalse();
   }
@@ -74,17 +74,29 @@ public class ScmConfigurationTest {
 
   @Test
   public void shouldBeEnabled() {
-    configuration.addProperty(ScmActivityPlugin.ENABLED_PROPERTY, true);
-    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:svn:http:foo");
+    configuration.addProperty(ScmActivityPlugin.ENABLED, true);
+    configuration.addProperty(ScmActivityPlugin.URL, "scm:svn:http:foo");
 
     assertThat(scmConfiguration.isEnabled()).isTrue();
   }
 
   @Test
+  public void should_get_default_thread_count() {
+    assertThat(scmConfiguration.getThreadCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void should_get_thread_count() {
+    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 8);
+
+    assertThat(scmConfiguration.getThreadCount()).isEqualTo(8);
+  }
+
+  @Test
   public void shouldGetMavenDeveloperUrlIfCredentials() {
     when(mavenConf.getDeveloperUrl()).thenReturn("scm:svn:https:writable");
-    configuration.addProperty(ScmActivityPlugin.USER_PROPERTY, "godin");
-    configuration.addProperty(ScmActivityPlugin.PASSWORD_PROPERTY, "pass");
+    configuration.addProperty(ScmActivityPlugin.USER, "godin");
+    configuration.addProperty(ScmActivityPlugin.PASSWORD, "pass");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:https:writable");
   }
@@ -107,7 +119,7 @@ public class ScmConfigurationTest {
   @Test
   public void shouldOverrideMavenUrl() {
     when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
-    configuration.addProperty(ScmActivityPlugin.URL_PROPERTY, "scm:svn:http:override");
+    configuration.addProperty(ScmActivityPlugin.URL, "scm:svn:http:override");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:http:override");
   }

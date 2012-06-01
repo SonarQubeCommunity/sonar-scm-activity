@@ -29,8 +29,8 @@ import java.util.List;
 
 @Properties({
   @Property(
-    key = ScmActivityPlugin.ENABLED_PROPERTY,
-    defaultValue = ScmActivityPlugin.ENABLED_DEFAULT_VALUE + "",
+    key = ScmActivityPlugin.ENABLED,
+    defaultValue = "" + ScmActivityPlugin.ENABLED_DEFAULT,
     name = "Enable loading of SCM activity. It requires to connect to SCM server.",
     description = "",
     module = true,
@@ -38,7 +38,7 @@ import java.util.List;
     global = true
   ),
   @Property(
-    key = ScmActivityPlugin.URL_PROPERTY,
+    key = ScmActivityPlugin.URL,
     defaultValue = "",
     name = "SCM URL",
     description = "SCM URL. The format is described in <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
@@ -48,7 +48,7 @@ import java.util.List;
     global = false
   ),
   @Property(
-    key = ScmActivityPlugin.USER_PROPERTY,
+    key = ScmActivityPlugin.USER,
     defaultValue = "",
     name = "User",
     description = "User to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
@@ -57,7 +57,7 @@ import java.util.List;
     global = true
   ),
   @Property(
-    key = ScmActivityPlugin.PASSWORD_PROPERTY,
+    key = ScmActivityPlugin.PASSWORD,
     defaultValue = "",
     name = "Password",
     description = "Password to connect with SCM. This property is usually defined in settings of project.",
@@ -67,21 +67,33 @@ import java.util.List;
   ),
   @Property(
     key = ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS,
-    defaultValue = "" + ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE,
+    defaultValue = "" + ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT,
     name = "Ignore local modifications",
     description = "By default local modifications are forbidden in order to have consistent data with SCM repository.",
     module = true,
     project = true,
     global = true
+  ),
+  @Property(
+    key = ScmActivityPlugin.THREAD_COUNT,
+    defaultValue = "" + ScmActivityPlugin.THREAD_COUNT_DEFAULT,
+    name = "Thread count",
+    description = "Number of threads used to speed-up the retrieval of authors by line (aka blame information)." +
+      "The default behavior is to use a single threads.",
+    module = true,
+    project = true,
+    global = true
   )})
 public final class ScmActivityPlugin implements Plugin {
+  public static final String ENABLED = "sonar.scm.enabled";
+  public static final String URL = "sonar.scm.url";
+  public static final String USER = "sonar.scm.user.secured";
+  public static final String PASSWORD = "sonar.scm.password.secured";
   public static final String IGNORE_LOCAL_MODIFICATIONS = "sonar.scm.ignoreLocalModifications";
-  public static final boolean IGNORE_LOCAL_MODIFICATIONS_DEFAULT_VALUE = false;
-  public static final String URL_PROPERTY = "sonar.scm.url";
-  public static final String ENABLED_PROPERTY = "sonar.scm.enabled";
-  public static final boolean ENABLED_DEFAULT_VALUE = false;
-  public static final String USER_PROPERTY = "sonar.scm.user.secured";
-  public static final String PASSWORD_PROPERTY = "sonar.scm.password.secured";
+  public static final String THREAD_COUNT = "sonar.scm.threadCount";
+  public static final boolean ENABLED_DEFAULT = false;
+  public static final boolean IGNORE_LOCAL_MODIFICATIONS_DEFAULT = false;
+  public static final int THREAD_COUNT_DEFAULT = 1;
 
   public String getKey() {
     return "scm-activity";

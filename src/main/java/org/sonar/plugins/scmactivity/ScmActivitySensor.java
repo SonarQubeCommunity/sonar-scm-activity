@@ -90,15 +90,11 @@ public final class ScmActivitySensor implements Sensor {
     //
     ExecutorService executor = createExecutor();
 
-    try {
-      Iterable<InputFile> allFiles = allFiles(project);
+    List<Future<MeasureUpdate>> updates = Lists.newArrayList();
+    collect(updates, context, allFiles(project), executor);
+    execute(updates, context);
 
-      List<Future<MeasureUpdate>> updates = Lists.newArrayList();
-      collect(updates, context, allFiles, executor);
-      execute(updates, context);
-    } finally {
-      executor.shutdown();
-    }
+    executor.shutdown();
 
     profiler.stop();
   }
@@ -132,16 +128,20 @@ public final class ScmActivitySensor implements Sensor {
     }
   }
 
+  private ExecutorService createExecutor() {
+    int threadCount = configuration.getThreadCount();
+    int availableCores = Runtime.getRuntime().availableProcessors();
+
+    int threads = Math.max(1, Math.min(availableCores, threadCount));
+
+    return Executors.newFixedThreadPool(threads);
+  }
+
   private static Iterable<InputFile> allFiles(Project project) {
     String language = project.getLanguageKey();
     ProjectFileSystem fileSystem = project.getFileSystem();
 
     return Iterables.concat(fileSystem.mainFiles(language), fileSystem.testFiles(language));
-  }
-
-  private static ExecutorService createExecutor() {
-    int virtualCores = Runtime.getRuntime().availableProcessors();
-    return Executors.newFixedThreadPool(virtualCores);
   }
 
   @Override
