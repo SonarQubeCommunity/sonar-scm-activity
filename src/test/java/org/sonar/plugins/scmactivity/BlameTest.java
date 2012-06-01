@@ -21,11 +21,8 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -37,8 +34,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.plugins.scmactivity.test.MoreConditions.reflectionEqualTo;
@@ -49,22 +44,18 @@ public class BlameTest {
 
   Blame blame;
 
-  ScmManager scmManager = mock(ScmManager.class);
-  SonarScmRepository sonarScmRepository = mock(SonarScmRepository.class);
-  ScmRepository scmRepository = mock(ScmRepository.class);
+  ScmFacade scmFacade = mock(ScmFacade.class);
 
   @Before
   public void setUp() {
-    blame = new Blame(scmManager, sonarScmRepository);
+    blame = new Blame(scmFacade);
   }
 
   @Test
   public void should_save_blame_measures_and_sha1() throws Exception {
-    when(sonarScmRepository.getScmRepository()).thenReturn(scmRepository);
-    when(scmManager.blame(eq(scmRepository), refEq(new ScmFileSet(new File("src"))), eq(FILENAME)))
-        .thenReturn(new BlameScmResult("fake", Arrays.asList(
-            new BlameLine(new Date(13), "20", "godin"),
-            new BlameLine(new Date(10), "21", "godin"))));
+    when(scmFacade.blame(file(FILENAME))).thenReturn(new BlameScmResult("fake", Arrays.asList(
+        new BlameLine(new Date(13), "20", "godin"),
+        new BlameLine(new Date(10), "21", "godin"))));
 
     MeasureUpdate update = blame.save(file(FILENAME), resource(FILENAME), "SHA1");
 
@@ -79,9 +70,7 @@ public class BlameTest {
    */
   @Test
   public void should_not_throw_scm_exception() throws ScmException {
-    when(sonarScmRepository.getScmRepository()).thenReturn(scmRepository);
-    when(scmManager.blame(eq(scmRepository), refEq(new ScmFileSet(new File("src"))), eq(UNKNOWN)))
-        .thenThrow(new ScmException("ERROR"));
+    when(scmFacade.blame(file(UNKNOWN))).thenThrow(new ScmException("ERROR"));
 
     MeasureUpdate update = blame.save(file(UNKNOWN), resource(UNKNOWN), "SHA1");
 
@@ -90,9 +79,7 @@ public class BlameTest {
 
   @Test
   public void should_not_save_measures_if_blame_is_unsuccessful() throws ScmException {
-    when(sonarScmRepository.getScmRepository()).thenReturn(scmRepository);
-    when(scmManager.blame(eq(scmRepository), refEq(new ScmFileSet(new File("src"))), eq(UNKNOWN)))
-        .thenReturn(new BlameScmResult("", "", "", false));
+    when(scmFacade.blame(file(UNKNOWN))).thenReturn(new BlameScmResult("", "", "", false));
 
     MeasureUpdate update = blame.save(file(UNKNOWN), resource(UNKNOWN), "SHA1");
 

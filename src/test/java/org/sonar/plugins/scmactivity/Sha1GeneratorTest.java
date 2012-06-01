@@ -41,7 +41,7 @@ public class Sha1GeneratorTest {
   public void should_generate_sha1_of_empty_file() throws IOException {
     File emptyFile = temporaryFile.create("empty.java", "");
 
-    String sha1 = new Sha1Generator().sha1(emptyFile);
+    String sha1 = new Sha1Generator().find(emptyFile);
 
     assertThat(sha1).isEqualTo("da39a3ee5e6b4b0d3255bfef95601890afd80709");
   }
@@ -50,13 +50,13 @@ public class Sha1GeneratorTest {
   public void should_generate_sha1_of_file() throws IOException {
     File file = temporaryFile.create("quickBrownFox.java", "The quick brown fox jumps over the lazy dog");
 
-    String sha1 = new Sha1Generator().sha1(file);
+    String sha1 = new Sha1Generator().find(file);
 
     assertThat(sha1).isEqualTo("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12");
   }
 
   @Test(expected = FileNotFoundException.class)
   public void should_fail_on_unkown_file() throws IOException {
-    new Sha1Generator().sha1(new File("UNKNOWN"));
+    new Sha1Generator().find(new File("UNKNOWN"));
   }
 }

@@ -30,46 +30,46 @@ import org.sonar.api.resources.Resource;
 import java.io.File;
 import java.io.IOException;
 
-public class ChangeDetector implements BatchExtension {
-  private static final Logger LOG = LoggerFactory.getLogger(ChangeDetector.class);
+public class BlameVersionSelector implements BatchExtension {
+  private static final Logger LOG = LoggerFactory.getLogger(BlameVersionSelector.class);
 
-  private final Blame blameSensor;
+  private final Blame blame;
   private final Sha1Generator sha1Generator;
   private final FileToResource fileToResource;
 
-  public ChangeDetector(Blame blameSensor, Sha1Generator sha1Generator, FileToResource fileToResource) {
-    this.blameSensor = blameSensor;
+  public BlameVersionSelector(Blame blame, Sha1Generator sha1Generator, FileToResource fileToResource) {
+    this.blame = blame;
     this.sha1Generator = sha1Generator;
     this.fileToResource = fileToResource;
   }
 
-  public MeasureUpdate detectChange(InputFile inputFile, SensorContext context, String previousSha1) {
+  public MeasureUpdate detect(InputFile inputFile, String previousSha1, SensorContext context) {
     File file = inputFile.getFile();
+
     try {
       Resource resource = fileToResource.toResource(inputFile, context);
 
-      String currentSha1 = sha1Generator.sha1(file);
-
+      String currentSha1 = sha1Generator.find(file);
       if (currentSha1.equals(previousSha1)) {
         return fileNotChanged(file, resource);
-      } else {
-        return fileChanged(file, resource, currentSha1);
       }
+
+      return fileChanged(file, resource, currentSha1);
     } catch (IOException e) {
-      LOG.error("Unable to get scm information: " + file, e);
+      LOG.error("Unable to get scm information: {}", file, e);
       return MeasureUpdate.NONE;
     }
   }
 
-  private MeasureUpdate fileChanged(File file, Resource resource, String currentSha1) {
-    LOG.debug("File changed since previous analysis: " + file);
-
-    return blameSensor.save(file, resource, currentSha1);
-  }
-
   private MeasureUpdate fileNotChanged(File file, Resource resource) {
-    LOG.debug("File not changed since previous analysis: " + file);
+    LOG.debug("File not changed since previous analysis: {}", file);
 
     return new CopyPreviousMeasures(resource);
+  }
+
+  private MeasureUpdate fileChanged(File file, Resource resource, String currentSha1) {
+    LOG.debug("File changed since previous analysis: {}", file);
+
+    return blame.save(file, resource, currentSha1);
   }
 }

@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Sha1Generator implements BatchExtension {
-  public String sha1(File file) throws IOException {
+  public String find(File file) throws IOException {
     InputStream input = null;
     try {
       input = new BufferedInputStream(new FileInputStream(file));

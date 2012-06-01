@@ -22,10 +22,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFile;
-import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.status.StatusScmResult;
-import org.apache.maven.scm.manager.ScmManager;
-import org.apache.maven.scm.repository.ScmRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,8 +42,7 @@ public class LocalModificationCheckerTest {
   LocalModificationChecker checker;
 
   ScmConfiguration configuration = mock(ScmConfiguration.class);
-  ScmManager manager = mock(ScmManager.class);
-  SonarScmRepository repository = mock(SonarScmRepository.class);
+  ScmFacade scmFacade = mock(ScmFacade.class);
   StatusScmResult statusScmResult = mock(StatusScmResult.class);
   ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
 
@@ -55,7 +51,7 @@ public class LocalModificationCheckerTest {
 
   @Before
   public void setUp() {
-    checker = new LocalModificationChecker(fileSystem, configuration, manager, repository);
+    checker = new LocalModificationChecker(fileSystem, configuration, scmFacade);
   }
 
   @Test
@@ -64,14 +60,14 @@ public class LocalModificationCheckerTest {
 
     checker.check();
 
-    verifyZeroInteractions(manager, repository);
+    verifyZeroInteractions(scmFacade);
   }
 
   @Test
-  public void should_check_there_is_no_changes() throws ScmException {
+  public void should_check_there_is_no_local_changes() throws ScmException {
     when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
     when(fileSystem.getTestDirs()).thenReturn(Arrays.asList(new File("other")));
-    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenReturn(statusScmResult);
+    when(scmFacade.localChanges(any(File.class))).thenReturn(statusScmResult);
     when(statusScmResult.isSuccess()).thenReturn(true);
 
     checker.check();
@@ -80,7 +76,7 @@ public class LocalModificationCheckerTest {
   @Test
   public void should_fail_when_unable_to_check() throws ScmException {
     when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
-    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenReturn(statusScmResult);
+    when(scmFacade.localChanges(new File("src"))).thenReturn(statusScmResult);
     when(statusScmResult.isSuccess()).thenReturn(false);
     when(statusScmResult.getProviderMessage()).thenReturn("BUG");
 
@@ -93,7 +89,7 @@ public class LocalModificationCheckerTest {
   @Test
   public void should_fail_on_error() throws ScmException {
     when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
-    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenThrow(new ScmException("BUG"));
+    when(scmFacade.localChanges(new File("src"))).thenThrow(new ScmException("BUG"));
 
     exception.expect(SonarException.class);
     exception.expectMessage("Unable to check for local modifications");
@@ -104,7 +100,7 @@ public class LocalModificationCheckerTest {
   @Test
   public void should_fail_with_local_changes() throws ScmException {
     when(fileSystem.getSourceDirs()).thenReturn(Arrays.asList(new File("src")));
-    when(manager.status(any(ScmRepository.class), any(ScmFileSet.class))).thenReturn(statusScmResult);
+    when(scmFacade.localChanges(new File("src"))).thenReturn(statusScmResult);
     when(statusScmResult.isSuccess()).thenReturn(true);
     when(statusScmResult.getChangedFiles()).thenReturn(Arrays.asList(new ScmFile("source.java", null)));
 

@@ -33,8 +33,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ChangeDetectorTest {
-  ChangeDetector changeDetector;
+public class BlameVersionSelectorTest {
+  BlameVersionSelector blameVersionSelector;
 
   Blame blameSensor = mock(Blame.class);
   Sha1Generator sha1Generator = mock(Sha1Generator.class);
@@ -45,7 +45,7 @@ public class ChangeDetectorTest {
 
   @Before
   public void setUp() {
-    changeDetector = new ChangeDetector(blameSensor, sha1Generator, fileToResource);
+    blameVersionSelector = new BlameVersionSelector(blameSensor, sha1Generator, fileToResource);
   }
 
   @Test
@@ -53,10 +53,23 @@ public class ChangeDetectorTest {
     File file = new File("source.java");
     InputFile inputFile = inputFile(file);
     when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
-    when(sha1Generator.sha1(file)).thenReturn("SHA1");
+    when(sha1Generator.find(file)).thenReturn("SHA1");
     when(blameSensor.save(file, resource, "SHA1")).thenReturn(saveBlame);
 
-    MeasureUpdate update = changeDetector.detectChange(inputFile, context, "OLD SHA1");
+    MeasureUpdate update = blameVersionSelector.detect(inputFile, "OLD SHA1", context);
+
+    assertThat(update).isSameAs(saveBlame);
+  }
+
+  @Test
+  public void should_save_blame_when_no_previous_hash() throws IOException {
+    File file = new File("source.java");
+    InputFile inputFile = inputFile(file);
+    when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
+    when(sha1Generator.find(file)).thenReturn("SHA1");
+    when(blameSensor.save(file, resource, "SHA1")).thenReturn(saveBlame);
+
+    MeasureUpdate update = blameVersionSelector.detect(inputFile, "", context);
 
     assertThat(update).isSameAs(saveBlame);
   }
@@ -66,10 +79,10 @@ public class ChangeDetectorTest {
     File file = new File("source.java");
     InputFile inputFile = inputFile(file);
     when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
-    when(sha1Generator.sha1(file)).thenReturn("SHA1");
+    when(sha1Generator.find(file)).thenReturn("SHA1");
     when(blameSensor.save(file, resource, "SHA1")).thenReturn(saveBlame);
 
-    MeasureUpdate update = changeDetector.detectChange(inputFile, context, "SHA1");
+    MeasureUpdate update = blameVersionSelector.detect(inputFile, "SHA1", context);
 
     assertThat(update).isInstanceOf(CopyPreviousMeasures.class);
   }
@@ -78,9 +91,9 @@ public class ChangeDetectorTest {
   public void should_ignore_error() throws IOException {
     File file = new File("source.java");
     InputFile inputFile = inputFile(file);
-    when(sha1Generator.sha1(file)).thenThrow(new IOException("BUG"));
+    when(sha1Generator.find(file)).thenThrow(new IOException("BUG"));
 
-    MeasureUpdate update = changeDetector.detectChange(inputFile, context, "SHA1");
+    MeasureUpdate update = blameVersionSelector.detect(inputFile, "SHA1", context);
 
     assertThat(update).isSameAs(MeasureUpdate.NONE);
   }

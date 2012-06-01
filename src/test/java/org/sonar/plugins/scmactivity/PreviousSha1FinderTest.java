@@ -51,16 +51,16 @@ public class PreviousSha1FinderTest {
     when(timeMachine.getMeasures(timeMachineQuery(resource, true, ScmActivityMetrics.SCM_HASH)))
         .thenReturn(Arrays.asList(sha1Measure("abcdef")));
 
-    String sha1 = previousSha1Finder.previousSha1(resource);
+    String sha1 = previousSha1Finder.find(resource);
 
     assertThat(sha1).isEqualTo("abcdef");
   }
 
   @Test
   public void shouldnt_find_unknown_sha1() {
-    String sha1 = previousSha1Finder.previousSha1(resource);
+    String sha1 = previousSha1Finder.find(resource);
 
-    assertThat(sha1).isNull();
+    assertThat(sha1).isEmpty();
   }
 
   static TimeMachineQuery timeMachineQuery(Resource resource, boolean last, Metric metric) {

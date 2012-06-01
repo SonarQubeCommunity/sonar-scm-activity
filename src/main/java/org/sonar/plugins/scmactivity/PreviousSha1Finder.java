@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.collect.Iterables;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
@@ -29,24 +30,21 @@ import org.sonar.api.resources.Resource;
 import java.util.List;
 
 public class PreviousSha1Finder implements BatchExtension {
+  private static final Measure NO_HASH_AVAILABLE = new Measure(ScmActivityMetrics.SCM_HASH, "");
+
   private final TimeMachine timeMachine;
 
   public PreviousSha1Finder(TimeMachine timeMachine) {
     this.timeMachine = timeMachine;
   }
 
-  public String previousSha1(Resource resource) {
-    List<Measure> measures = timeMachine.getMeasures(lastHashMetric(resource));
-    if (measures.isEmpty()) {
-      return null;
-    }
-
-    return measures.get(0).getData();
+  public String find(Resource resource) {
+    List<Measure> measures = timeMachine.getMeasures(queryPreviousHash(resource));
+    Measure lastMeasure = Iterables.getOnlyElement(measures, NO_HASH_AVAILABLE);
+    return lastMeasure.getData();
   }
 
-  private static TimeMachineQuery lastHashMetric(Resource resource) {
-    return new TimeMachineQuery(resource)
-        .setOnlyLastAnalysis(true)
-        .setMetrics(ScmActivityMetrics.SCM_HASH);
+  private static TimeMachineQuery queryPreviousHash(Resource resource) {
+    return new TimeMachineQuery(resource).setOnlyLastAnalysis(true).setMetrics(ScmActivityMetrics.SCM_HASH);
   }
 }

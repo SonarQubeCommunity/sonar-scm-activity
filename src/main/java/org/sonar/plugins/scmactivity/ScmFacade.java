@@ -20,32 +20,47 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ScmException;
+import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.command.blame.BlameScmResult;
+import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 
-public class SonarScmRepository implements BatchExtension {
-  private final ScmManager manager;
-  private final ScmConfiguration conf;
+import java.io.File;
+
+public class ScmFacade implements BatchExtension {
+  private final ScmManager scmManager;
+  private final ScmConfiguration configuration;
   private ScmRepository repository;
 
-  public SonarScmRepository(ScmManager manager, ScmConfiguration conf) {
-    this.manager = manager;
-    this.conf = conf;
+  public ScmFacade(ScmManager scmManager, ScmConfiguration configuration) {
+    this.scmManager = scmManager;
+    this.configuration = configuration;
   }
 
-  public ScmRepository getScmRepository() {
+  public BlameScmResult blame(File file) throws ScmException {
+    return scmManager.blame(getScmRepository(), new ScmFileSet(file.getParentFile()), file.getName());
+  }
+
+  public StatusScmResult localChanges(File sourceDir) throws ScmException {
+    return scmManager.status(getScmRepository(), new ScmFileSet(sourceDir));
+  }
+
+  @VisibleForTesting
+  ScmRepository getScmRepository() {
     if (repository == null) {
       try {
-        String connectionUrl = conf.getUrl();
-        String user = conf.getUser();
-        String password = conf.getPassword();
+        String connectionUrl = configuration.getUrl();
+        String user = configuration.getUser();
+        String password = configuration.getPassword();
 
-        repository = manager.makeScmRepository(connectionUrl);
+        repository = scmManager.makeScmRepository(connectionUrl);
 
         if (!StringUtils.isBlank(user)) {
           ScmProviderRepository providerRepository = repository.getProviderRepository();

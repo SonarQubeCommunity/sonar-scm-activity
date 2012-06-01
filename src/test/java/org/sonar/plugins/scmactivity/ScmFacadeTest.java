@@ -20,6 +20,9 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.command.blame.BlameScmResult;
+import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.repository.ScmRepository;
@@ -28,24 +31,30 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 
+import java.io.File;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SonarScmRepositoryTest {
-  SonarScmRepository repo;
+public class ScmFacadeTest {
+  ScmFacade scmFacade;
 
   ScmConfiguration conf = mock(ScmConfiguration.class);
   ScmManager manager = mock(ScmManager.class);
   ScmRepository repository = mock(ScmRepository.class);
   ScmProviderRepository provider = mock(ScmProviderRepository.class);
+  BlameScmResult blameScmResult = mock(BlameScmResult.class);
+  StatusScmResult statusScmResult = mock(StatusScmResult.class);
 
   @Before
   public void setUp() {
-    repo = new SonarScmRepository(manager, conf);
+    scmFacade = new ScmFacade(manager, conf);
   }
 
   @Test
@@ -56,9 +65,9 @@ public class SonarScmRepositoryTest {
     when(manager.makeScmRepository("/url")).thenReturn(repository);
     when(repository.getProviderRepository()).thenReturn(provider);
 
-    ScmRepository scmRepository = repo.getScmRepository();
+    ScmRepository scmRepository = scmFacade.getScmRepository();
 
-    assertThat(scmRepository).isSameAs(repo.getScmRepository());
+    assertThat(scmRepository).isSameAs(scmFacade.getScmRepository());
     verify(provider).setUser("godin");
     verify(provider).setPassword("pass");
   }
@@ -70,9 +79,9 @@ public class SonarScmRepositoryTest {
     when(conf.getUrl()).thenReturn("/url");
     when(manager.makeScmRepository("/url")).thenReturn(repository);
 
-    ScmRepository scmRepository = repo.getScmRepository();
+    ScmRepository scmRepository = scmFacade.getScmRepository();
 
-    assertThat(scmRepository).isSameAs(repo.getScmRepository());
+    assertThat(scmRepository).isSameAs(scmFacade.getScmRepository());
     verify(provider, never()).setUser(anyString());
     verify(provider, never()).setPassword(anyString());
   }
@@ -85,9 +94,9 @@ public class SonarScmRepositoryTest {
     when(manager.makeScmRepository("/url")).thenReturn(repository);
     when(repository.getProviderRepository()).thenReturn(provider);
 
-    ScmRepository scmRepository = repo.getScmRepository();
+    ScmRepository scmRepository = scmFacade.getScmRepository();
 
-    assertThat(scmRepository).isSameAs(repo.getScmRepository());
+    assertThat(scmRepository).isSameAs(scmFacade.getScmRepository());
     verify(provider).setUser("login");
     verify(provider).setPassword("");
   }
@@ -96,6 +105,28 @@ public class SonarScmRepositoryTest {
   public void should_report_failure() throws Exception {
     when(manager.makeScmRepository(anyString())).thenThrow(new ScmRepositoryException("BUG"));
 
-    repo.getScmRepository();
+    scmFacade.getScmRepository();
+  }
+
+  @Test
+  public void should_blame_file() throws Exception {
+    when(conf.getUrl()).thenReturn("/url");
+    when(manager.makeScmRepository("/url")).thenReturn(repository);
+    when(manager.blame(eq(repository), refEq(new ScmFileSet(new File("src"))), eq("source.java"))).thenReturn(blameScmResult);
+
+    BlameScmResult result = scmFacade.blame(new File("src/source.java"));
+
+    assertThat(result).isSameAs(blameScmResult);
+  }
+
+  @Test
+  public void should_get_local_changes() throws Exception {
+    when(conf.getUrl()).thenReturn("/url");
+    when(manager.makeScmRepository("/url")).thenReturn(repository);
+    when(manager.status(eq(repository), refEq(new ScmFileSet(new File("src"))))).thenReturn(statusScmResult);
+
+    StatusScmResult localChanges = scmFacade.localChanges(new File("src"));
+
+    assertThat(localChanges).isSameAs(statusScmResult);
   }
 }

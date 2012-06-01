@@ -30,18 +30,18 @@ public class UrlChecker implements BatchExtension {
   private static final String PARAMETER_MESSAGE = String.format("Please check the parameter \"%s\" or the <scm> section of Maven pom.", ScmActivityPlugin.URL_PROPERTY);
   private static final String FAILURE_BLANK = "SCM URL must not be blank";
   private static final String FAILURE_FORMAT = "URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: [%s]";
-  private static final String FAILURE_NOT_SUPPORTED = "SCM provider not supported: [%s]. Compatibility matrix is available at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin";
+  private static final String FAILURE_NOT_SUPPORTED = "Unsupported SCM: [%s]. Check compatibility at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin";
 
   private final ScmManager manager;
-  private final ScmConfiguration conf;
+  private final ScmConfiguration configuration;
 
-  public UrlChecker(ScmManager manager, ScmConfiguration conf) {
+  public UrlChecker(ScmManager manager, ScmConfiguration configuration) {
     this.manager = manager;
-    this.conf = conf;
+    this.configuration = configuration;
   }
 
   public void check() {
-    String url = conf.getUrl();
+    String url = configuration.getUrl();
 
     if (StringUtils.isBlank(url)) {
       throw failure(FAILURE_BLANK);

@@ -99,7 +99,7 @@ public final class ScmActivityPlugin implements Plugin {
   public List getExtensions() {
     return ImmutableList.of(
         Blame.class,
-        ChangeDetector.class,
+        BlameVersionSelector.class,
         FileToResource.class,
         LocalModificationChecker.class,
         MavenScmConfiguration.class,
@@ -109,7 +109,7 @@ public final class ScmActivityPlugin implements Plugin {
         ScmConfiguration.class,
         Sha1Generator.class,
         SonarScmManager.class,
-        SonarScmRepository.class,
+        ScmFacade.class,
         UrlChecker.class);
   }
 }

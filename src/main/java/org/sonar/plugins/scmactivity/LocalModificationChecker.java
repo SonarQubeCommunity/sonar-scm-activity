@@ -24,9 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.status.StatusScmResult;
-import org.apache.maven.scm.manager.ScmManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
@@ -41,14 +39,12 @@ public class LocalModificationChecker implements BatchExtension {
 
   private final ProjectFileSystem fileSystem;
   private final ScmConfiguration config;
-  private final ScmManager manager;
-  private final SonarScmRepository repository;
+  private final ScmFacade scmFacade;
 
-  public LocalModificationChecker(ProjectFileSystem fileSystem, ScmConfiguration config, ScmManager manager, SonarScmRepository repository) {
+  public LocalModificationChecker(ProjectFileSystem fileSystem, ScmConfiguration config, ScmFacade scmFacade) {
     this.fileSystem = fileSystem;
     this.config = config;
-    this.manager = manager;
-    this.repository = repository;
+    this.scmFacade = scmFacade;
   }
 
   public void check() {
@@ -67,7 +63,7 @@ public class LocalModificationChecker implements BatchExtension {
           continue; // limitation of http://jira.codehaus.org/browse/SONAR-2266, the directory existence must be checked
         }
 
-        StatusScmResult result = manager.status(repository.getScmRepository(), new ScmFileSet(sourceDir));
+        StatusScmResult result = scmFacade.localChanges(sourceDir);
         if (!result.isSuccess()) {
           throw new SonarException("Unable to check for local modifications: " + result.getProviderMessage());
         }

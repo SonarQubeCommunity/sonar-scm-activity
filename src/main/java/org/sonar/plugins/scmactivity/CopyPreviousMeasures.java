@@ -45,11 +45,11 @@ public class CopyPreviousMeasures implements MeasureUpdate {
   }
 
   public void execute(TimeMachine timeMachine, SensorContext context) {
-    TimeMachineQuery query = new TimeMachineQuery(resource)
-        .setOnlyLastAnalysis(true)
-        .setMetrics(METRICS);
+    TimeMachineQuery query = new TimeMachineQuery(resource).setOnlyLastAnalysis(true).setMetrics(METRICS);
 
-    for (Measure measure : timeMachine.getMeasures(query)) {
+    List<Measure> measures = timeMachine.getMeasures(query);
+
+    for (Measure measure : measures) {
       context.saveMeasure(resource, measure.setPersistenceMode(PersistenceMode.DATABASE));
     }
   }

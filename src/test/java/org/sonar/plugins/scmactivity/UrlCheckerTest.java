@@ -70,7 +70,7 @@ public class UrlCheckerTest {
     when(configuration.getUrl()).thenReturn("scm:synergy:foo");
 
     exception.expect(SonarException.class);
-    exception.expectMessage("SCM provider not supported");
+    exception.expectMessage("Unsupported SCM");
     exception.expectMessage("[synergy]");
 
     checker.check();

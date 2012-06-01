@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class ScmActivitySensorTest {
   ScmActivitySensor scmActivitySensor;
 
-  ChangeDetector changeDetector = mock(ChangeDetector.class);
+  BlameVersionSelector blameVersionSelector = mock(BlameVersionSelector.class);
   ScmConfiguration conf = mock(ScmConfiguration.class);
   UrlChecker urlChecker = mock(UrlChecker.class);
   LocalModificationChecker checkLocalModifications = mock(LocalModificationChecker.class);
@@ -59,7 +59,7 @@ public class ScmActivitySensorTest {
 
   @Before
   public void setUp() {
-    scmActivitySensor = new ScmActivitySensor(conf, changeDetector, urlChecker, checkLocalModifications, fileToResource, previousSha1Finder, timeMachine);
+    scmActivitySensor = new ScmActivitySensor(conf, blameVersionSelector, urlChecker, checkLocalModifications, fileToResource, previousSha1Finder, timeMachine);
   }
 
   @Test
@@ -108,8 +108,8 @@ public class ScmActivitySensorTest {
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
     when(projectFileSystem.testFiles("java")).thenReturn(Arrays.asList(test));
     when(fileToResource.toResource(source, context)).thenReturn(resource);
-    when(previousSha1Finder.previousSha1(resource)).thenReturn("SHA1");
-    when(changeDetector.detectChange(source, context, "SHA1")).thenReturn(measureUpdate);
+    when(previousSha1Finder.find(resource)).thenReturn("SHA1");
+    when(blameVersionSelector.detect(source, "SHA1", context)).thenReturn(measureUpdate);
 
     scmActivitySensor.analyse(project, context);
 
@@ -125,9 +125,9 @@ public class ScmActivitySensorTest {
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(first, second));
     when(fileToResource.toResource(first, context)).thenReturn(resource);
     when(fileToResource.toResource(second, context)).thenReturn(resource);
-    when(previousSha1Finder.previousSha1(resource)).thenReturn("SHA1");
-    when(changeDetector.detectChange(first, context, "SHA1")).thenThrow(new RuntimeException("BUG"));
-    when(changeDetector.detectChange(second, context, "SHA1")).thenReturn(measureUpdate);
+    when(previousSha1Finder.find(resource)).thenReturn("SHA1");
+    when(blameVersionSelector.detect(first, "SHA1", context)).thenThrow(new RuntimeException("BUG"));
+    when(blameVersionSelector.detect(second, "SHA1", context)).thenReturn(measureUpdate);
 
     scmActivitySensor.analyse(project, context);
 
