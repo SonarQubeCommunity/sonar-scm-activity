@@ -20,12 +20,19 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.sonar.api.utils.SonarException;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.sonar.api.BatchExtension;
 
 public class ScmConfiguration implements BatchExtension {
+  private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
+
   private final Configuration configuration;
   private final MavenScmConfiguration mavenConfonfiguration;
 
@@ -64,7 +71,16 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public int getThreadCount() {
-    return configuration.getInt(ScmActivityPlugin.THREAD_COUNT, ScmActivityPlugin.THREAD_COUNT_DEFAULT);
+    int threadCount = configuration.getInt(ScmActivityPlugin.THREAD_COUNT, ScmActivityPlugin.THREAD_COUNT_DEFAULT);
+
+    if (threadCount < 1) {
+      throw new SonarException(String.format("SCM Activity Plugin is configured to use [%d] thread(s). The minimum is 1.", threadCount));
+    }
+    if (threadCount > Runtime.getRuntime().availableProcessors()) {
+      LOG.warn("SCM Activity Plugin is configured to use more threads than actually available on this machine.");
+    }
+
+    return threadCount;
   }
 
   public String getUrl() {

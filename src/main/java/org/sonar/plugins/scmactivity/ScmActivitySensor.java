@@ -129,12 +129,7 @@ public final class ScmActivitySensor implements Sensor {
   }
 
   private ExecutorService createExecutor() {
-    int threadCount = configuration.getThreadCount();
-    int availableCores = Runtime.getRuntime().availableProcessors();
-
-    int threads = Math.max(1, Math.min(availableCores, threadCount));
-
-    return Executors.newFixedThreadPool(threads);
+    return Executors.newFixedThreadPool(configuration.getThreadCount());
   }
 
   private static Iterable<InputFile> allFiles(Project project) {

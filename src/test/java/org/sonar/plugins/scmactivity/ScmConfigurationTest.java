@@ -22,7 +22,10 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.SonarException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -33,6 +36,9 @@ public class ScmConfigurationTest {
 
   PropertiesConfiguration configuration = new PropertiesConfiguration();
   MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
+
+  @Rule
+  public final ExpectedException exception = ExpectedException.none();
 
   @Before
   public void setUp() {
@@ -82,7 +88,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_get_default_thread_count() {
-    assertThat(scmConfiguration.getThreadCount()).isEqualTo(1);
+    assertThat(scmConfiguration.getThreadCount()).isEqualTo(4);
   }
 
   @Test
@@ -90,6 +96,23 @@ public class ScmConfigurationTest {
     configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 8);
 
     assertThat(scmConfiguration.getThreadCount()).isEqualTo(8);
+  }
+
+  @Test
+  public void should_fail_on_invalid_thread_count() {
+    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 0);
+
+    exception.expect(SonarException.class);
+    exception.expectMessage("SCM Activity Plugin is configured to use [0] thread(s). The minimum is 1.");
+
+    scmConfiguration.getThreadCount();
+  }
+
+  @Test
+  public void should_accept_thread_count_too_high() {
+    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 1000);
+
+    assertThat(scmConfiguration.getThreadCount()).isEqualTo(1000);
   }
 
   @Test

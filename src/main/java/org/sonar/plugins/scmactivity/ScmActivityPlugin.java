@@ -79,7 +79,7 @@ import java.util.List;
     defaultValue = "" + ScmActivityPlugin.THREAD_COUNT_DEFAULT,
     name = "Thread count",
     description = "Number of threads used to speed-up the retrieval of authors by line (aka blame information)." +
-      "The default behavior is to use a single threads.",
+      "The default behavior is to use 4 threads.",
     module = true,
     project = true,
     global = true
@@ -93,7 +93,7 @@ public final class ScmActivityPlugin implements Plugin {
   public static final String THREAD_COUNT = "sonar.scm.threadCount";
   public static final boolean ENABLED_DEFAULT = false;
   public static final boolean IGNORE_LOCAL_MODIFICATIONS_DEFAULT = false;
-  public static final int THREAD_COUNT_DEFAULT = 1;
+  public static final int THREAD_COUNT_DEFAULT = 4;
 
   public String getKey() {
     return "scm-activity";

@@ -89,6 +89,7 @@ public class ScmActivitySensorTest {
 
   @Test(timeout = 2000)
   public void should_execute_checks() {
+    when(conf.getThreadCount()).thenReturn(1);
     when(project.getLanguageKey()).thenReturn("java");
     when(project.getFileSystem()).thenReturn(projectFileSystem);
 
@@ -103,6 +104,7 @@ public class ScmActivitySensorTest {
   public void should_execute_measure_update_for_known_files() {
     InputFile source = file("source.java");
     InputFile test = file("UNKNOWN.java");
+    when(conf.getThreadCount()).thenReturn(1);
     when(project.getLanguageKey()).thenReturn("java");
     when(project.getFileSystem()).thenReturn(projectFileSystem);
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
@@ -120,6 +122,7 @@ public class ScmActivitySensorTest {
   public void should_carry_on_after_error() {
     InputFile first = file("source.java");
     InputFile second = file("UNKNOWN.java");
+    when(conf.getThreadCount()).thenReturn(1);
     when(project.getLanguageKey()).thenReturn("java");
     when(project.getFileSystem()).thenReturn(projectFileSystem);
     when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(first, second));
