@@ -22,7 +22,6 @@ package org.sonar.plugins.scmactivity;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.measures.Metric;
@@ -36,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +45,6 @@ public class ScmActivitySensorTest {
   BlameVersionSelector blameVersionSelector = mock(BlameVersionSelector.class);
   ScmConfiguration conf = mock(ScmConfiguration.class);
   UrlChecker urlChecker = mock(UrlChecker.class);
-  LocalModificationChecker checkLocalModifications = mock(LocalModificationChecker.class);
   ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
   Project project = mock(Project.class);
   SensorContext context = mock(SensorContext.class);
@@ -59,7 +56,7 @@ public class ScmActivitySensorTest {
 
   @Before
   public void setUp() {
-    scmActivitySensor = new ScmActivitySensor(conf, blameVersionSelector, urlChecker, checkLocalModifications, fileToResource, previousSha1Finder, timeMachine);
+    scmActivitySensor = new ScmActivitySensor(conf, blameVersionSelector, urlChecker, fileToResource, previousSha1Finder, timeMachine);
   }
 
   @Test
@@ -88,16 +85,14 @@ public class ScmActivitySensorTest {
   }
 
   @Test(timeout = 2000)
-  public void should_execute_checks() {
+  public void should_check_url() {
     when(conf.getThreadCount()).thenReturn(1);
     when(project.getLanguageKey()).thenReturn("java");
     when(project.getFileSystem()).thenReturn(projectFileSystem);
 
     scmActivitySensor.analyse(project, context);
 
-    InOrder inOrder = inOrder(urlChecker, checkLocalModifications);
-    inOrder.verify(urlChecker).check();
-    inOrder.verify(checkLocalModifications).check();
+    verify(urlChecker).check();
   }
 
   @Test

@@ -50,17 +50,15 @@ public final class ScmActivitySensor implements Sensor {
   private final ScmConfiguration configuration;
   private final BlameVersionSelector blameVersionSelector;
   private final UrlChecker urlChecker;
-  private final LocalModificationChecker checkLocalModifications;
   private final FileToResource fileToResource;
   private final PreviousSha1Finder previousSha1Finder;
   private final TimeMachine timeMachine;
 
-  public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector scmActivityBlame, UrlChecker urlChecker, LocalModificationChecker checkLocalModifications,
-      FileToResource fileToResource, PreviousSha1Finder previousSha1Finder, TimeMachine timeMachine) {
+  public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector scmActivityBlame, UrlChecker urlChecker, FileToResource fileToResource,
+      PreviousSha1Finder previousSha1Finder, TimeMachine timeMachine) {
     this.configuration = configuration;
     this.blameVersionSelector = scmActivityBlame;
     this.urlChecker = urlChecker;
-    this.checkLocalModifications = checkLocalModifications;
     this.fileToResource = fileToResource;
     this.previousSha1Finder = previousSha1Finder;
     this.timeMachine = timeMachine;
@@ -81,7 +79,6 @@ public final class ScmActivitySensor implements Sensor {
 
   public void analyse(Project project, final SensorContext context) {
     urlChecker.check();
-    checkLocalModifications.check();
 
     TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
 

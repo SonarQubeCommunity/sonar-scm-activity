@@ -66,15 +66,6 @@ import java.util.List;
     global = true
   ),
   @Property(
-    key = ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS,
-    defaultValue = "" + ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT,
-    name = "Ignore local modifications",
-    description = "By default local modifications are forbidden in order to have consistent data with SCM repository.",
-    module = true,
-    project = true,
-    global = true
-  ),
-  @Property(
     key = ScmActivityPlugin.THREAD_COUNT,
     defaultValue = "" + ScmActivityPlugin.THREAD_COUNT_DEFAULT,
     name = "Thread count",
@@ -89,10 +80,8 @@ public final class ScmActivityPlugin implements Plugin {
   public static final String URL = "sonar.scm.url";
   public static final String USER = "sonar.scm.user.secured";
   public static final String PASSWORD = "sonar.scm.password.secured";
-  public static final String IGNORE_LOCAL_MODIFICATIONS = "sonar.scm.ignoreLocalModifications";
   public static final String THREAD_COUNT = "sonar.scm.threadCount";
   public static final boolean ENABLED_DEFAULT = false;
-  public static final boolean IGNORE_LOCAL_MODIFICATIONS_DEFAULT = false;
   public static final int THREAD_COUNT_DEFAULT = 4;
 
   public String getKey() {
@@ -113,7 +102,6 @@ public final class ScmActivityPlugin implements Plugin {
         Blame.class,
         BlameVersionSelector.class,
         FileToResource.class,
-        LocalModificationChecker.class,
         MavenScmConfiguration.class,
         PreviousSha1Finder.class,
         ScmActivityMetrics.class,

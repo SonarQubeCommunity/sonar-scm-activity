@@ -66,10 +66,6 @@ public class ScmConfiguration implements BatchExtension {
     return configuration.getString(ScmActivityPlugin.PASSWORD);
   }
 
-  public boolean isIgnoreLocalModifications() {
-    return configuration.getBoolean(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS_DEFAULT);
-  }
-
   public int getThreadCount() {
     int threadCount = configuration.getInt(ScmActivityPlugin.THREAD_COUNT, ScmActivityPlugin.THREAD_COUNT_DEFAULT);
 

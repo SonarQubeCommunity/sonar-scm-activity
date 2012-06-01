@@ -162,18 +162,6 @@ public class ScmConfigurationTest {
   }
 
   @Test
-  public void should_ignore_local_modifications() {
-    configuration.addProperty(ScmActivityPlugin.IGNORE_LOCAL_MODIFICATIONS, true);
-
-    assertThat(scmConfiguration.isIgnoreLocalModifications()).isTrue();
-  }
-
-  @Test
-  public void shouldnt_ignore_local_modifications() {
-    assertThat(scmConfiguration.isIgnoreLocalModifications()).isFalse();
-  }
-
-  @Test
   public void should_get_maven_url_in_non_maven_environment() {
     scmConfiguration = new ScmConfiguration(configuration);
 

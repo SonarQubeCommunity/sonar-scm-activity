@@ -118,15 +118,4 @@ public class ScmFacadeTest {
 
     assertThat(result).isSameAs(blameScmResult);
   }
-
-  @Test
-  public void should_get_local_changes() throws Exception {
-    when(conf.getUrl()).thenReturn("/url");
-    when(manager.makeScmRepository("/url")).thenReturn(repository);
-    when(manager.status(eq(repository), refEq(new ScmFileSet(new File("src"))))).thenReturn(statusScmResult);
-
-    StatusScmResult localChanges = scmFacade.localChanges(new File("src"));
-
-    assertThat(localChanges).isSameAs(statusScmResult);
-  }
 }
