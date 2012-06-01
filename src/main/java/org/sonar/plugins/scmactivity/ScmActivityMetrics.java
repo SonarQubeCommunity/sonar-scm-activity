@@ -31,7 +31,7 @@ public final class ScmActivityMetrics implements Metrics {
   /**
    * @since 1.4
    */
-  public static final String SCM_HASH_KEY = "hash";
+  public static final String SCM_HASH_KEY = "scm.hash";
 
   /**
    * @since 1.4

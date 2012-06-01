@@ -36,7 +36,7 @@ public class ScmActivityMetricsTest {
     Metric metric = Iterables.getOnlyElement(metrics);
 
     assertThat(metric.getDomain()).isEqualTo("SCM");
-    assertThat(metric.getKey()).isEqualTo("hash");
+    assertThat(metric.getKey()).isEqualTo("scm.hash");
     assertThat(metric.getName()).isEqualTo("Hash");
     assertThat(metric.getType()).isEqualTo(Metric.ValueType.STRING);
   }
