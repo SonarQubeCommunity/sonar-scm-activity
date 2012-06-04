@@ -27,7 +27,7 @@ import org.apache.maven.scm.provider.ScmProvider;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
 import org.apache.maven.scm.provider.clearcase.ClearCaseScmProvider;
-import org.apache.maven.scm.provider.cvslib.cvsjava.CvsJavaScmProvider;
+import org.apache.maven.scm.provider.cvslib.cvsexe.CvsExeScmProvider;
 import org.apache.maven.scm.provider.git.gitexe.GitExeScmProvider;
 import org.apache.maven.scm.provider.hg.HgScmProvider;
 import org.apache.maven.scm.provider.integrity.IntegrityScmProvider;
@@ -49,7 +49,7 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     // the maven-scm-provider-* dependencies defined in pom.xml must be
     // synchronized with the following list:
     register(new SvnExeScmProvider());
-    register(new CvsJavaScmProvider());
+    register(new CvsExeScmProvider());
     register(new GitExeScmProvider());
     register(new HgScmProvider());
     register(new BazaarScmProvider());
