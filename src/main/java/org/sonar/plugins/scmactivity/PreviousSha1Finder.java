@@ -30,8 +30,6 @@ import org.sonar.api.resources.Resource;
 import java.util.List;
 
 public class PreviousSha1Finder implements BatchExtension {
-  private static final Measure NO_HASH_AVAILABLE = new Measure(ScmActivityMetrics.SCM_HASH, "");
-
   private final TimeMachine timeMachine;
 
   public PreviousSha1Finder(TimeMachine timeMachine) {
@@ -40,11 +38,15 @@ public class PreviousSha1Finder implements BatchExtension {
 
   public String find(Resource resource) {
     List<Measure> measures = timeMachine.getMeasures(queryPreviousHash(resource));
-    Measure lastMeasure = Iterables.getOnlyElement(measures, NO_HASH_AVAILABLE);
-    return lastMeasure.getData();
+    if (measures.isEmpty()) {
+      return "";
+    }
+
+    Measure lastHash = Iterables.getLast(measures);
+    return lastHash.getData();
   }
 
   private static TimeMachineQuery queryPreviousHash(Resource resource) {
-    return new TimeMachineQuery(resource).setOnlyLastAnalysis(true).setMetrics(ScmActivityMetrics.SCM_HASH);
+    return new TimeMachineQuery(resource).setMetrics(ScmActivityMetrics.SCM_HASH);
   }
 }

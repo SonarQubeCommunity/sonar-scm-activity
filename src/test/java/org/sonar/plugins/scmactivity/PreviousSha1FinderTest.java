@@ -48,12 +48,22 @@ public class PreviousSha1FinderTest {
 
   @Test
   public void should_find_previous_sha1() {
-    when(timeMachine.getMeasures(timeMachineQuery(resource, true, ScmActivityMetrics.SCM_HASH)))
+    when(timeMachine.getMeasures(timeMachineQuery(resource, ScmActivityMetrics.SCM_HASH)))
         .thenReturn(Arrays.asList(sha1Measure("abcdef")));
 
     String sha1 = previousSha1Finder.find(resource);
 
     assertThat(sha1).isEqualTo("abcdef");
+  }
+
+  @Test
+  public void should_use_latest_sha1() {
+    when(timeMachine.getMeasures(timeMachineQuery(resource, ScmActivityMetrics.SCM_HASH)))
+        .thenReturn(Arrays.asList(sha1Measure("abcdef"), sha1Measure("latest")));
+
+    String sha1 = previousSha1Finder.find(resource);
+
+    assertThat(sha1).isEqualTo("latest");
   }
 
   @Test
@@ -63,10 +73,8 @@ public class PreviousSha1FinderTest {
     assertThat(sha1).isEmpty();
   }
 
-  static TimeMachineQuery timeMachineQuery(Resource resource, boolean last, Metric metric) {
-    return refEq(new TimeMachineQuery(resource)
-        .setOnlyLastAnalysis(last)
-        .setMetrics(metric));
+  static TimeMachineQuery timeMachineQuery(Resource resource, Metric metric) {
+    return refEq(new TimeMachineQuery(resource).setMetrics(metric));
   }
 
   static Measure sha1Measure(String sha1) {
