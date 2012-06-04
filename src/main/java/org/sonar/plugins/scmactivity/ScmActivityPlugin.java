@@ -31,8 +31,8 @@ import java.util.List;
   @Property(
     key = ScmActivityPlugin.ENABLED,
     defaultValue = "" + ScmActivityPlugin.ENABLED_DEFAULT,
-    name = "Enable loading of SCM activity. It requires to connect to SCM server.",
-    description = "",
+    name = "Activation of this SCM Activity plugin",
+    description = "This property must be set to true in order to activate the SCM Activity plugin.",
     module = true,
     project = true,
     global = true
@@ -41,8 +41,8 @@ import java.util.List;
     key = ScmActivityPlugin.URL,
     defaultValue = "",
     name = "SCM URL",
-    description = "SCM URL. The format is described in <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
-      "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>",
+    description = "SCM URL. The format is described in this page.  <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
+      "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>. This property is mainly used to determine the SCM engine client to be used.",
     module = true,
     project = true,
     global = false
@@ -51,7 +51,7 @@ import java.util.List;
     key = ScmActivityPlugin.USER,
     defaultValue = "",
     name = "User",
-    description = "User to connect with SCM. Leave blank for anonymous. This property is usually defined in settings of project.",
+    description = "Optional user to be used to retrieve blame information from the SCM engine.",
     module = false,
     project = true,
     global = true
@@ -60,7 +60,7 @@ import java.util.List;
     key = ScmActivityPlugin.PASSWORD,
     defaultValue = "",
     name = "Password",
-    description = "Password to connect with SCM. This property is usually defined in settings of project.",
+    description = "Optional password to be used to retrieve blame information from the SCM engine.",
     module = false,
     project = true,
     global = true
