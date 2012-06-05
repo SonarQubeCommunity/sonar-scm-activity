@@ -20,15 +20,13 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.sonar.api.utils.SonarException;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.provider.ScmUrlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.utils.SonarException;
 
 public class ScmConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);

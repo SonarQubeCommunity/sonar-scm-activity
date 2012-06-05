@@ -51,7 +51,7 @@ public class BlameVersionSelector implements BatchExtension {
 
       String currentSha1 = sha1Generator.find(file);
       if (currentSha1.equals(previousSha1)) {
-        return fileNotChanged(file, resource);
+        return fileNotChanged(file, resource, currentSha1);
       }
 
       return fileChanged(file, resource, currentSha1);
@@ -61,10 +61,10 @@ public class BlameVersionSelector implements BatchExtension {
     }
   }
 
-  private MeasureUpdate fileNotChanged(File file, Resource resource) {
+  private MeasureUpdate fileNotChanged(File file, Resource resource, String currentSha1) {
     LOG.debug("File not changed since previous analysis: {}", file);
 
-    return new CopyPreviousMeasures(resource);
+    return new CopyPreviousMeasures(resource, currentSha1);
   }
 
   private MeasureUpdate fileChanged(File file, Resource resource, String currentSha1) {

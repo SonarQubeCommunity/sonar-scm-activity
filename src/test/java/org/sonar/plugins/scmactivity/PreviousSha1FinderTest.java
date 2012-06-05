@@ -57,24 +57,14 @@ public class PreviousSha1FinderTest {
   }
 
   @Test
-  public void should_use_latest_sha1() {
-    when(timeMachine.getMeasures(timeMachineQuery(resource, ScmActivityMetrics.SCM_HASH)))
-        .thenReturn(Arrays.asList(sha1Measure("abcdef"), sha1Measure("latest")));
-
-    String sha1 = previousSha1Finder.find(resource);
-
-    assertThat(sha1).isEqualTo("latest");
-  }
-
-  @Test
-  public void shouldnt_find_unknown_sha1() {
+  public void shouldnt_find_missing_sha1() {
     String sha1 = previousSha1Finder.find(resource);
 
     assertThat(sha1).isEmpty();
   }
 
   static TimeMachineQuery timeMachineQuery(Resource resource, Metric metric) {
-    return refEq(new TimeMachineQuery(resource).setMetrics(metric));
+    return refEq(new TimeMachineQuery(resource).setMetrics(metric).setOnlyLastAnalysis(true));
   }
 
   static Measure sha1Measure(String sha1) {

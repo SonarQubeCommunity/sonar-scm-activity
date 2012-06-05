@@ -48,7 +48,7 @@ public class Blame implements BatchExtension {
   public MeasureUpdate save(File file, Resource resource, String sha1) {
     BlameScmResult result = retrieveBlame(file);
     if (result == null) {
-      return new CopyPreviousMeasures(resource);
+      return new CopyPreviousMeasures(resource, sha1);
     }
 
     PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);

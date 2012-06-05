@@ -26,13 +26,12 @@ import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.test.IsMeasure;
 
 import java.util.Arrays;
-import java.util.List;
 
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -45,15 +44,19 @@ public class CopyPreviousMeasuresTest {
   SensorContext context = mock(SensorContext.class);
 
   @Test
-  public void should_copy_previous_measures() {
-    when(timeMachine.getMeasures(refEq(expectedQuery(resource)))).thenReturn(expectedMeasures("Measure1", "Measure2", "Measure3"));
+  public void should_copy_previous_measures_and_current_hash() {
+    when(timeMachine.getMeasures(refEq(expectedQuery(resource)))).thenReturn(Arrays.asList(
+        measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "measure1"),
+        measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "measure2"),
+        measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "measure3")));
 
-    CopyPreviousMeasures copy = new CopyPreviousMeasures(resource);
+    CopyPreviousMeasures copy = new CopyPreviousMeasures(resource, "sha1");
     copy.execute(timeMachine, context);
 
-    verify(context).saveMeasure(same(resource), argThat(new IsMeasure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "Measure1")));
-    verify(context).saveMeasure(same(resource), argThat(new IsMeasure(CoreMetrics.SCM_REVISIONS_BY_LINE, "Measure2")));
-    verify(context).saveMeasure(same(resource), argThat(new IsMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE, "Measure3")));
+    verify(context).saveMeasure(same(resource), refEq(measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "measure1").setPersistenceMode(PersistenceMode.DATABASE)));
+    verify(context).saveMeasure(same(resource), refEq(measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "measure2").setPersistenceMode(PersistenceMode.DATABASE)));
+    verify(context).saveMeasure(same(resource), refEq(measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "measure3").setPersistenceMode(PersistenceMode.DATABASE)));
+    verify(context).saveMeasure(same(resource), refEq(measure(ScmActivityMetrics.SCM_HASH, "sha1").setPersistenceMode(PersistenceMode.DATABASE)));
   }
 
   static TimeMachineQuery expectedQuery(Resource resource) {
@@ -65,10 +68,7 @@ public class CopyPreviousMeasuresTest {
             CoreMetrics.SCM_AUTHORS_BY_LINE);
   }
 
-  static List<Measure> expectedMeasures(String value1, String value2, String value3) {
-    return Arrays.asList(
-        new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, value1),
-        new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, value2),
-        new Measure(CoreMetrics.SCM_AUTHORS_BY_LINE, value3));
+  static Measure measure(Metric metric, String data) {
+    return new Measure(metric, data);
   }
 }

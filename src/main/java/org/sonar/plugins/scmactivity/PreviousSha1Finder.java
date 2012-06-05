@@ -42,11 +42,12 @@ public class PreviousSha1Finder implements BatchExtension {
       return "";
     }
 
-    Measure lastHash = Iterables.getLast(measures);
-    return lastHash.getData();
+    return Iterables.getOnlyElement(measures).getData();
   }
 
   private static TimeMachineQuery queryPreviousHash(Resource resource) {
-    return new TimeMachineQuery(resource).setMetrics(ScmActivityMetrics.SCM_HASH);
+    return new TimeMachineQuery(resource)
+        .setMetrics(ScmActivityMetrics.SCM_HASH)
+        .setOnlyLastAnalysis(true);
   }
 }

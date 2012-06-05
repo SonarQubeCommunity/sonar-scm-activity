@@ -39,18 +39,23 @@ public class CopyPreviousMeasures implements MeasureUpdate {
       CoreMetrics.SCM_AUTHORS_BY_LINE);
 
   private final Resource resource;
+  private final String sha1;
 
-  public CopyPreviousMeasures(Resource resource) {
+  public CopyPreviousMeasures(Resource resource, String sha1) {
     this.resource = resource;
+    this.sha1 = sha1;
   }
 
   public void execute(TimeMachine timeMachine, SensorContext context) {
     TimeMachineQuery query = new TimeMachineQuery(resource).setOnlyLastAnalysis(true).setMetrics(METRICS);
 
-    List<Measure> measures = timeMachine.getMeasures(query);
-
-    for (Measure measure : measures) {
-      context.saveMeasure(resource, measure.setPersistenceMode(PersistenceMode.DATABASE));
+    for (Measure measure : timeMachine.getMeasures(query)) {
+      saveMeasure(context, measure);
     }
+    saveMeasure(context, new Measure(ScmActivityMetrics.SCM_HASH, sha1));
+  }
+
+  private void saveMeasure(SensorContext context, Measure measure) {
+    context.saveMeasure(resource, measure.setPersistenceMode(PersistenceMode.DATABASE));
   }
 }
