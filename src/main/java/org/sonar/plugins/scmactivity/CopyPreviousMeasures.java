@@ -56,6 +56,6 @@ public class CopyPreviousMeasures implements MeasureUpdate {
   }
 
   private void saveMeasure(SensorContext context, Measure measure) {
-    context.saveMeasure(resource, measure.setPersistenceMode(PersistenceMode.DATABASE));
+    context.saveMeasure(resource, new Measure(measure.getMetric(), measure.getData()).setPersistenceMode(PersistenceMode.DATABASE));
   }
 }
