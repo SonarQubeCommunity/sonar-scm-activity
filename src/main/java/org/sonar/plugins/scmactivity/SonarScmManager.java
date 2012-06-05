@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
@@ -79,7 +81,8 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     return new SonarScmLogger(LoggerFactory.getLogger(getClass()));
   }
 
-  private static class SonarScmLogger implements ScmLogger {
+  @VisibleForTesting
+  static class SonarScmLogger implements ScmLogger {
     private final Logger log;
 
     SonarScmLogger(Logger log) {
@@ -107,15 +110,15 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     }
 
     public void info(String content) {
-      log.info("\t" + content);
+      log.info(content);
     }
 
     public void info(String content, Throwable error) {
-      log.info("\t" + content, error);
+      log.info(content, error);
     }
 
     public void info(Throwable error) {
-      log.info("\t" + error.getMessage(), error);
+      log.info(error.getMessage(), error);
     }
 
     public boolean isWarnEnabled() {

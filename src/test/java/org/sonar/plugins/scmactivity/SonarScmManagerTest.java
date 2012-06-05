@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.slf4j.Logger;
+
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
@@ -34,6 +36,8 @@ import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,6 +45,8 @@ import static org.mockito.Mockito.when;
 
 public class SonarScmManagerTest {
   ScmConfiguration conf = mock(ScmConfiguration.class);
+  Logger logger = mock(Logger.class);
+  Throwable error = mock(Throwable.class);
 
   @Test(expected = NoSuchScmProviderException.class)
   public void shouldNotRegisterProvidersIfDisabled() throws Exception {
@@ -77,5 +83,46 @@ public class SonarScmManagerTest {
     new SonarScmManager(conf);
 
     assertThat(SvnUtil.getSettings().isTrustServerCert()).isTrue();
+  }
+
+  @Test
+  public void should_log() {
+    when(error.getMessage()).thenReturn("errorMessage");
+
+    SonarScmManager.SonarScmLogger log = new SonarScmManager.SonarScmLogger(logger);
+    log.isDebugEnabled();
+    log.debug("message");
+    log.debug("message", error);
+    log.debug(error);
+    log.isInfoEnabled();
+    log.info("message");
+    log.info("message", error);
+    log.info(error);
+    log.isWarnEnabled();
+    log.warn("message");
+    log.warn("message", error);
+    log.warn(error);
+    log.isErrorEnabled();
+    log.error("message");
+    log.error("message", error);
+    log.error(error);
+
+    InOrder inOrder = Mockito.inOrder(logger);
+    inOrder.verify(logger).isDebugEnabled();
+    inOrder.verify(logger).debug("message");
+    inOrder.verify(logger).debug("message", error);
+    inOrder.verify(logger).debug("errorMessage", error);
+    inOrder.verify(logger).isInfoEnabled();
+    inOrder.verify(logger).info("message");
+    inOrder.verify(logger).info("message", error);
+    inOrder.verify(logger).info("errorMessage", error);
+    inOrder.verify(logger).isWarnEnabled();
+    inOrder.verify(logger).warn("message");
+    inOrder.verify(logger).warn("message", error);
+    inOrder.verify(logger).warn("errorMessage", error);
+    inOrder.verify(logger).isErrorEnabled();
+    inOrder.verify(logger).error("message");
+    inOrder.verify(logger).error("message", error);
+    inOrder.verify(logger).error("errorMessage", error);
   }
 }
