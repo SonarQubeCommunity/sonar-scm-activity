@@ -156,6 +156,12 @@
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-provider-integrity</artifactId>
       <version>${version.maven-scm}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -237,8 +243,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>7500000</maxsize>
-                  <minsize>7000000</minsize>
+                  <maxsize>2000000</maxsize>
+                  <minsize>1500000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
