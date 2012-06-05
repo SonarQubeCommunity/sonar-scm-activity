@@ -69,8 +69,7 @@ import java.util.List;
     key = ScmActivityPlugin.THREAD_COUNT,
     defaultValue = "" + ScmActivityPlugin.THREAD_COUNT_DEFAULT,
     name = "Thread count",
-    description = "Number of threads used to speed-up the retrieval of authors by line (aka blame information)." +
-      "The default behavior is to use 4 threads.",
+    description = "Number of threads used to speed-up the retrieval of authors by line (aka blame information).",
     module = true,
     project = true,
     global = true
