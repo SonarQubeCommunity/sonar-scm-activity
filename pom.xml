@@ -151,7 +151,7 @@
       <version>${version.maven-scm}</version>
     </dependency>
 
-    <!-- Integrity -->
+    <!-- MKS Integrity -->
     <dependency>
       <groupId>org.apache.maven.scm</groupId>
       <artifactId>maven-scm-provider-integrity</artifactId>

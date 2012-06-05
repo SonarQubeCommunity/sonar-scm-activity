@@ -46,6 +46,8 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
       return;
     }
 
+    // the maven-scm-provider-* dependencies defined in pom.xml must be
+    // synchronized with the following list:
     register(new SvnExeScmProvider());
     register(new CvsJavaScmProvider());
     register(new GitExeScmProvider());
