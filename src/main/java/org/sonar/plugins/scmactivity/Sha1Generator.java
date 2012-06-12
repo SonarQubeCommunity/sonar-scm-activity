@@ -20,24 +20,29 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.sonar.api.resources.ProjectFileSystem;
+
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.sonar.api.BatchExtension;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.Charset;
 
 public class Sha1Generator implements BatchExtension {
+  private ProjectFileSystem projectFileSystem;
+
+  public Sha1Generator(ProjectFileSystem projectFileSystem) {
+    this.projectFileSystem = projectFileSystem;
+  }
+
   public String find(File file) throws IOException {
-    InputStream input = null;
-    try {
-      input = new BufferedInputStream(new FileInputStream(file));
-      return DigestUtils.shaHex(input);
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
+    Charset charset = projectFileSystem.getSourceCharset();
+    
+    String fileContent = FileUtils.readFileToString(file, charset.name());
+    String normalizedContent = fileContent.replaceAll("\r", "");
+
+    return DigestUtils.shaHex(normalizedContent);
   }
 }
