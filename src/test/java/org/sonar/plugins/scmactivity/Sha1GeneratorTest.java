@@ -74,9 +74,15 @@ public class Sha1GeneratorTest {
   @Test
   public void should_ignore_carriage_returns() throws IOException {
     File linuxFile = file("linux.java", "LINE1\nLINE2\n");
-    File windowsFile = file("windows.java", "LINE1\n\rLINE2\n\r");
+    File windowsFile = file("windows.java", "LINE1\r\nLINE2\r\n");
+    File oldMacFile = file("os9.java", "LINE1\rLINE2\r");
+    File mixedMode = file("mixed.java", "LINE1\rLINE2\r\n");
 
-    assertThat(sha1.find(linuxFile)).isEqualTo(sha1.find(windowsFile)).isEqualTo("63193e8d522822e6e209172c9e6c204b9ab7efce");
+    assertThat(sha1.find(linuxFile))
+        .isEqualTo(sha1.find(windowsFile))
+        .isEqualTo(sha1.find(oldMacFile))
+        .isEqualTo(sha1.find(mixedMode))
+        .isEqualTo("63193e8d522822e6e209172c9e6c204b9ab7efce");
   }
 
   @Test
