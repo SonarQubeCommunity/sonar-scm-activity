@@ -99,6 +99,13 @@ public class ScmConfigurationTest {
   }
 
   @Test
+  public void should_use_single_thread() {
+    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 1);
+
+    assertThat(scmConfiguration.getThreadCount()).isEqualTo(1);
+  }
+
+  @Test
   public void should_fail_on_invalid_thread_count() {
     configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 0);
 
