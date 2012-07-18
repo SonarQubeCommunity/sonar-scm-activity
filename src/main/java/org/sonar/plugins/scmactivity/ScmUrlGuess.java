@@ -20,12 +20,19 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.collect.ImmutableMap;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
+import java.util.Map;
 
 public class ScmUrlGuess implements BatchExtension {
+  private static final Map<String, String> URL_BY_FOLDER = ImmutableMap.of(
+      ".git", "scm:git:",
+      ".hg", "scm:hg:",
+      ".svn", "scm:svn:");
+
   private final ProjectFileSystem projectFileSystem;
 
   public ScmUrlGuess(ProjectFileSystem projectFileSystem) {
@@ -33,32 +40,16 @@ public class ScmUrlGuess implements BatchExtension {
   }
 
   public String guess() {
-    File dir = projectFileSystem.getBasedir();
+    File basedir = projectFileSystem.getBasedir();
 
-    while (null != dir) {
-      String url = searchScmFolder(dir);
-      if (null != url) {
-        return url;
+    for (File dir = basedir; dir != null; dir = dir.getParentFile()) {
+      for (Map.Entry<String, String> entry : URL_BY_FOLDER.entrySet()) {
+        if (new File(basedir, entry.getKey()).isDirectory()) {
+          return entry.getValue();
+        }
       }
-      dir = dir.getParentFile();
     }
-    return null;
-  }
 
-  private static String searchScmFolder(File basedir) {
-    if (exists(new File(basedir, ".git"))) {
-      return "scm:git:";
-    }
-    if (exists(new File(basedir, ".hg"))) {
-      return "scm:hg:";
-    }
-    if (exists(new File(basedir, ".svn"))) {
-      return "scm:svn:";
-    }
     return null;
-  }
-
-  private static boolean exists(File file) {
-    return file.exists() && file.isDirectory();
   }
 }
