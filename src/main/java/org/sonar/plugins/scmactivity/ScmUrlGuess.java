@@ -20,31 +20,10 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.sonar.api.BatchExtension;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class ScmActivityPluginTest {
-  private ScmActivityPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new ScmActivityPlugin();
-  }
-
-  @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions()).isNotEmpty();
-  }
-
-  /**
-   * see SONAR-1898
-   */
-  @Test
-  public void testDeprecatedMethods() {
-    assertThat(plugin.getKey()).isNotNull();
-    assertThat(plugin.getName()).isNotNull();
-    assertThat(plugin.getDescription()).isNotNull();
+public class ScmUrlGuess implements BatchExtension {
+  public String guess() {
+    return null;
   }
 }

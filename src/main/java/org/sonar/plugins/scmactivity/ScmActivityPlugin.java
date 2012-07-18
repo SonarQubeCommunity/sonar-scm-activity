@@ -20,9 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.sonar.api.BatchExtension;
-
 import com.google.common.collect.ImmutableList;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -111,6 +110,7 @@ public final class ScmActivityPlugin implements Plugin {
         Sha1Generator.class,
         SonarScmManager.class,
         ScmFacade.class,
+        ScmUrlGuess.class,
         UrlChecker.class);
   }
 }

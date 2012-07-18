@@ -35,6 +35,7 @@ public class ScmConfigurationTest {
   ScmConfiguration scmConfiguration;
 
   PropertiesConfiguration configuration = new PropertiesConfiguration();
+  ScmUrlGuess scmUrlGuess = mock(ScmUrlGuess.class);
   MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
 
   @Rule
@@ -42,7 +43,7 @@ public class ScmConfigurationTest {
 
   @Before
   public void setUp() {
-    scmConfiguration = new ScmConfiguration(configuration, mavenConf);
+    scmConfiguration = new ScmConfiguration(configuration, scmUrlGuess, mavenConf);
   }
 
   @Test
@@ -67,31 +68,15 @@ public class ScmConfigurationTest {
   }
 
   @Test
-  public void shouldBeDisabled() {
-    configuration.addProperty(ScmActivityPlugin.ENABLED, false);
-    configuration.addProperty(ScmActivityPlugin.URL, "scm:svn:http:foo");
-
-    assertThat(scmConfiguration.isEnabled()).isFalse();
-  }
-
-  @Test
-  public void shouldBeDisabledIfNoUrl() {
-    configuration.addProperty(ScmActivityPlugin.ENABLED, true);
-
-    assertThat(scmConfiguration.isEnabled()).isFalse();
-  }
-
-  @Test
-  public void shouldBeDisabledByDefault() {
-    assertThat(scmConfiguration.isEnabled()).isFalse();
-  }
-
-  @Test
-  public void shouldBeEnabled() {
-    configuration.addProperty(ScmActivityPlugin.ENABLED, true);
-    configuration.addProperty(ScmActivityPlugin.URL, "scm:svn:http:foo");
-
+  public void should_be_enabled_by_default() {
     assertThat(scmConfiguration.isEnabled()).isTrue();
+  }
+
+  @Test
+  public void should_disable() {
+    configuration.addProperty(ScmActivityPlugin.ENABLED, false);
+
+    assertThat(scmConfiguration.isEnabled()).isFalse();
   }
 
   @Test
@@ -163,6 +148,13 @@ public class ScmConfigurationTest {
   }
 
   @Test
+  public void should_guess_url_if_nothing_configured() {
+    when(scmUrlGuess.guess()).thenReturn("scm:svn:guessed");
+
+    assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:guessed");
+  }
+
+  @Test
   public void shouldGetScmProvider() {
     when(mavenConf.getUrl()).thenReturn("scm:svn:http:foo");
 
@@ -178,7 +170,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_get_maven_url_in_non_maven_environment() {
-    scmConfiguration = new ScmConfiguration(configuration);
+    scmConfiguration = new ScmConfiguration(configuration, scmUrlGuess);
 
     assertThat(scmConfiguration.getUrl()).isNull();
   }

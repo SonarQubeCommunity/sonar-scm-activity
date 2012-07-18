@@ -32,15 +32,17 @@ public class ScmConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
 
   private final Configuration configuration;
+  private final ScmUrlGuess scmUrlGuess;
   private final MavenScmConfiguration mavenConfonfiguration;
 
-  public ScmConfiguration(Configuration configuration, MavenScmConfiguration mavenConfiguration) {
+  public ScmConfiguration(Configuration configuration, ScmUrlGuess scmUrlGuess, MavenScmConfiguration mavenConfiguration) {
     this.configuration = configuration;
+    this.scmUrlGuess = scmUrlGuess;
     this.mavenConfonfiguration = mavenConfiguration;
   }
 
-  public ScmConfiguration(Configuration configuration) {
-    this(configuration, null /* not in maven environment */);
+  public ScmConfiguration(Configuration configuration, ScmUrlGuess scmUrlGuess) {
+    this(configuration, scmUrlGuess, null /* not in maven environment */);
   }
 
   public String getScmProvider() {
@@ -53,7 +55,7 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public boolean isEnabled() {
-    return configuration.getBoolean(ScmActivityPlugin.ENABLED, ScmActivityPlugin.ENABLED_DEFAULT) && (getUrl() != null);
+    return configuration.getBoolean(ScmActivityPlugin.ENABLED, ScmActivityPlugin.ENABLED_DEFAULT);
   }
 
   public String getUser() {
@@ -79,8 +81,21 @@ public class ScmConfiguration implements BatchExtension {
 
   public String getUrl() {
     String urlProperty = configuration.getString(ScmActivityPlugin.URL);
-    String url = StringUtils.defaultIfBlank(urlProperty, getMavenUrl());
-    return StringUtils.defaultIfBlank(url, null);
+    if (!StringUtils.isBlank(urlProperty)) {
+      return urlProperty;
+    }
+
+    String mavenUrl = getMavenUrl();
+    if (!StringUtils.isBlank(mavenUrl)) {
+      return mavenUrl;
+    }
+
+    String guessedUrl = guessUrl();
+    if (!StringUtils.isBlank(guessedUrl)) {
+      return guessedUrl;
+    }
+
+    return null;
   }
 
   private String getMavenUrl() {
@@ -91,5 +106,9 @@ public class ScmConfiguration implements BatchExtension {
       return mavenConfonfiguration.getDeveloperUrl();
     }
     return mavenConfonfiguration.getUrl();
+  }
+
+  private String guessUrl() {
+    return scmUrlGuess.guess();
   }
 }

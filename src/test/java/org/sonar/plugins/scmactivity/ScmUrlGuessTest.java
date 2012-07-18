@@ -20,31 +20,17 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ScmActivityPluginTest {
-  private ScmActivityPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new ScmActivityPlugin();
-  }
+public class ScmUrlGuessTest {
+  ScmUrlGuess scmUrlGuess = new ScmUrlGuess();
 
   @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions()).isNotEmpty();
-  }
+  public void should_not_know_how_to_guess_url() {
+    String url = scmUrlGuess.guess();
 
-  /**
-   * see SONAR-1898
-   */
-  @Test
-  public void testDeprecatedMethods() {
-    assertThat(plugin.getKey()).isNotNull();
-    assertThat(plugin.getName()).isNotNull();
-    assertThat(plugin.getDescription()).isNotNull();
+    assertThat(url).isNull();
   }
 }
