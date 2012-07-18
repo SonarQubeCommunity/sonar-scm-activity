@@ -34,11 +34,12 @@ public final class ScmActivityMetrics implements Metrics {
   public static final String SCM_HASH_KEY = "scm.hash";
 
   /**
-   * @since 1.4
+   * @since 1.4. Hidden since 1.5
    */
   public static final Metric SCM_HASH = new Metric
       .Builder(SCM_HASH_KEY, "Hash", Metric.ValueType.STRING)
           .setDomain(CoreMetrics.DOMAIN_SCM)
+          .setHidden(true)
           .create();
 
   public List<Metric> getMetrics() {

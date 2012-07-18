@@ -39,5 +39,6 @@ public class ScmActivityMetricsTest {
     assertThat(metric.getKey()).isEqualTo("scm.hash");
     assertThat(metric.getName()).isEqualTo("Hash");
     assertThat(metric.getType()).isEqualTo(Metric.ValueType.STRING);
+    assertThat(metric.isHidden()).isTrue();
   }
 }
