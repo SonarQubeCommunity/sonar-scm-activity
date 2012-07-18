@@ -20,10 +20,27 @@
 
 package org.sonar.plugins.scmactivity;
 
+import java.io.File;
+
 import org.sonar.api.BatchExtension;
+import org.sonar.api.resources.ProjectFileSystem;
 
 public class ScmUrlGuess implements BatchExtension {
+  private final ProjectFileSystem projectFileSystem;
+
+  public ScmUrlGuess(ProjectFileSystem projectFileSystem) {
+    this.projectFileSystem = projectFileSystem;
+  }
+
   public String guess() {
+    File basedir = projectFileSystem.getBasedir();
+    if (new File(basedir, ".git").exists()) {
+      return "scm:git:";
+    }
+    if (new File(basedir, ".svn").exists()) {
+      return "scm:svn:";
+    }
+
     return null;
   }
 }
