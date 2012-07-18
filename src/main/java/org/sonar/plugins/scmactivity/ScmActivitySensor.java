@@ -74,7 +74,7 @@ public final class ScmActivitySensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return configuration.isEnabled();
+    return configuration.isEnabled() && project.isLatestAnalysis();
   }
 
   public void analyse(Project project, final SensorContext context) {

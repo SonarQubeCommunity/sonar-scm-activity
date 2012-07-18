@@ -62,6 +62,7 @@ public class ScmActivitySensorTest {
   @Test
   public void should_execute() {
     when(conf.isEnabled()).thenReturn(true);
+    when(project.isLatestAnalysis()).thenReturn(true);
 
     boolean shouldExecute = scmActivitySensor.shouldExecuteOnProject(project);
 
@@ -69,8 +70,19 @@ public class ScmActivitySensorTest {
   }
 
   @Test
-  public void should_not_execute() {
+  public void should_not_execute_if_disabled() {
     when(conf.isEnabled()).thenReturn(false);
+    when(project.isLatestAnalysis()).thenReturn(true);
+
+    boolean shouldExecute = scmActivitySensor.shouldExecuteOnProject(project);
+
+    assertThat(shouldExecute).isFalse();
+  }
+
+  @Test
+  public void should_not_execute_if_not_latest_analysis() {
+    when(conf.isEnabled()).thenReturn(true);
+    when(project.isLatestAnalysis()).thenReturn(false);
 
     boolean shouldExecute = scmActivitySensor.shouldExecuteOnProject(project);
 
