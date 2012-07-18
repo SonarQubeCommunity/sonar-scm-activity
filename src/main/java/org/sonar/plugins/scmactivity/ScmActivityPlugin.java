@@ -41,7 +41,7 @@ import java.util.List;
     key = ScmActivityPlugin.URL,
     defaultValue = "",
     name = "SCM URL",
-    description = "SCM URL. The format is described in this page.  <a href='http://maven.apache.org/scm/scm-url-format.html'>this page</a>. Example:" +
+    description = "SCM URL. The format is described <a target=\"_blank\" href=\"http://maven.apache.org/scm/scm-url-format.html\">this page</a>. Example: " +
       "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>. This property is mainly used to determine the SCM engine client to be used.",
     module = true,
     project = true,
