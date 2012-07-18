@@ -36,14 +36,13 @@ public class CopyPreviousMeasures implements MeasureUpdate {
   private static final List<Metric> METRICS = ImmutableList.of(
       CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
       CoreMetrics.SCM_REVISIONS_BY_LINE,
-      CoreMetrics.SCM_AUTHORS_BY_LINE);
+      CoreMetrics.SCM_AUTHORS_BY_LINE,
+      ScmActivityMetrics.SCM_HASH);
 
   private final Resource resource;
-  private final String sha1;
 
-  public CopyPreviousMeasures(Resource resource, String sha1) {
+  public CopyPreviousMeasures(Resource resource) {
     this.resource = resource;
-    this.sha1 = sha1;
   }
 
   public void execute(TimeMachine timeMachine, SensorContext context) {
@@ -52,7 +51,6 @@ public class CopyPreviousMeasures implements MeasureUpdate {
     for (Measure measure : timeMachine.getMeasures(query)) {
       saveMeasure(context, measure);
     }
-    saveMeasure(context, new Measure(ScmActivityMetrics.SCM_HASH, sha1));
   }
 
   private void saveMeasure(SensorContext context, Measure measure) {
