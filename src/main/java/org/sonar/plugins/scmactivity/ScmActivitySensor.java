@@ -54,10 +54,10 @@ public final class ScmActivitySensor implements Sensor {
   private final PreviousSha1Finder previousSha1Finder;
   private final TimeMachine timeMachine;
 
-  public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector scmActivityBlame, UrlChecker urlChecker, FileToResource fileToResource,
+  public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector blameVersionSelector, UrlChecker urlChecker, FileToResource fileToResource,
       PreviousSha1Finder previousSha1Finder, TimeMachine timeMachine) {
     this.configuration = configuration;
-    this.blameVersionSelector = scmActivityBlame;
+    this.blameVersionSelector = blameVersionSelector;
     this.urlChecker = urlChecker;
     this.fileToResource = fileToResource;
     this.previousSha1Finder = previousSha1Finder;
