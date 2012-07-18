@@ -20,10 +20,10 @@
 
 package org.sonar.plugins.scmactivity;
 
-import java.io.File;
-
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.ProjectFileSystem;
+
+import java.io.File;
 
 public class ScmUrlGuess implements BatchExtension {
   private final ProjectFileSystem projectFileSystem;
@@ -33,14 +33,29 @@ public class ScmUrlGuess implements BatchExtension {
   }
 
   public String guess() {
-    File basedir = projectFileSystem.getBasedir();
-    if (new File(basedir, ".git").exists()) {
+    File dir = projectFileSystem.getBasedir();
+
+    while (null != dir) {
+      String url = searchScmFolder(dir);
+      if (null != url) {
+        return url;
+      }
+      dir = dir.getParentFile();
+    }
+    return null;
+  }
+
+  private static String searchScmFolder(File basedir) {
+    if (exists(new File(basedir, ".git"))) {
       return "scm:git:";
     }
-    if (new File(basedir, ".svn").exists()) {
+    if (exists(new File(basedir, ".svn"))) {
       return "scm:svn:";
     }
-
     return null;
+  }
+
+  private static boolean exists(File directory) {
+    return directory.exists();
   }
 }

@@ -22,7 +22,7 @@ package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -38,8 +38,8 @@ public class ScmUrlGuessTest {
   ScmUrlGuess scmUrlGuess;
   ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
 
-  @ClassRule
-  public static TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() {
@@ -48,7 +48,7 @@ public class ScmUrlGuessTest {
 
   @Test
   public void shouldnt_guess_url_from_empty_project() throws IOException {
-    File baseDir = createEmptyProject();
+    File baseDir = temporaryFolder.newFolder();
     when(projectFileSystem.getBasedir()).thenReturn(baseDir);
 
     String url = scmUrlGuess.guess();
@@ -57,9 +57,8 @@ public class ScmUrlGuessTest {
   }
 
   @Test
-  public void should_guess_of_git_project() throws IOException {
-    File baseDir = createGitProject();
-    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
+  public void should_guess_from_git_project() {
+    when(projectFileSystem.getBasedir()).thenReturn(project(".git"));
 
     String url = scmUrlGuess.guess();
 
@@ -68,9 +67,18 @@ public class ScmUrlGuessTest {
   }
 
   @Test
-  public void should_guess_of_svn_project() throws IOException {
-    File baseDir = createSvnProject();
-    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
+  public void should_guess_from_git_subproject() {
+    when(projectFileSystem.getBasedir()).thenReturn(project("module", "sub_module", ".git"));
+
+    String url = scmUrlGuess.guess();
+
+    assertThat(url).isEqualTo("scm:git:");
+    assertThat(ScmUrlUtils.isValid(url)).isTrue();
+  }
+
+  @Test
+  public void should_guess_from_svn_project() {
+    when(projectFileSystem.getBasedir()).thenReturn(project(".svn"));
 
     String url = scmUrlGuess.guess();
 
@@ -78,19 +86,17 @@ public class ScmUrlGuessTest {
     assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 
-  static File createEmptyProject() throws IOException {
-    return temporaryFolder.newFolder();
+  @Test
+  public void should_guess_from_svn_subproject() {
+    when(projectFileSystem.getBasedir()).thenReturn(project("module", ".svn"));
+
+    String url = scmUrlGuess.guess();
+
+    assertThat(url).isEqualTo("scm:svn:");
+    assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 
-  static File createGitProject() throws IOException {
-    File baseDir = createEmptyProject();
-    new File(baseDir, ".git").createNewFile();
-    return baseDir;
-  }
-
-  static File createSvnProject() throws IOException {
-    File baseDir = createEmptyProject();
-    new File(baseDir, ".svn").createNewFile();
-    return baseDir;
+  File project(String... folders) {
+    return temporaryFolder.newFolder(folders).getParentFile();
   }
 }
