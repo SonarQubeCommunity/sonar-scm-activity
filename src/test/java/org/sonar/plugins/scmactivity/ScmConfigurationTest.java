@@ -67,6 +67,14 @@ public class ScmConfigurationTest {
   }
 
   @Test
+  public void shouldBeDisabled() {
+    configuration.addProperty(ScmActivityPlugin.ENABLED, false);
+    configuration.addProperty(ScmActivityPlugin.URL, "scm:svn:http:foo");
+
+    assertThat(scmConfiguration.isEnabled()).isFalse();
+  }
+
+  @Test
   public void shouldBeDisabledIfNoUrl() {
     configuration.addProperty(ScmActivityPlugin.ENABLED, true);
 
