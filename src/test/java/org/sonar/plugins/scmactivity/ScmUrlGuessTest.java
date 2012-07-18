@@ -96,6 +96,16 @@ public class ScmUrlGuessTest {
     assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 
+  @Test
+  public void guess_from_directory_not_file() throws IOException {
+    File fileWithMisleadingName = temporaryFolder.newFile(".git");
+    when(projectFileSystem.getBasedir()).thenReturn(fileWithMisleadingName.getParentFile());
+
+    String url = scmUrlGuess.guess();
+
+    assertThat(url).isNull();
+  }
+
   File project(String... folders) {
     return temporaryFolder.newFolder(folders).getParentFile();
   }

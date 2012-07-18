@@ -58,7 +58,7 @@ public class ScmUrlGuess implements BatchExtension {
     return null;
   }
 
-  private static boolean exists(File directory) {
-    return directory.exists();
+  private static boolean exists(File file) {
+    return file.exists() && file.isDirectory();
   }
 }
