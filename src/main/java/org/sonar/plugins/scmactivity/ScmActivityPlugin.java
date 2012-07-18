@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.sonar.api.BatchExtension;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
@@ -96,7 +98,7 @@ public final class ScmActivityPlugin implements Plugin {
   }
 
   @SuppressWarnings("unchecked")
-  public List getExtensions() {
+  public List<Class<? extends BatchExtension>> getExtensions() {
     return ImmutableList.of(
         Blame.class,
         BlameVersionSelector.class,
