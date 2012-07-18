@@ -67,12 +67,12 @@ public class ScmUrlGuessTest {
   }
 
   @Test
-  public void should_guess_from_git_subproject() {
-    when(projectFileSystem.getBasedir()).thenReturn(project("module", "sub_module", ".git"));
+  public void should_guess_from_mercurial_subproject() {
+    when(projectFileSystem.getBasedir()).thenReturn(project("module", "sub_module", ".hg"));
 
     String url = scmUrlGuess.guess();
 
-    assertThat(url).isEqualTo("scm:git:");
+    assertThat(url).isEqualTo("scm:hg:");
     assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 

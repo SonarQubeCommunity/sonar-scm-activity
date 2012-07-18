@@ -49,6 +49,9 @@ public class ScmUrlGuess implements BatchExtension {
     if (exists(new File(basedir, ".git"))) {
       return "scm:git:";
     }
+    if (exists(new File(basedir, ".hg"))) {
+      return "scm:hg:";
+    }
     if (exists(new File(basedir, ".svn"))) {
       return "scm:svn:";
     }
