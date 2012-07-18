@@ -31,7 +31,9 @@ public class ScmUrlGuess implements BatchExtension {
   private static final Map<String, String> URL_BY_FOLDER = ImmutableMap.of(
       ".git", "scm:git:",
       ".hg", "scm:hg:",
-      ".svn", "scm:svn:");
+      ".svn", "scm:svn:",
+      ".bzr", "scm:bazaar:",
+      ".jazz5", "scm:jazz:");
 
   private final ProjectFileSystem projectFileSystem;
 
