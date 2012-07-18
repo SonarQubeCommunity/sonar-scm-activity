@@ -32,7 +32,7 @@ import java.util.List;
     key = ScmActivityPlugin.ENABLED,
     defaultValue = "" + ScmActivityPlugin.ENABLED_DEFAULT,
     name = "Activation of this SCM Activity plugin",
-    description = "This property must be set to true in order to activate the SCM Activity plugin.",
+    description = "This property can be set to false in order to deactivate the SCM Activity plugin.",
     module = true,
     project = true,
     global = true
@@ -80,7 +80,7 @@ public final class ScmActivityPlugin implements Plugin {
   public static final String USER = "sonar.scm.user.secured";
   public static final String PASSWORD = "sonar.scm.password.secured";
   public static final String THREAD_COUNT = "sonar.scm.threadCount";
-  public static final boolean ENABLED_DEFAULT = false;
+  public static final boolean ENABLED_DEFAULT = true;
   public static final int THREAD_COUNT_DEFAULT = 4;
 
   public String getKey() {
