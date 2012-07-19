@@ -21,7 +21,6 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
@@ -32,17 +31,7 @@ public class UrlChecker implements BatchExtension {
   private static final String FAILURE_FORMAT = "URL does not respect the SCM URL format described in http://maven.apache.org/scm/scm-url-format.html: [%s]";
   private static final String FAILURE_NOT_SUPPORTED = "Unsupported SCM: [%s]. Check compatibility at http://docs.codehaus.org/display/SONAR/SCM+Activity+Plugin";
 
-  private final ScmManager manager;
-  private final ScmConfiguration configuration;
-
-  public UrlChecker(ScmManager manager, ScmConfiguration configuration) {
-    this.manager = manager;
-    this.configuration = configuration;
-  }
-
-  public void check() {
-    String url = configuration.getUrl();
-
+  public void check(String url) {
     if (StringUtils.isBlank(url)) {
       throw failure(FAILURE_BLANK);
     }
@@ -54,16 +43,16 @@ public class UrlChecker implements BatchExtension {
     }
   }
 
-  private static SonarException failure(String format, Object... args) {
-    return new SonarException(String.format(format, args) + ". " + PARAMETER_MESSAGE);
+  private static boolean isSupported(String url) {
+    for (SupportedScm scm : SupportedScm.values()) {
+      if (scm.getType().equals(ScmUrlUtils.getProvider(url))) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  private boolean isSupported(String url) {
-    try {
-      manager.getProviderByUrl(url);
-      return true;
-    } catch (Exception e) {
-      return false;
-    }
+  private static SonarException failure(String format, Object... args) {
+    return new SonarException(String.format(format, args) + ". " + PARAMETER_MESSAGE);
   }
 }

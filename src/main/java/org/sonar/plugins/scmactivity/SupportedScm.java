@@ -34,26 +34,32 @@ import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 
 public enum SupportedScm {
-  SVN(new SvnExeScmProvider()),
-  CVS(new CvsExeScmProvider()),
-  GIT(new GitExeScmProvider()),
-  HG(new HgScmProvider()),
-  BAZAAR(new BazaarScmProvider()),
-  CLEAR_CASE(new ClearCaseScmProvider()),
-  ACCU_REV(new AccuRevScmProvider()),
-  PERFORCE(new PerforceScmProvider()),
-  TFS(new TfsScmProvider()),
-  JAZZ(new JazzScmProvider()),
-  INTEGRITY(new IntegrityScmProvider());
+  SVN(new SvnExeScmProvider(), "scm:svn:svn://"),
+  CVS(new CvsExeScmProvider(), null),
+  GIT(new GitExeScmProvider(), "scm:git:"),
+  HG(new HgScmProvider(), "scm:hg:"),
+  BAZAAR(new BazaarScmProvider(), "scm:bazaar:"),
+  CLEAR_CASE(new ClearCaseScmProvider(), null),
+  ACCU_REV(new AccuRevScmProvider(), null),
+  PERFORCE(new PerforceScmProvider(), null),
+  TFS(new TfsScmProvider(), null),
+  JAZZ(new JazzScmProvider(), null),
+  INTEGRITY(new IntegrityScmProvider(), null);
 
   private final ScmProvider provider;
+  private final String guessedUrl;
 
-  private SupportedScm(ScmProvider provider) {
+  private SupportedScm(ScmProvider provider, String guessedUrl) {
     this.provider = provider;
+    this.guessedUrl = guessedUrl;
   }
 
-  public String getUrlRoot() {
-    return "scm:" + provider.getScmType() + ":";
+  public String getGuessedUrl() {
+    return guessedUrl;
+  }
+
+  public String getType() {
+    return provider.getScmType();
   }
 
   public String getScmSpecificFilename() {

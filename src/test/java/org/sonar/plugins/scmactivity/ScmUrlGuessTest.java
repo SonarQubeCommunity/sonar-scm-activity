@@ -82,7 +82,7 @@ public class ScmUrlGuessTest {
 
     String url = scmUrlGuess.guess();
 
-    assertThat(url).isEqualTo("scm:svn:");
+    assertThat(url).isEqualTo("scm:svn:svn://");
     assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 
@@ -92,7 +92,7 @@ public class ScmUrlGuessTest {
 
     String url = scmUrlGuess.guess();
 
-    assertThat(url).isEqualTo("scm:svn:");
+    assertThat(url).isEqualTo("scm:svn:svn://");
     assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 
@@ -103,16 +103,6 @@ public class ScmUrlGuessTest {
     String url = scmUrlGuess.guess();
 
     assertThat(url).isEqualTo("scm:bazaar:");
-    assertThat(ScmUrlUtils.isValid(url)).isTrue();
-  }
-
-  @Test
-  public void should_guess_from_jazz_project() {
-    when(projectFileSystem.getBasedir()).thenReturn(project("module", ".jazz5"));
-
-    String url = scmUrlGuess.guess();
-
-    assertThat(url).isEqualTo("scm:jazz:");
     assertThat(ScmUrlUtils.isValid(url)).isTrue();
   }
 

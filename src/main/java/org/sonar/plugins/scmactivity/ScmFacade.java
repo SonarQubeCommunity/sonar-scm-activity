@@ -25,20 +25,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameScmResult;
-import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.repository.ScmRepository;
+import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 
 public class ScmFacade implements BatchExtension {
-  private final ScmManager scmManager;
+  private final SonarScmManager scmManager;
   private final ScmConfiguration configuration;
   private ScmRepository repository;
 
-  public ScmFacade(ScmManager scmManager, ScmConfiguration configuration) {
+  public ScmFacade(SonarScmManager scmManager, ScmConfiguration configuration) {
     this.scmManager = scmManager;
     this.configuration = configuration;
   }
@@ -52,8 +53,11 @@ public class ScmFacade implements BatchExtension {
     if (repository == null) {
       try {
         String connectionUrl = configuration.getUrl();
+        String scmProvider = configuration.getScmProvider();
         String user = configuration.getUser();
         String password = configuration.getPassword();
+
+        initSvn(scmProvider);
 
         repository = scmManager.makeScmRepository(connectionUrl);
 
@@ -62,11 +66,24 @@ public class ScmFacade implements BatchExtension {
           providerRepository.setUser(user);
           providerRepository.setPassword(password);
         }
+      } catch (ScmRepositoryException e) {
+        throw new SonarException(e.getValidationMessages().toString(), e);
       } catch (ScmException e) {
         throw new SonarException(e);
       }
     }
 
     return repository;
+  }
+
+  /*
+   * http://jira.codehaus.org/browse/SONARPLUGINS-1082
+   * The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
+   * However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
+   */
+  private void initSvn(String scmProvider) {
+    if (StringUtils.equals(scmProvider, "svn")) {
+      SvnUtil.getSettings().setTrustServerCert(true);
+    }
   }
 }

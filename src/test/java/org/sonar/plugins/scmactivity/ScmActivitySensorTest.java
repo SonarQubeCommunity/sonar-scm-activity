@@ -101,10 +101,11 @@ public class ScmActivitySensorTest {
     when(conf.getThreadCount()).thenReturn(1);
     when(project.getLanguageKey()).thenReturn("java");
     when(project.getFileSystem()).thenReturn(projectFileSystem);
+    when(conf.getUrl()).thenReturn("scm:url");
 
     scmActivitySensor.analyse(project, context);
 
-    verify(urlChecker).check();
+    verify(urlChecker).check("scm:url");
   }
 
   @Test

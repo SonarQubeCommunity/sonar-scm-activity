@@ -20,11 +20,12 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.command.status.StatusScmResult;
-import org.apache.maven.scm.manager.ScmManager;
 import org.apache.maven.scm.provider.ScmProviderRepository;
+import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.repository.ScmRepository;
 import org.apache.maven.scm.repository.ScmRepositoryException;
 import org.junit.Before;
@@ -46,7 +47,7 @@ public class ScmFacadeTest {
   ScmFacade scmFacade;
 
   ScmConfiguration conf = mock(ScmConfiguration.class);
-  ScmManager manager = mock(ScmManager.class);
+  SonarScmManager manager = mock(SonarScmManager.class);
   ScmRepository repository = mock(ScmRepository.class);
   ScmProviderRepository provider = mock(ScmProviderRepository.class);
   BlameScmResult blameScmResult = mock(BlameScmResult.class);
@@ -58,7 +59,7 @@ public class ScmFacadeTest {
   }
 
   @Test
-  public void should_set_credentials() throws Exception {
+  public void should_set_credentials() throws ScmException {
     when(conf.getUrl()).thenReturn("/url");
     when(conf.getUser()).thenReturn("godin");
     when(conf.getPassword()).thenReturn("pass");
@@ -73,7 +74,7 @@ public class ScmFacadeTest {
   }
 
   @Test
-  public void should_not_set_credentials_for_blank_user() throws Exception {
+  public void should_not_set_credentials_for_blank_user() throws ScmException {
     when(conf.getUser()).thenReturn("");
     when(conf.getPassword()).thenReturn("");
     when(conf.getUrl()).thenReturn("/url");
@@ -87,7 +88,7 @@ public class ScmFacadeTest {
   }
 
   @Test
-  public void should_set_credentials_for_blank_password() throws Exception {
+  public void should_set_credentials_for_blank_password() throws ScmException {
     when(conf.getUrl()).thenReturn("/url");
     when(conf.getUser()).thenReturn("login");
     when(conf.getPassword()).thenReturn("");
@@ -101,15 +102,27 @@ public class ScmFacadeTest {
     verify(provider).setPassword("");
   }
 
+  @Test
+  public void shouldInitSvn() throws ScmException {
+    when(conf.getUrl()).thenReturn("/url");
+    when(conf.getScmProvider()).thenReturn("svn");
+    when(manager.makeScmRepository("/url")).thenReturn(repository);
+    when(repository.getProviderRepository()).thenReturn(provider);
+
+    scmFacade.getScmRepository();
+
+    assertThat(SvnUtil.getSettings().isTrustServerCert()).isTrue();
+  }
+
   @Test(expected = SonarException.class)
-  public void should_report_failure() throws Exception {
+  public void should_report_failure() throws ScmException {
     when(manager.makeScmRepository(anyString())).thenThrow(new ScmRepositoryException("BUG"));
 
     scmFacade.getScmRepository();
   }
 
   @Test
-  public void should_blame_file() throws Exception {
+  public void should_blame_file() throws ScmException {
     when(conf.getUrl()).thenReturn("/url");
     when(manager.makeScmRepository("/url")).thenReturn(repository);
     when(manager.blame(eq(repository), refEq(new ScmFileSet(new File("src"))), eq("source.java"))).thenReturn(blameScmResult);

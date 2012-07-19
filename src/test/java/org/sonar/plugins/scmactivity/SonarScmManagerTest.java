@@ -31,7 +31,6 @@ import org.apache.maven.scm.provider.integrity.IntegrityScmProvider;
 import org.apache.maven.scm.provider.jazz.JazzScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
-import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -47,19 +46,11 @@ public class SonarScmManagerTest {
   Logger logger = mock(Logger.class);
   Throwable error = mock(Throwable.class);
 
-  @Test(expected = NoSuchScmProviderException.class)
-  public void shouldNotRegisterProvidersIfDisabled() throws Exception {
-    when(conf.isEnabled()).thenReturn(false);
-
-    SonarScmManager scmManager = new SonarScmManager(conf);
-    scmManager.getProviderByType("svn");
-  }
-
   @Test
   public void should_use_native_providers() throws NoSuchScmProviderException {
     when(conf.isEnabled()).thenReturn(true);
 
-    SonarScmManager scmManager = new SonarScmManager(conf);
+    SonarScmManager scmManager = new SonarScmManager();
 
     assertThat(scmManager.getProviderByType("svn")).isInstanceOf(SvnExeScmProvider.class);
     assertThat(scmManager.getProviderByType("git")).isInstanceOf(GitExeScmProvider.class);
@@ -72,16 +63,6 @@ public class SonarScmManagerTest {
     assertThat(scmManager.getProviderByType("tfs")).isInstanceOf(TfsScmProvider.class);
     assertThat(scmManager.getProviderByType("jazz")).isInstanceOf(JazzScmProvider.class);
     assertThat(scmManager.getProviderByType("integrity")).isInstanceOf(IntegrityScmProvider.class);
-  }
-
-  @Test
-  public void shouldInitSvn() {
-    when(conf.isEnabled()).thenReturn(true);
-    when(conf.getScmProvider()).thenReturn("svn");
-
-    new SonarScmManager(conf);
-
-    assertThat(SvnUtil.getSettings().isTrustServerCert()).isTrue();
   }
 
   @Test

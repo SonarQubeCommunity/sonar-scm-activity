@@ -37,10 +37,9 @@ public class ScmUrlGuess implements BatchExtension {
 
     for (File dir = basedir; dir != null; dir = dir.getParentFile()) {
       for (SupportedScm scm : SupportedScm.values()) {
-        String folderName = scm.getScmSpecificFilename();
-        if (folderName != null) {
-          if (new File(basedir, folderName).isDirectory()) {
-            return scm.getUrlRoot();
+        if (scm.getGuessedUrl() != null) {
+          if (new File(basedir, scm.getScmSpecificFilename()).isDirectory()) {
+            return scm.getGuessedUrl();
           }
         }
       }

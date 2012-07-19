@@ -21,34 +21,23 @@
 package org.sonar.plugins.scmactivity;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.manager.AbstractScmManager;
 import org.apache.maven.scm.provider.ScmProvider;
-import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 
 public class SonarScmManager extends AbstractScmManager implements BatchExtension {
-  public SonarScmManager(ScmConfiguration conf) {
-    if (!conf.isEnabled()) {
-      return;
-    }
+  public SonarScmManager() {
+    registerProviders();
+  }
 
+  private void registerProviders() {
     for (SupportedScm supportedScm : SupportedScm.values()) {
       ScmProvider provider = supportedScm.getProvider();
 
       setScmProvider(provider.getScmType(), supportedScm.getProvider());
-    }
-
-    /*
-     * http://jira.codehaus.org/browse/SONARPLUGINS-1082
-     * The goal is to always trust SSL certificates. It's partially implemented with the SVN property --trust-server-cert.
-     * However it bypasses ONLY the "CA is unknown" check. It doesn't bypass hostname and expiry checks
-     */
-    if (StringUtils.equals(conf.getScmProvider(), "svn")) {
-      SvnUtil.getSettings().setTrustServerCert(true);
     }
   }
 

@@ -78,7 +78,7 @@ public final class ScmActivitySensor implements Sensor {
   }
 
   public void analyse(Project project, final SensorContext context) {
-    urlChecker.check();
+    urlChecker.check(configuration.getUrl());
 
     TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
 
