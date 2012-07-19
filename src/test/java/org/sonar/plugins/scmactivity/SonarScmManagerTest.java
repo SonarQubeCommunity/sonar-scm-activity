@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.slf4j.Logger;
-
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.accurev.AccuRevScmProvider;
 import org.apache.maven.scm.provider.bazaar.BazaarScmProvider;
@@ -38,6 +36,7 @@ import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

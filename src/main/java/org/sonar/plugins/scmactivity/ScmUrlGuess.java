@@ -20,21 +20,12 @@
 
 package org.sonar.plugins.scmactivity;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
-import java.util.Map;
 
 public class ScmUrlGuess implements BatchExtension {
-  private static final Map<String, String> URL_BY_FOLDER = ImmutableMap.of(
-      ".git", "scm:git:",
-      ".hg", "scm:hg:",
-      ".svn", "scm:svn:",
-      ".bzr", "scm:bazaar:",
-      ".jazz5", "scm:jazz:");
-
   private final ProjectFileSystem projectFileSystem;
 
   public ScmUrlGuess(ProjectFileSystem projectFileSystem) {
@@ -45,9 +36,12 @@ public class ScmUrlGuess implements BatchExtension {
     File basedir = projectFileSystem.getBasedir();
 
     for (File dir = basedir; dir != null; dir = dir.getParentFile()) {
-      for (Map.Entry<String, String> entry : URL_BY_FOLDER.entrySet()) {
-        if (new File(basedir, entry.getKey()).isDirectory()) {
-          return entry.getValue();
+      for (SupportedScm scm : SupportedScm.values()) {
+        String folderName = scm.getScmSpecificFilename();
+        if (folderName != null) {
+          if (new File(basedir, folderName).isDirectory()) {
+            return scm.getUrlRoot();
+          }
         }
       }
     }

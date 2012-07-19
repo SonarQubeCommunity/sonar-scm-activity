@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 public class Sha1Generator implements BatchExtension {
   private static final Pattern LINE_BREAKS = Pattern.compile("(\r)?+\n|\r");
 
-  private ProjectFileSystem projectFileSystem;
+  private final ProjectFileSystem projectFileSystem;
 
   public Sha1Generator(ProjectFileSystem projectFileSystem) {
     this.projectFileSystem = projectFileSystem;
