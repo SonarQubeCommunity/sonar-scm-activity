@@ -50,12 +50,10 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public String getScmProvider() {
-    String url = getUrl();
-    if (StringUtils.isBlank(url)) {
+    if (StringUtils.isBlank(getUrl())) {
       return null;
     }
-
-    return ScmUrlUtils.getProvider(url);
+    return ScmUrlUtils.getProvider(getUrl());
   }
 
   public boolean isEnabled() {
