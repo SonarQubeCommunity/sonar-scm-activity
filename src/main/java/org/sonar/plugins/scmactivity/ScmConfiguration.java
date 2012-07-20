@@ -20,6 +20,8 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.provider.ScmUrlUtils;
@@ -34,11 +36,13 @@ public class ScmConfiguration implements BatchExtension {
   private final Configuration configuration;
   private final ScmUrlGuess scmUrlGuess;
   private final MavenScmConfiguration mavenConfonfiguration;
+  private final Supplier<String> url;
 
   public ScmConfiguration(Configuration configuration, ScmUrlGuess scmUrlGuess, MavenScmConfiguration mavenConfiguration) {
     this.configuration = configuration;
     this.scmUrlGuess = scmUrlGuess;
     this.mavenConfonfiguration = mavenConfiguration;
+    url = Suppliers.memoize(new UrlSupplier());
   }
 
   public ScmConfiguration(Configuration configuration, ScmUrlGuess scmUrlGuess) {
@@ -80,35 +84,41 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public String getUrl() {
-    String urlProperty = configuration.getString(ScmActivityPlugin.URL);
-    if (!StringUtils.isBlank(urlProperty)) {
-      return urlProperty;
-    }
-
-    String mavenUrl = getMavenUrl();
-    if (!StringUtils.isBlank(mavenUrl)) {
-      return mavenUrl;
-    }
-
-    String guessedUrl = guessUrl();
-    if (!StringUtils.isBlank(guessedUrl)) {
-      return guessedUrl;
-    }
-
-    return null;
+    return url.get();
   }
 
-  private String getMavenUrl() {
-    if (mavenConfonfiguration == null) {
+  private class UrlSupplier implements Supplier<String> {
+    public String get() {
+      String urlProperty = configuration.getString(ScmActivityPlugin.URL);
+      if (!StringUtils.isBlank(urlProperty)) {
+        return urlProperty;
+      }
+
+      String mavenUrl = getMavenUrl();
+      if (!StringUtils.isBlank(mavenUrl)) {
+        return mavenUrl;
+      }
+
+      String guessedUrl = guessUrl();
+      if (!StringUtils.isBlank(guessedUrl)) {
+        return guessedUrl;
+      }
+
       return null;
     }
-    if (StringUtils.isNotBlank(mavenConfonfiguration.getDeveloperUrl()) && StringUtils.isNotBlank(getUser())) {
-      return mavenConfonfiguration.getDeveloperUrl();
-    }
-    return mavenConfonfiguration.getUrl();
-  }
 
-  private String guessUrl() {
-    return scmUrlGuess.guess();
+    private String getMavenUrl() {
+      if (mavenConfonfiguration == null) {
+        return null;
+      }
+      if (StringUtils.isNotBlank(mavenConfonfiguration.getDeveloperUrl()) && StringUtils.isNotBlank(getUser())) {
+        return mavenConfonfiguration.getDeveloperUrl();
+      }
+      return mavenConfonfiguration.getUrl();
+    }
+
+    private String guessUrl() {
+      return scmUrlGuess.guess();
+    }
   }
 }

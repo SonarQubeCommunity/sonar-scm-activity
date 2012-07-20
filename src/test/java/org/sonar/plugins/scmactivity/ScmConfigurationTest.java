@@ -29,6 +29,8 @@ import org.sonar.api.utils.SonarException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScmConfigurationTest {
@@ -152,6 +154,15 @@ public class ScmConfigurationTest {
     when(scmUrlGuess.guess()).thenReturn("scm:svn:guessed");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:guessed");
+  }
+
+  @Test
+  public void should_guess_url_only_once() {
+    when(scmUrlGuess.guess()).thenReturn("scm:svn:guessed");
+
+    assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:guessed");
+    assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:guessed");
+    verify(scmUrlGuess, times(1)).guess();
   }
 
   @Test

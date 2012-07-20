@@ -20,12 +20,16 @@
 
 package org.sonar.plugins.scmactivity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.resources.ProjectFileSystem;
 
 import java.io.File;
 
 public class ScmUrlGuess implements BatchExtension {
+  private static final Logger LOG = LoggerFactory.getLogger(ScmUrlGuess.class);
+
   private final ProjectFileSystem projectFileSystem;
 
   public ScmUrlGuess(ProjectFileSystem projectFileSystem) {
@@ -33,18 +37,23 @@ public class ScmUrlGuess implements BatchExtension {
   }
 
   public String guess() {
+    LOG.info("No scm url was specified, will try to guess provider from project layout...");
+
     File basedir = projectFileSystem.getBasedir();
 
     for (File dir = basedir; dir != null; dir = dir.getParentFile()) {
       for (SupportedScm scm : SupportedScm.values()) {
         if (scm.getGuessedUrl() != null) {
-          if (new File(basedir, scm.getScmSpecificFilename()).isDirectory()) {
+          LOG.debug("Search for: " + new File(dir, scm.getScmSpecificFilename()));
+          if (new File(dir, scm.getScmSpecificFilename()).isDirectory()) {
+            LOG.info("Found SCM type: " + scm.getType());
             return scm.getGuessedUrl();
           }
         }
       }
     }
 
+    LOG.info("Didn't find which SCM provider is used.");
     return null;
   }
 }

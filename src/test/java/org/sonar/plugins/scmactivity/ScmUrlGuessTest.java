@@ -67,8 +67,9 @@ public class ScmUrlGuessTest {
   }
 
   @Test
-  public void should_guess_from_mercurial_subproject() {
-    when(projectFileSystem.getBasedir()).thenReturn(project("module", "sub_module", ".hg"));
+  public void should_guess_from_mercurial_subsubproject() {
+    File rootDir = project(".hg", "subproject/subsubproject");
+    when(projectFileSystem.getBasedir()).thenReturn(new File(rootDir, "subproject/subsubproject"));
 
     String url = scmUrlGuess.guess();
 
@@ -88,7 +89,8 @@ public class ScmUrlGuessTest {
 
   @Test
   public void should_guess_from_svn_subproject() {
-    when(projectFileSystem.getBasedir()).thenReturn(project("module", ".svn"));
+    File rootDir = project(".svn", "subproject");
+    when(projectFileSystem.getBasedir()).thenReturn(new File(rootDir, "subproject"));
 
     String url = scmUrlGuess.guess();
 
@@ -98,7 +100,7 @@ public class ScmUrlGuessTest {
 
   @Test
   public void should_guess_from_bazaar_project() {
-    when(projectFileSystem.getBasedir()).thenReturn(project("module", ".bzr"));
+    when(projectFileSystem.getBasedir()).thenReturn(project(".bzr"));
 
     String url = scmUrlGuess.guess();
 
@@ -117,6 +119,10 @@ public class ScmUrlGuessTest {
   }
 
   File project(String... folders) {
-    return temporaryFolder.newFolder(folders).getParentFile();
+    File rootDir = temporaryFolder.getRoot();
+    for (String folder : folders) {
+      new File(rootDir, folder).mkdirs();
+    }
+    return rootDir;
   }
 }
