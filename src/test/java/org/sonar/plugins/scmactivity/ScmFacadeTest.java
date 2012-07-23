@@ -24,6 +24,7 @@ import org.apache.maven.scm.ScmException;
 import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.command.status.StatusScmResult;
+import org.apache.maven.scm.manager.NoSuchScmProviderException;
 import org.apache.maven.scm.provider.ScmProviderRepository;
 import org.apache.maven.scm.provider.svn.util.SvnUtil;
 import org.apache.maven.scm.repository.ScmRepository;
@@ -115,8 +116,15 @@ public class ScmFacadeTest {
   }
 
   @Test(expected = SonarException.class)
-  public void should_report_failure() throws ScmException {
+  public void should_report_repository_failure() throws ScmException {
     when(manager.makeScmRepository(anyString())).thenThrow(new ScmRepositoryException("BUG"));
+
+    scmFacade.getScmRepository();
+  }
+
+  @Test(expected = SonarException.class)
+  public void should_report_failure() throws ScmException {
+    when(manager.makeScmRepository(anyString())).thenThrow(new NoSuchScmProviderException("BUG"));
 
     scmFacade.getScmRepository();
   }
