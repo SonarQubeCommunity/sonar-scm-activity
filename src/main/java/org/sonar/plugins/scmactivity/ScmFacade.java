@@ -20,6 +20,10 @@
 
 package org.sonar.plugins.scmactivity;
 
+import com.google.common.base.Suppliers;
+
+import com.google.common.base.Supplier;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.ScmException;
@@ -37,11 +41,12 @@ import java.io.File;
 public class ScmFacade implements BatchExtension {
   private final SonarScmManager scmManager;
   private final ScmConfiguration configuration;
-  private ScmRepository repository;
+  private Supplier<ScmRepository> repository;
 
   public ScmFacade(SonarScmManager scmManager, ScmConfiguration configuration) {
     this.scmManager = scmManager;
     this.configuration = configuration;
+    repository = Suppliers.memoize(new ScmRepositorySupplier());
   }
 
   public BlameScmResult blame(File file) throws ScmException {
@@ -50,7 +55,11 @@ public class ScmFacade implements BatchExtension {
 
   @VisibleForTesting
   ScmRepository getScmRepository() {
-    if (repository == null) {
+    return repository.get();
+  }
+
+  private class ScmRepositorySupplier implements Supplier<ScmRepository> {
+    public ScmRepository get() {
       try {
         String connectionUrl = configuration.getUrl();
         String scmProvider = configuration.getScmProvider();
@@ -59,21 +68,21 @@ public class ScmFacade implements BatchExtension {
 
         initSvn(scmProvider);
 
-        repository = scmManager.makeScmRepository(connectionUrl);
+        ScmRepository scmRepository = scmManager.makeScmRepository(connectionUrl);
 
         if (!StringUtils.isBlank(user)) {
-          ScmProviderRepository providerRepository = repository.getProviderRepository();
+          ScmProviderRepository providerRepository = scmRepository.getProviderRepository();
           providerRepository.setUser(user);
           providerRepository.setPassword(password);
         }
+
+        return scmRepository;
       } catch (ScmRepositoryException e) {
         throw new SonarException(e.getValidationMessages().toString(), e);
       } catch (ScmException e) {
         throw new SonarException(e);
       }
     }
-
-    return repository;
   }
 
   /*
