@@ -37,7 +37,7 @@ public class ScmUrlGuess implements BatchExtension {
   }
 
   public String guess() {
-    LOG.info("No scm url was specified, will try to guess provider from project layout...");
+    LOG.info("Trying to guess scm provider from project layout...");
 
     File basedir = projectFileSystem.getBasedir();
 
@@ -53,7 +53,7 @@ public class ScmUrlGuess implements BatchExtension {
       }
     }
 
-    LOG.info("Didn't find which SCM provider is used.");
+    LOG.info("Didn't find which SCM provider is used. Fallback on configuration");
     return null;
   }
 }

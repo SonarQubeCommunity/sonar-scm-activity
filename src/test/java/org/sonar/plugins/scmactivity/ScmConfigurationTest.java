@@ -166,6 +166,23 @@ public class ScmConfigurationTest {
   }
 
   @Test
+  public void should_guess_first() {
+    when(scmUrlGuess.guess()).thenReturn("scm:svn:guessed");
+    when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
+
+    assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:guessed");
+  }
+
+  @Test
+  public void should_disable_guess_with_hidden_configuration() {
+    configuration.addProperty("sonar.scm.hidden.guess", false);
+    when(scmUrlGuess.guess()).thenReturn("scm:svn:guessed");
+    when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
+
+    assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:http:readonly");
+  }
+
+  @Test
   public void shouldGetScmProvider() {
     when(mavenConf.getUrl()).thenReturn("scm:svn:http:foo");
 

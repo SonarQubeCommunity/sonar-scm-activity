@@ -42,8 +42,9 @@ import java.util.List;
     key = ScmActivityPlugin.URL,
     defaultValue = "",
     name = "SCM URL",
-    description = "SCM URL. The format is described in <a target=\"_blank\" href=\"http://maven.apache.org/scm/scm-url-format.html\">this page</a>. Example: " +
-      "<i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>. This property is optional with Git, Svn, Hg and Bazaar.",
+    description = "The format is described in <a target=\"_blank\" href=\"http://maven.apache.org/scm/scm-url-format.html\">this page</a>. "
+      + "Example: <i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>. "
+      + "This setting is not used with Git, Svn, Hg and Bazaar since the url is discovered automatically.",
     module = true,
     project = true,
     global = false
