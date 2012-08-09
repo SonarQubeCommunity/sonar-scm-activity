@@ -71,7 +71,7 @@
     <sonar.buildVersion>2.7</sonar.buildVersion>
     <sonar.pluginName>SCM Activity</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
-    <surefire.redirect.output>true</surefire.redirect.output>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
 
   <dependencies>
@@ -228,7 +228,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <redirectTestOutputToFile>${surefire.redirect.output}</redirectTestOutputToFile>
+          <redirectTestOutputToFile>${maven.test.redirectTestOutputToFile}</redirectTestOutputToFile>
         </configuration>
       </plugin>
       <plugin>
