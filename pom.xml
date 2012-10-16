@@ -47,6 +47,11 @@
       <name>David Gageot</name>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>henryju</id>
+      <name>Julien Henry</name>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <scm>
