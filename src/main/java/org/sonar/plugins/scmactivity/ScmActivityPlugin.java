@@ -44,7 +44,7 @@ import java.util.List;
     name = "SCM URL",
     description = "The format is described in <a target=\"_blank\" href=\"http://maven.apache.org/scm/scm-url-format.html\">this page</a>. "
       + "Example: <i>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/scm-activity</i>. "
-      + "This setting is not used with Git, Svn, Hg and Bazaar since the url is discovered automatically.",
+      + "This setting is not used with Git, Svn, and Hg since the url is discovered automatically.",
     module = true,
     project = true,
     global = false
