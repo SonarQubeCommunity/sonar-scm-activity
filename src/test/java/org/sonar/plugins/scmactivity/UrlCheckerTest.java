@@ -40,7 +40,7 @@ public class UrlCheckerTest {
   @Test
   public void shouldFailIfBlank() {
     exception.expect(SonarException.class);
-    exception.expectMessage("SCM URL must not be blank");
+    exception.expectMessage("SCM URL should be provided");
 
     checker.check(" ");
   }
