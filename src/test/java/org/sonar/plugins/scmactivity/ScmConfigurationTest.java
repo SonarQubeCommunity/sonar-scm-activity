@@ -20,11 +20,12 @@
 
 package org.sonar.plugins.scmactivity;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class ScmConfigurationTest {
   ScmConfiguration scmConfiguration;
 
-  PropertiesConfiguration configuration = new PropertiesConfiguration();
+  Settings settings = new Settings(new PropertyDefinitions(ScmActivityPlugin.class));
   ScmUrlGuess scmUrlGuess = mock(ScmUrlGuess.class);
   MavenScmConfiguration mavenConf = mock(MavenScmConfiguration.class);
 
@@ -45,26 +46,26 @@ public class ScmConfigurationTest {
 
   @Before
   public void setUp() {
-    scmConfiguration = new ScmConfiguration(configuration, scmUrlGuess, mavenConf);
+    scmConfiguration = new ScmConfiguration(settings, scmUrlGuess, mavenConf);
   }
 
   @Test
   public void shouldReturnUsername() {
-    configuration.addProperty(ScmActivityPlugin.USER, "godin");
+    settings.setProperty(ScmActivityPlugin.USER, "godin");
 
     assertThat(scmConfiguration.getUser()).isEqualTo("godin");
   }
 
   @Test
   public void shouldReturnPassword() {
-    configuration.addProperty(ScmActivityPlugin.PASSWORD, "pass");
+    settings.setProperty(ScmActivityPlugin.PASSWORD, "pass");
 
     assertThat(scmConfiguration.getPassword()).isEqualTo("pass");
   }
 
   @Test
   public void shouldReturnUrlFromConfiguration() {
-    configuration.addProperty(ScmActivityPlugin.URL, "http://test");
+    settings.setProperty(ScmActivityPlugin.URL, "http://test");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("http://test");
   }
@@ -76,7 +77,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_disable() {
-    configuration.addProperty(ScmActivityPlugin.ENABLED, false);
+    settings.setProperty(ScmActivityPlugin.ENABLED, false);
 
     assertThat(scmConfiguration.isEnabled()).isFalse();
   }
@@ -88,21 +89,21 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_get_thread_count() {
-    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 8);
+    settings.setProperty(ScmActivityPlugin.THREAD_COUNT, 8);
 
     assertThat(scmConfiguration.getThreadCount()).isEqualTo(8);
   }
 
   @Test
   public void should_use_single_thread() {
-    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 1);
+    settings.setProperty(ScmActivityPlugin.THREAD_COUNT, 1);
 
     assertThat(scmConfiguration.getThreadCount()).isEqualTo(1);
   }
 
   @Test
   public void should_fail_on_invalid_thread_count() {
-    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 0);
+    settings.setProperty(ScmActivityPlugin.THREAD_COUNT, 0);
 
     exception.expect(SonarException.class);
     exception.expectMessage("SCM Activity Plugin is configured to use [0] thread(s). The minimum is 1.");
@@ -112,7 +113,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_accept_thread_count_too_high() {
-    configuration.addProperty(ScmActivityPlugin.THREAD_COUNT, 1000);
+    settings.setProperty(ScmActivityPlugin.THREAD_COUNT, 1000);
 
     assertThat(scmConfiguration.getThreadCount()).isEqualTo(1000);
   }
@@ -120,8 +121,8 @@ public class ScmConfigurationTest {
   @Test
   public void shouldGetMavenDeveloperUrlIfCredentials() {
     when(mavenConf.getDeveloperUrl()).thenReturn("scm:svn:https:writable");
-    configuration.addProperty(ScmActivityPlugin.USER, "godin");
-    configuration.addProperty(ScmActivityPlugin.PASSWORD, "pass");
+    settings.setProperty(ScmActivityPlugin.USER, "godin");
+    settings.setProperty(ScmActivityPlugin.PASSWORD, "pass");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:https:writable");
   }
@@ -144,7 +145,7 @@ public class ScmConfigurationTest {
   @Test
   public void shouldOverrideMavenUrl() {
     when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
-    configuration.addProperty(ScmActivityPlugin.URL, "scm:svn:http:override");
+    settings.setProperty(ScmActivityPlugin.URL, "scm:svn:http:override");
 
     assertThat(scmConfiguration.getUrl()).isEqualTo("scm:svn:http:override");
   }
@@ -175,7 +176,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_disable_guess_with_hidden_configuration() {
-    configuration.addProperty("sonar.scm.hidden.guess", false);
+    settings.setProperty("sonar.scm.hidden.guess", false);
     when(scmUrlGuess.guess()).thenReturn("scm:svn:guessed");
     when(mavenConf.getUrl()).thenReturn("scm:svn:http:readonly");
 
@@ -198,7 +199,7 @@ public class ScmConfigurationTest {
 
   @Test
   public void should_get_maven_url_in_non_maven_environment() {
-    scmConfiguration = new ScmConfiguration(configuration, scmUrlGuess);
+    scmConfiguration = new ScmConfiguration(settings, scmUrlGuess);
 
     assertThat(scmConfiguration.getUrl()).isNull();
   }

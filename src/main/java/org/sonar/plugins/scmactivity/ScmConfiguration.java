@@ -22,31 +22,31 @@ package org.sonar.plugins.scmactivity;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.scm.provider.ScmUrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
 public class ScmConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
 
-  private final Configuration configuration;
+  private final Settings settings;
   private final ScmUrlGuess scmUrlGuess;
   private final MavenScmConfiguration mavenConfonfiguration;
   private final Supplier<String> url;
 
-  public ScmConfiguration(Configuration configuration, ScmUrlGuess scmUrlGuess, MavenScmConfiguration mavenConfiguration) {
-    this.configuration = configuration;
+  public ScmConfiguration(Settings settings, ScmUrlGuess scmUrlGuess, MavenScmConfiguration mavenConfiguration) {
+    this.settings = settings;
     this.scmUrlGuess = scmUrlGuess;
     this.mavenConfonfiguration = mavenConfiguration;
     url = Suppliers.memoize(new UrlSupplier());
   }
 
-  public ScmConfiguration(Configuration configuration, ScmUrlGuess scmUrlGuess) {
-    this(configuration, scmUrlGuess, null /* not in maven environment */);
+  public ScmConfiguration(Settings settings, ScmUrlGuess scmUrlGuess) {
+    this(settings, scmUrlGuess, null /* not in maven environment */);
   }
 
   public String getScmProvider() {
@@ -57,19 +57,19 @@ public class ScmConfiguration implements BatchExtension {
   }
 
   public boolean isEnabled() {
-    return configuration.getBoolean(ScmActivityPlugin.ENABLED, ScmActivityPlugin.ENABLED_DEFAULT);
+    return settings.getBoolean(ScmActivityPlugin.ENABLED);
   }
 
   public String getUser() {
-    return configuration.getString(ScmActivityPlugin.USER);
+    return settings.getString(ScmActivityPlugin.USER);
   }
 
   public String getPassword() {
-    return configuration.getString(ScmActivityPlugin.PASSWORD);
+    return settings.getString(ScmActivityPlugin.PASSWORD);
   }
 
   public int getThreadCount() {
-    int threadCount = configuration.getInt(ScmActivityPlugin.THREAD_COUNT, ScmActivityPlugin.THREAD_COUNT_DEFAULT);
+    int threadCount = settings.getInt(ScmActivityPlugin.THREAD_COUNT);
 
     if (threadCount < 1) {
       throw new SonarException(String.format("SCM Activity Plugin is configured to use [%d] thread(s). The minimum is 1.", threadCount));
@@ -87,14 +87,15 @@ public class ScmConfiguration implements BatchExtension {
 
   private class UrlSupplier implements Supplier<String> {
     public String get() {
-      if (configuration.getBoolean("sonar.scm.hidden.guess", true)) {
+      String guessStr = settings.getString("sonar.scm.hidden.guess"); // Default to true if not set
+      if (StringUtils.isEmpty(guessStr) || Boolean.parseBoolean(guessStr)) {
         String guessedUrl = guessUrl();
         if (!StringUtils.isBlank(guessedUrl)) {
           return guessedUrl;
         }
       }
 
-      String urlProperty = configuration.getString(ScmActivityPlugin.URL);
+      String urlProperty = settings.getString(ScmActivityPlugin.URL);
       if (!StringUtils.isBlank(urlProperty)) {
         return urlProperty;
       }

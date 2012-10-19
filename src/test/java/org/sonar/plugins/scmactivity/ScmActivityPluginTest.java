@@ -38,13 +38,4 @@ public class ScmActivityPluginTest {
     assertThat(plugin.getExtensions()).isNotEmpty();
   }
 
-  /**
-   * see SONAR-1898
-   */
-  @Test
-  public void testDeprecatedMethods() {
-    assertThat(plugin.getKey()).isNotNull();
-    assertThat(plugin.getName()).isNotNull();
-    assertThat(plugin.getDescription()).isNotNull();
-  }
 }

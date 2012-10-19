@@ -22,16 +22,16 @@ package org.sonar.plugins.scmactivity;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarPlugin;
 
 import java.util.List;
 
 @Properties({
   @Property(
     key = ScmActivityPlugin.ENABLED,
-    defaultValue = "" + ScmActivityPlugin.ENABLED_DEFAULT,
+    defaultValue = "true",
     name = "Activation of this SCM Activity plugin",
     description = "This property can be set to false in order to deactivate the SCM Activity plugin.",
     module = true,
@@ -69,33 +69,19 @@ import java.util.List;
   ),
   @Property(
     key = ScmActivityPlugin.THREAD_COUNT,
-    defaultValue = "" + ScmActivityPlugin.THREAD_COUNT_DEFAULT,
+    defaultValue = "4",
     name = "Thread count",
     description = "Number of threads used to speed-up the retrieval of authors by line (aka blame information).",
     module = true,
     project = true,
     global = true
   )})
-public final class ScmActivityPlugin implements Plugin {
+public final class ScmActivityPlugin extends SonarPlugin {
   public static final String ENABLED = "sonar.scm.enabled";
   public static final String URL = "sonar.scm.url";
   public static final String USER = "sonar.scm.user.secured";
   public static final String PASSWORD = "sonar.scm.password.secured";
   public static final String THREAD_COUNT = "sonar.scm.threadCount";
-  public static final boolean ENABLED_DEFAULT = true;
-  public static final int THREAD_COUNT_DEFAULT = 4;
-
-  public String getKey() {
-    return "scm-activity";
-  }
-
-  public String getName() {
-    return "SCM Activity";
-  }
-
-  public String getDescription() {
-    return "Collects information from SCM.";
-  }
 
   @SuppressWarnings("unchecked")
   public List<Class<? extends BatchExtension>> getExtensions() {

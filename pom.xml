@@ -73,7 +73,7 @@
   <properties>
     <jdk.min.version>1.5</jdk.min.version>
     <version.maven-scm>1.7</version.maven-scm>
-    <sonar.buildVersion>2.7</sonar.buildVersion>
+    <sonar.buildVersion>3.0</sonar.buildVersion>
     <sonar.pluginName>SCM Activity</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
