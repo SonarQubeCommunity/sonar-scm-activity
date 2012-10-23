@@ -32,7 +32,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Logs;
 
 import java.io.File;
 
@@ -68,7 +67,7 @@ public class Blame implements BatchExtension {
   }
 
   private BlameScmResult retrieveBlame(File file) {
-    Logs.INFO.info("Retrieve SCM info for {}", file);
+    LOG.info("Retrieve SCM info for {}", file);
 
     try {
       BlameScmResult result = scmFacade.blame(file);
