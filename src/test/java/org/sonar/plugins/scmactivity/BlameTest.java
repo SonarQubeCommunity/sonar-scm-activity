@@ -86,6 +86,31 @@ public class BlameTest {
     assertThat(update).isInstanceOf(CopyPreviousMeasures.class);
   }
 
+  @Test
+  public void should_escape_non_ascii_char_in_author() throws Exception {
+    when(scmFacade.blame(file(FILENAME))).thenReturn(new BlameScmResult("fake", Arrays.asList(
+      new BlameLine(new Date(1), "9", "Firstname Lastname"),
+      new BlameLine(new Date(2), "10", "a-valid_committer"),
+      new BlameLine(new Date(3), "11", "Frédéricö ßaôl"),
+      new BlameLine(new Date(4), "12", "çaà"),
+      new BlameLine(new Date(5), "13", "valid-user@email.com"))));
+
+    MeasureUpdate update = blame.save(file(FILENAME), resource(FILENAME), "SHA1");
+
+    assertThat(((SaveNewMeasures)update).getAuthors().getMetric()).isEqualTo(CoreMetrics.SCM_AUTHORS_BY_LINE);
+    assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=Firstname Lastname;2=a-valid_committer;3=Frederico aol;4=caa;5=valid-user@email.com");
+  }
+
+//  @Test
+//  public void should_retrieve_user_email_instead_of_name() throws Exception {
+//
+//    ScmRepository scmRepository = new ScmRepository("git", new GitScmProviderRepository("https://github.com/SonarSource/sonar.git"));
+//    File file = new File("/Users/jeanbaptiste/Workspace/source/sonar/quick-build.sh");
+//    BlameScmResult blameResult = new SonarScmManager().blame(scmRepository, new ScmFileSet(file.getParentFile()), file.getName());
+//
+//    assertThat(blameResult).isNotNull();
+//  }
+
   static File file(String name) {
     return new File("src", name);
   }

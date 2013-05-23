@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
     <artifactId>parent</artifactId>
-    <version>16</version>
+    <version>17</version>
   </parent>
 
   <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
@@ -71,7 +71,6 @@
   </ciManagement>
 
   <properties>
-    <jdk.min.version>1.5</jdk.min.version>
     <version.maven-scm>1.7</version.maven-scm>
     <sonar.buildVersion>3.0</sonar.buildVersion>
     <sonar.pluginName>SCM Activity</sonar.pluginName>

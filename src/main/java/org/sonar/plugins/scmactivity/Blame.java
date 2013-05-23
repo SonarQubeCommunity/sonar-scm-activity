@@ -34,9 +34,12 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.DateUtils;
 
 import java.io.File;
+import java.text.Normalizer;
 
 public class Blame implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(Blame.class);
+  private static final String NON_ASCII_CHARS = "[^\\x00-\\x7F]";
+  private static final String ACCENT_CODES = "\\p{InCombiningDiacriticalMarks}+";
 
   private final ScmFacade scmFacade;
 
@@ -56,7 +59,7 @@ public class Blame implements BatchExtension {
 
     int lineNumber = 1;
     for (BlameLine line : result.getLines()) {
-      authors.add(lineNumber, line.getAuthor());
+      authors.add(lineNumber, convertToAscii(line.getAuthor()));
       dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
       revisions.add(lineNumber, line.getRevision());
 
@@ -74,7 +77,6 @@ public class Blame implements BatchExtension {
       if (result.isSuccess()) {
         return result;
       }
-
       LOG.warn(String.format("Fail to retrieve SCM info of: %s. Reason: %s%n%s", file, result.getProviderMessage(), result.getCommandOutput()));
     } catch (ScmException e) {
       LOG.warn(String.format("Fail to retrieve SCM info of: %s", file), e); // See SONARPLUGINS-368. Can occur on generated source
@@ -85,5 +87,19 @@ public class Blame implements BatchExtension {
 
   private static PropertiesBuilder<Integer, String> propertiesBuilder(Metric metric) {
     return new PropertiesBuilder<Integer, String>(metric);
+  }
+
+  private String convertToAscii(String inputString) {
+    String stringWithoutAccents = removeAccents(inputString);
+    return removeNonAsciiCharacters(stringWithoutAccents);
+  }
+
+  private String removeAccents(String inputString) {
+    String unicodeDecomposedString = Normalizer.normalize(inputString, Normalizer.Form.NFD);
+    return unicodeDecomposedString.replaceAll(ACCENT_CODES, "");
+  }
+
+  private String removeNonAsciiCharacters(String inputString) {
+    return inputString.replaceAll(NON_ASCII_CHARS, "");
   }
 }
