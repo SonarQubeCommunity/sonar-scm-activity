@@ -101,16 +101,6 @@ public class BlameTest {
     assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=Firstname Lastname;2=a-valid_committer;3=Frederico _aol;4=caa;5=valid-user@email.com");
   }
 
-//  @Test
-//  public void should_retrieve_user_email_instead_of_name() throws Exception {
-//
-//    ScmRepository scmRepository = new ScmRepository("git", new GitScmProviderRepository("https://github.com/SonarSource/sonar.git"));
-//    File file = new File("/Users/jeanbaptiste/Workspace/source/sonar/quick-build.sh");
-//    BlameScmResult blameResult = new SonarScmManager().blame(scmRepository, new ScmFileSet(file.getParentFile()), file.getName());
-//
-//    assertThat(blameResult).isNotNull();
-//  }
-
   static File file(String name) {
     return new File("src", name);
   }
