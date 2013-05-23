@@ -100,6 +100,6 @@ public class Blame implements BatchExtension {
   }
 
   private String removeNonAsciiCharacters(String inputString) {
-    return inputString.replaceAll(NON_ASCII_CHARS, "");
+    return inputString.replaceAll(NON_ASCII_CHARS, "_");
   }
 }

@@ -98,7 +98,7 @@ public class BlameTest {
     MeasureUpdate update = blame.save(file(FILENAME), resource(FILENAME), "SHA1");
 
     assertThat(((SaveNewMeasures)update).getAuthors().getMetric()).isEqualTo(CoreMetrics.SCM_AUTHORS_BY_LINE);
-    assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=Firstname Lastname;2=a-valid_committer;3=Frederico aol;4=caa;5=valid-user@email.com");
+    assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=Firstname Lastname;2=a-valid_committer;3=Frederico _aol;4=caa;5=valid-user@email.com");
   }
 
 //  @Test
