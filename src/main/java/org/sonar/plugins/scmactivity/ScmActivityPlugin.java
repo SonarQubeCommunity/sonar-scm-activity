@@ -21,10 +21,7 @@
 package org.sonar.plugins.scmactivity;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.*;
 
 import java.util.List;
 
@@ -65,7 +62,8 @@ import java.util.List;
     description = "Optional password to be used to retrieve blame information from the SCM engine.",
     module = false,
     project = true,
-    global = true
+    global = true,
+    type = PropertyType.PASSWORD
   ),
   @Property(
     key = ScmActivityPlugin.THREAD_COUNT,
