@@ -101,6 +101,11 @@ public class BlameTest {
     assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=Firstname Lastname;2=a-valid_committer;3=Frederico _aol;4=caa;5=valid-user@email.com");
   }
 
+  @Test
+  public void should_remove_accents_on_unicode_string() throws Exception {
+
+  }
+
   static File file(String name) {
     return new File("src", name);
   }
