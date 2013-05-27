@@ -33,7 +33,8 @@ import java.util.List;
     description = "This property can be set to false in order to deactivate the SCM Activity plugin.",
     module = true,
     project = true,
-    global = true
+    global = true,
+    type = PropertyType.BOOLEAN
   ),
   @Property(
     key = ScmActivityPlugin.URL,
