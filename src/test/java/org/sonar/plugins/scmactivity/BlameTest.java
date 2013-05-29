@@ -98,12 +98,19 @@ public class BlameTest {
     MeasureUpdate update = blame.save(file(FILENAME), resource(FILENAME), "SHA1");
 
     assertThat(((SaveNewMeasures)update).getAuthors().getMetric()).isEqualTo(CoreMetrics.SCM_AUTHORS_BY_LINE);
-    assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=Firstname Lastname;2=a-valid_committer;3=Frederico _aol;4=caa;5=valid-user@email.com");
+    assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=firstname lastname;2=a-valid_committer;3=frederico _aol;4=caa;5=valid-user@email.com");
   }
 
   @Test
-  public void should_remove_accents_on_unicode_string() throws Exception {
+  public void should_lowercase_all_chars() throws Exception {
+    when(scmFacade.blame(file(FILENAME))).thenReturn(new BlameScmResult("fake", Arrays.asList(
+      new BlameLine(new Date(1), "9", "aAaRegR ZePp"),
+      new BlameLine(new Date(1), "10", "aÄoÔ"))));
 
+    MeasureUpdate update = blame.save(file(FILENAME), resource(FILENAME), "SHA1");
+
+    assertThat(((SaveNewMeasures)update).getAuthors().getMetric()).isEqualTo(CoreMetrics.SCM_AUTHORS_BY_LINE);
+    assertThat(((SaveNewMeasures)update).getAuthors().getData()).isEqualTo("1=aaaregr zepp;2=aaoo");
   }
 
   static File file(String name) {

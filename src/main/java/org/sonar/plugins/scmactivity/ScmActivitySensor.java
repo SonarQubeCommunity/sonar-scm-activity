@@ -38,6 +38,7 @@ import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.TimeProfiler;
 
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +81,7 @@ public final class ScmActivitySensor implements Sensor {
   public void analyse(Project project, final SensorContext context) {
     urlChecker.check(configuration.getUrl());
 
-    TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
+    TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information with encoding " + Charset.defaultCharset());
 
     // Use multiple threads for the change detection and the blame retrieval
     // However all measures read/write should be done on main thread
