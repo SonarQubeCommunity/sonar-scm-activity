@@ -92,6 +92,7 @@ public class SonarScmManagerTest {
     inOrder.verify(logger).debug("message");
     inOrder.verify(logger).debug("message", error);
     inOrder.verify(logger).debug("errorMessage", error);
+    inOrder.verify(logger).isDebugEnabled();
     inOrder.verify(logger).info("message");
     inOrder.verify(logger).info("message", error);
     inOrder.verify(logger).info("errorMessage", error);
@@ -103,7 +104,21 @@ public class SonarScmManagerTest {
     inOrder.verify(logger).error("message");
     inOrder.verify(logger).error("message", error);
     inOrder.verify(logger).error("errorMessage", error);
+  }
 
+  @Test
+  public void should_enable_maven_logs_when_debug_active() throws Exception {
+    when(logger.isDebugEnabled()).thenReturn(true);
+
+    SonarScmManager.SonarScmLogger log = new SonarScmManager.SonarScmLogger(logger);
+    assertThat(log.isInfoEnabled()).isTrue();
+  }
+
+  @Test
+  public void should_inhibit_maven_logs_when_level_is_info() throws Exception {
+    when(logger.isDebugEnabled()).thenReturn(false);
+
+    SonarScmManager.SonarScmLogger log = new SonarScmManager.SonarScmLogger(logger);
     assertThat(log.isInfoEnabled()).isFalse();
   }
 }

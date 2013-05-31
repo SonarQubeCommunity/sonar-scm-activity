@@ -71,7 +71,7 @@ public class SonarScmManager extends AbstractScmManager implements BatchExtensio
     }
 
     public boolean isInfoEnabled() {
-      return false;
+      return log.isDebugEnabled();
     }
 
     public void info(String content) {
