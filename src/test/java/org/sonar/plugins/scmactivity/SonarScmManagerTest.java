@@ -92,7 +92,6 @@ public class SonarScmManagerTest {
     inOrder.verify(logger).debug("message");
     inOrder.verify(logger).debug("message", error);
     inOrder.verify(logger).debug("errorMessage", error);
-    inOrder.verify(logger).isInfoEnabled();
     inOrder.verify(logger).info("message");
     inOrder.verify(logger).info("message", error);
     inOrder.verify(logger).info("errorMessage", error);
@@ -104,5 +103,7 @@ public class SonarScmManagerTest {
     inOrder.verify(logger).error("message");
     inOrder.verify(logger).error("message", error);
     inOrder.verify(logger).error("errorMessage", error);
+
+    assertThat(log.isInfoEnabled()).isFalse();
   }
 }
