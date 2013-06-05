@@ -43,10 +43,10 @@ import java.util.*;
  */
 public class SonarGitBlameConsumer extends AbstractConsumer {
 
-  private final static String GIT_COMMITTER_PREFIX = "committer";
-  private final static String GIT_COMMITTER_TIME = GIT_COMMITTER_PREFIX + "-time ";
-  private final static String GIT_AUTHOR_EMAIL = "author-mail ";
-  private final static String GIT_COMMITTER_EMAIL = GIT_COMMITTER_PREFIX + "-mail ";
+  private static final String GIT_COMMITTER_PREFIX = "committer";
+  private static final String GIT_COMMITTER_TIME = GIT_COMMITTER_PREFIX + "-time ";
+  private static final String GIT_AUTHOR_EMAIL = "author-mail ";
+  private static final String GIT_COMMITTER_EMAIL = GIT_COMMITTER_PREFIX + "-mail ";
 
 
   private List<BlameLine> lines = new ArrayList<BlameLine>();
@@ -79,57 +79,71 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
 
     if (expectRevisionLine) {
       // this is the revision line
-      String parts[] = line.split("\\s", 4);
-
-      if (parts.length >= 1) {
-        revision = parts[0];
-
-        BlameLine oldLine = commitInfo.get(revision);
-
-        if (oldLine != null) {
-          // restore the commit info
-          author = oldLine.getAuthor();
-          committer = oldLine.getCommitter();
-          time = oldLine.getDate();
-        }
-
-        expectRevisionLine = false;
-      }
+      consumeRevisionLine(line);
     } else {
-      if (line.startsWith(GIT_AUTHOR_EMAIL)) {
-        author = line.substring(GIT_AUTHOR_EMAIL.length() + 1, line.length() - 1);
+
+      if(extractCommitInfoFromLine(line)) {
         return;
       }
-
-      if (line.startsWith(GIT_COMMITTER_EMAIL)) {
-        committer = line.substring(GIT_COMMITTER_EMAIL.length() + 1, line.length() - 1);
-        return;
-      }
-
-      if (line.startsWith(GIT_COMMITTER_TIME)) {
-        String timeStr = line.substring(GIT_COMMITTER_TIME.length());
-        time = new Date(Long.parseLong(timeStr) * 1000L);
-        return;
-      }
-
 
       if (line.startsWith("\t")) {
         // this is the content line.
         // we actually don't need the content, but this is the right time to add the blame line
-        BlameLine blameLine = new BlameLine(time, revision, author, committer);
-        getLines().add(blameLine);
+        consumeContentLine();
+      }
+    }
+  }
 
-        // keep commitinfo for this sha-1
-        commitInfo.put(revision, blameLine);
+  private boolean extractCommitInfoFromLine(String line) {
+    if (line.startsWith(GIT_AUTHOR_EMAIL)) {
+      author = line.substring(GIT_AUTHOR_EMAIL.length() + 1, line.length() - 1);
+      return true;
+    }
 
-        if (getLogger().isDebugEnabled()) {
-          DateFormat df = SimpleDateFormat.getDateTimeInstance();
-          getLogger().debug(author + " " + df.format(time));
-        }
+    if (line.startsWith(GIT_COMMITTER_EMAIL)) {
+      committer = line.substring(GIT_COMMITTER_EMAIL.length() + 1, line.length() - 1);
+      return true;
+    }
 
-        expectRevisionLine = true;
+    if (line.startsWith(GIT_COMMITTER_TIME)) {
+      String timeStr = line.substring(GIT_COMMITTER_TIME.length());
+      time = new Date(Long.parseLong(timeStr) * 1000L);
+      return true;
+    }
+    return false;
+  }
+
+  private void consumeContentLine() {
+    BlameLine blameLine = new BlameLine(time, revision, author, committer);
+    getLines().add(blameLine);
+
+    // keep commitinfo for this sha-1
+    commitInfo.put(revision, blameLine);
+
+    if (getLogger().isDebugEnabled()) {
+      DateFormat df = SimpleDateFormat.getDateTimeInstance();
+      getLogger().debug(author + " " + df.format(time));
+    }
+
+    expectRevisionLine = true;
+  }
+
+  private void consumeRevisionLine(String line) {
+    String parts[] = line.split("\\s", 4);
+
+    if (parts.length >= 1) {
+      revision = parts[0];
+
+      BlameLine oldLine = commitInfo.get(revision);
+
+      if (oldLine != null) {
+        // restore the commit info
+        author = oldLine.getAuthor();
+        committer = oldLine.getCommitter();
+        time = oldLine.getDate();
       }
 
+      expectRevisionLine = false;
     }
   }
 
