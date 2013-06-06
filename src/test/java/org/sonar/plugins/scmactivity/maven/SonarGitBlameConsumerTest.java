@@ -23,6 +23,7 @@ package org.sonar.plugins.scmactivity.maven;
 import junit.framework.Assert;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.DefaultLog;
+import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameConsumer;
 import org.junit.Test;
 
@@ -31,6 +32,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Plain copy of org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameConsumerTest
@@ -119,6 +124,46 @@ public class SonarGitBlameConsumerTest {
     Assert.assertEquals("41e5bc05953781a5702f597a1a36c55371b517d3", blameLine.getRevision());
     Assert.assertEquals("another-email@struct.at", blameLine.getAuthor());
     Assert.assertEquals("struberg@yahoo.de", blameLine.getCommitter());
+  }
+
+  @Test
+  public void should_extract_commit_data() throws Exception {
+
+    String authorMailLine = "author-mail <developer@company.net>";
+    String authorTimeLine = "author-time 1332152193";
+    String authorTimeZoneLine = "author-tz +0000";
+    String committerLine = "committer Dave Loper";
+    String committerMailLine = "committer-mail <developer@company.net>";
+    String committerTimeLine = "committer-time 1332152193";
+
+    SonarGitBlameConsumer consumer = new SonarGitBlameConsumer(mock(ScmLogger.class));
+
+    assertThat(consumer.extractCommitInfoFromLine(authorMailLine)).isTrue();
+    assertThat(consumer.getAuthor()).isEqualTo("developer@company.net");
+    assertThat(consumer.extractCommitInfoFromLine(authorTimeLine)).isFalse();
+    assertThat(consumer.extractCommitInfoFromLine(authorTimeZoneLine)).isFalse();
+    assertThat(consumer.extractCommitInfoFromLine(committerLine)).isFalse();
+    assertThat(consumer.extractCommitInfoFromLine(committerMailLine)).isTrue();
+    assertThat(consumer.getCommitter()).isEqualTo("developer@company.net");
+    assertThat(consumer.extractCommitInfoFromLine(committerTimeLine)).isTrue();
+    assertThat(consumer.getTime()).isEqualTo(new Date(Long.parseLong("1332152193") * 1000L));
+  }
+
+  @Test
+  public void should_handle_all_line_breaks_types() throws Exception {
+
+    String lfCommitterMailLine = "committer-mail <developer@company.net>\n";
+    String crCommitterMailLine = "committer-mail <developer@company.net>\r";
+    String crlfCommitterMailLine = "committer-mail <developer@company.net>\r\n";
+
+    SonarGitBlameConsumer consumer = new SonarGitBlameConsumer(mock(ScmLogger.class));
+
+    assertThat(consumer.extractCommitInfoFromLine(lfCommitterMailLine)).isTrue();
+    assertThat(consumer.getCommitter()).isEqualTo("developer@company.net");
+    assertThat(consumer.extractCommitInfoFromLine(crCommitterMailLine)).isTrue();
+    assertThat(consumer.getCommitter()).isEqualTo("developer@company.net");
+    assertThat(consumer.extractCommitInfoFromLine(crlfCommitterMailLine)).isTrue();
+    assertThat(consumer.getCommitter()).isEqualTo("developer@company.net");
   }
 
   /**

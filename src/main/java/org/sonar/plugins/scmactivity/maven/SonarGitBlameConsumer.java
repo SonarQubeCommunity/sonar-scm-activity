@@ -20,6 +20,7 @@
 
 package org.sonar.plugins.scmactivity.maven;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.util.AbstractConsumer;
@@ -47,6 +48,8 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
   private static final String GIT_COMMITTER_TIME = GIT_COMMITTER_PREFIX + "-time ";
   private static final String GIT_AUTHOR_EMAIL = "author-mail ";
   private static final String GIT_COMMITTER_EMAIL = GIT_COMMITTER_PREFIX + "-mail ";
+  private static final String OPENING_EMAIL_FIELD = "<";
+  private static final String CLOSING_EMAIL_FIELD = ">";
 
 
   private List<BlameLine> lines = new ArrayList<BlameLine>();
@@ -94,14 +97,15 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
     }
   }
 
-  private boolean extractCommitInfoFromLine(String line) {
+  @VisibleForTesting
+  protected boolean extractCommitInfoFromLine(String line) {
     if (line.startsWith(GIT_AUTHOR_EMAIL)) {
-      author = line.substring(GIT_AUTHOR_EMAIL.length() + 1, line.length() - 1);
+      author = extractEmail(line);
       return true;
     }
 
     if (line.startsWith(GIT_COMMITTER_EMAIL)) {
-      committer = line.substring(GIT_COMMITTER_EMAIL.length() + 1, line.length() - 1);
+      committer = extractEmail(line);
       return true;
     }
 
@@ -111,6 +115,32 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
       return true;
     }
     return false;
+  }
+
+  @VisibleForTesting
+  protected String getAuthor() {
+    return author;
+  }
+
+  @VisibleForTesting
+  protected String getCommitter() {
+    return committer;
+  }
+
+  @VisibleForTesting
+  protected Date getTime() {
+    return time;
+  }
+
+  private String extractEmail(String line) {
+
+    int emailStartIndex = line.indexOf(OPENING_EMAIL_FIELD);
+    int emailEndIndex = line.indexOf(CLOSING_EMAIL_FIELD);
+
+    if(emailStartIndex == -1 || emailEndIndex == -1 || emailEndIndex <= emailStartIndex) {
+      return null;
+    }
+    return line.substring(emailStartIndex + 1, emailEndIndex);
   }
 
   private void consumeContentLine() {
