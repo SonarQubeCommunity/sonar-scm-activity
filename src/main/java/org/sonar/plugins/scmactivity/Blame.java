@@ -48,7 +48,7 @@ public class Blame implements BatchExtension {
     this.scmFacade = scmFacade;
   }
 
-  public MeasureUpdate save(File file, Resource resource, String sha1) {
+  public MeasureUpdate save(File file, Resource resource, String sha1, int lineCount) {
     BlameScmResult result = retrieveBlame(file);
     if (result == null) {
       return new CopyPreviousMeasures(resource);
@@ -65,6 +65,12 @@ public class Blame implements BatchExtension {
       revisions.add(lineNumber, line.getRevision());
 
       lineNumber++;
+      // SONARPLUGINS-3097 For some SCM blame is missing on last empty line
+      if (lineNumber > result.getLines().size() && lineNumber == lineCount) {
+        authors.add(lineNumber, normalizeString(line.getAuthor()));
+        dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
+        revisions.add(lineNumber, line.getRevision());
+      }
     }
 
     return new SaveNewMeasures(resource, authors.build(), dates.build(), revisions.build(), new Measure(ScmActivityMetrics.SCM_HASH, sha1));

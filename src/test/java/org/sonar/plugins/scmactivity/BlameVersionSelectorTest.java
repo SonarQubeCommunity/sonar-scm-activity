@@ -21,19 +21,28 @@
 package org.sonar.plugins.scmactivity;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.plugins.scmactivity.test.TemporaryFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BlameVersionSelectorTest {
+
+  @ClassRule
+  public static TemporaryFile temporaryFile = new TemporaryFile();
+
   BlameVersionSelector blameVersionSelector;
 
   Blame blameSensor = mock(Blame.class);
@@ -45,16 +54,18 @@ public class BlameVersionSelectorTest {
 
   @Before
   public void setUp() {
-    blameVersionSelector = new BlameVersionSelector(blameSensor, sha1Generator, fileToResource);
+    ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+    when(projectFileSystem.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    blameVersionSelector = new BlameVersionSelector(blameSensor, sha1Generator, fileToResource, projectFileSystem);
   }
 
   @Test
   public void should_save_blame_when_hashes_changes() throws IOException {
-    File file = new File("source.java");
+    File file = file("source.java", "foo");
     InputFile inputFile = inputFile(file);
     when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
-    when(sha1Generator.find(file)).thenReturn("SHA1");
-    when(blameSensor.save(file, resource, "SHA1")).thenReturn(saveBlame);
+    when(sha1Generator.find(anyString())).thenReturn("SHA1");
+    when(blameSensor.save(file, resource, "SHA1", 1)).thenReturn(saveBlame);
 
     MeasureUpdate update = blameVersionSelector.detect(inputFile, "OLD SHA1", context);
 
@@ -63,11 +74,11 @@ public class BlameVersionSelectorTest {
 
   @Test
   public void should_save_blame_when_no_previous_hash() throws IOException {
-    File file = new File("source.java");
+    File file = file("source.java", "foo");
     InputFile inputFile = inputFile(file);
     when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
-    when(sha1Generator.find(file)).thenReturn("SHA1");
-    when(blameSensor.save(file, resource, "SHA1")).thenReturn(saveBlame);
+    when(sha1Generator.find(anyString())).thenReturn("SHA1");
+    when(blameSensor.save(file, resource, "SHA1", 1)).thenReturn(saveBlame);
 
     MeasureUpdate update = blameVersionSelector.detect(inputFile, "", context);
 
@@ -76,11 +87,11 @@ public class BlameVersionSelectorTest {
 
   @Test
   public void should_copy_previous_measures_when_hash_is_the_same() throws IOException {
-    File file = new File("source.java");
+    File file = file("source.java", "foo");
     InputFile inputFile = inputFile(file);
     when(fileToResource.toResource(inputFile, context)).thenReturn(resource);
-    when(sha1Generator.find(file)).thenReturn("SHA1");
-    when(blameSensor.save(file, resource, "SHA1")).thenReturn(saveBlame);
+    when(sha1Generator.find(anyString())).thenReturn("SHA1");
+    when(blameSensor.save(file, resource, "SHA1", 1)).thenReturn(saveBlame);
 
     MeasureUpdate update = blameVersionSelector.detect(inputFile, "SHA1", context);
 
@@ -89,9 +100,9 @@ public class BlameVersionSelectorTest {
 
   @Test
   public void should_ignore_error() throws IOException {
-    File file = new File("source.java");
+    File file = file("source.java", "foo");
     InputFile inputFile = inputFile(file);
-    when(sha1Generator.find(file)).thenThrow(new IOException("BUG"));
+    when(sha1Generator.find(anyString())).thenThrow(new IOException("BUG"));
 
     MeasureUpdate update = blameVersionSelector.detect(inputFile, "SHA1", context);
 
@@ -102,5 +113,9 @@ public class BlameVersionSelectorTest {
     InputFile inputFile = mock(InputFile.class);
     when(inputFile.getFile()).thenReturn(file);
     return inputFile;
+  }
+
+  static File file(String name, String content) throws IOException {
+    return temporaryFile.create(name, content);
   }
 }

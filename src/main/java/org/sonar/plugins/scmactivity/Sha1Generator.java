@@ -21,28 +21,18 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.ProjectFileSystem;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 public class Sha1Generator implements BatchExtension {
   private static final Pattern LINE_BREAKS = Pattern.compile("(\r)?+\n|\r");
 
-  private final ProjectFileSystem projectFileSystem;
-
-  public Sha1Generator(ProjectFileSystem projectFileSystem) {
-    this.projectFileSystem = projectFileSystem;
+  public Sha1Generator() {
   }
 
-  public String find(File file) throws IOException {
-    Charset charset = projectFileSystem.getSourceCharset();
-
-    String fileContent = FileUtils.readFileToString(file, charset.name());
+  public String find(String fileContent) throws IOException {
     fileContent = LINE_BREAKS.matcher(fileContent).replaceAll("\n");
 
     return DigestUtils.shaHex(fileContent);
