@@ -30,6 +30,8 @@ import org.codehaus.plexus.util.cli.Commandline;
 
 /**
  * Overriding the default git blame command in order to use the SonarGitBlameConsumer to process the output
+ * Also used to force ignoreWhitespace option as it is badly implemented see
+ * http://jira.codehaus.org/browse/SCM-681#comment-323446
  *
  * @Todo: hack - to be submitted as an update in maven-scm-api for a future release
  * <p/>
@@ -46,7 +48,7 @@ public class SonarGitBlameCommand extends GitBlameCommand {
     throws ScmException {
     String filename = parameters.getString(CommandParameter.FILE);
     Commandline cl = createCommandLine(workingDirectory.getBasedir(), filename,
-      parameters.getBoolean(CommandParameter.IGNORE_WHITESPACE, false));
+      true);
     SonarGitBlameConsumer consumer = new SonarGitBlameConsumer(getLogger());
     CommandLineUtils.StringStreamConsumer stderr = new CommandLineUtils.StringStreamConsumer();
 

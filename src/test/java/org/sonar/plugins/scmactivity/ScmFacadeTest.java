@@ -21,7 +21,7 @@
 package org.sonar.plugins.scmactivity;
 
 import org.apache.maven.scm.ScmException;
-import org.apache.maven.scm.ScmFileSet;
+import org.apache.maven.scm.command.blame.BlameScmRequest;
 import org.apache.maven.scm.command.blame.BlameScmResult;
 import org.apache.maven.scm.command.status.StatusScmResult;
 import org.apache.maven.scm.manager.NoSuchScmProviderException;
@@ -36,9 +36,8 @@ import org.sonar.api.utils.SonarException;
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -131,9 +130,7 @@ public class ScmFacadeTest {
 
   @Test
   public void should_blame_file() throws ScmException {
-    when(conf.getUrl()).thenReturn("/url");
-    when(manager.makeScmRepository("/url")).thenReturn(repository);
-    when(manager.blame(eq(repository), refEq(new ScmFileSet(new File("src"))), eq("source.java"))).thenReturn(blameScmResult);
+    when(manager.blame(any(BlameScmRequest.class))).thenReturn(blameScmResult);
 
     BlameScmResult result = scmFacade.blame(new File("src/source.java"));
 
