@@ -136,4 +136,18 @@ public class ScmFacadeTest {
 
     assertThat(result).isSameAs(blameScmResult);
   }
+
+  // SONARPLUGINS-2940
+  @Test
+  public void should_set_clientspec_property_for_erforce() throws ScmException {
+    when(conf.getUrl()).thenReturn("/url");
+    when(conf.getScmProvider()).thenReturn("perforce");
+    when(conf.getPerforceClientspecName()).thenReturn("myclientspec");
+
+    when(manager.blame(any(BlameScmRequest.class))).thenReturn(blameScmResult);
+
+    scmFacade.blame(new File("src/source.java"));
+
+    assertThat(System.getProperty("maven.scm.perforce.clientspec.name")).isEqualTo("myclientspec");
+  }
 }

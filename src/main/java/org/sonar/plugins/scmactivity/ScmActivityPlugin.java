@@ -74,6 +74,15 @@ import java.util.List;
     module = true,
     project = true,
     global = true
+  ),
+  @Property(
+    key = ScmActivityPlugin.PERFORCE_CLIENTSPEC_NAME,
+    defaultValue = "",
+    name = "Perforce Clientspec name",
+    description = "Will set the property <a href=\"http://maven.apache.org/scm/maven-scm-providers/maven-scm-provider-perforce/\">maven.scm.perforce.clientspec.name</a> used by Perforce SCM provider",
+    module = false,
+    project = false,
+    global = false
   )})
 public final class ScmActivityPlugin extends SonarPlugin {
   public static final String ENABLED = "sonar.scm.enabled";
@@ -81,6 +90,7 @@ public final class ScmActivityPlugin extends SonarPlugin {
   public static final String USER = "sonar.scm.user.secured";
   public static final String PASSWORD = "sonar.scm.password.secured";
   public static final String THREAD_COUNT = "sonar.scm.threadCount";
+  public static final String PERFORCE_CLIENTSPEC_NAME = "sonar.scm.perforce.clientspec.name";
 
   @SuppressWarnings("unchecked")
   public List<Class<? extends BatchExtension>> getExtensions() {

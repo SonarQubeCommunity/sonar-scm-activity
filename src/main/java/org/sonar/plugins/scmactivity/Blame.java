@@ -86,7 +86,8 @@ public class Blame implements BatchExtension {
       }
       LOG.warn(String.format("Fail to retrieve SCM info of: %s. Reason: %s%n%s", file, result.getProviderMessage(), result.getCommandOutput()));
     } catch (ScmException e) {
-      LOG.warn(String.format("Fail to retrieve SCM info of: %s", file), e); // See SONARPLUGINS-368. Can occur on generated source
+      // See SONARPLUGINS-368. Can occur on generated source
+      LOG.warn(String.format("Fail to retrieve SCM info of: %s", file), e);
     }
 
     return null;

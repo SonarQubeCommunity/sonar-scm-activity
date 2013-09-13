@@ -49,6 +49,10 @@ public class ScmFacade implements BatchExtension {
   }
 
   public BlameScmResult blame(File file) throws ScmException {
+    if ("perforce".equals(configuration.getScmProvider()) && configuration.getPerforceClientspecName() != null) {
+      // SONARPLUGINS-2940
+      System.setProperty("maven.scm.perforce.clientspec.name", configuration.getPerforceClientspecName());
+    }
     BlameScmRequest blameRequest = new BlameScmRequest(getScmRepository(), new ScmFileSet(file.getParentFile()));
     blameRequest.setFilename(file.getName());
     // FIXME setIgnoreWhitespace is not taken into account see http://jira.codehaus.org/browse/SCM-681#comment-323446

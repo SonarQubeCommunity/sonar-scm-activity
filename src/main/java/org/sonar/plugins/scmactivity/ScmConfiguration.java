@@ -30,6 +30,8 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.CheckForNull;
+
 public class ScmConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
 
@@ -81,13 +83,23 @@ public class ScmConfiguration implements BatchExtension {
     return threadCount;
   }
 
+  @CheckForNull
+  public String getPerforceClientspecName() {
+    String clientspecName = settings.getString(ScmActivityPlugin.PERFORCE_CLIENTSPEC_NAME);
+    if (StringUtils.isBlank(clientspecName)) {
+      return null;
+    }
+    return clientspecName;
+  }
+
   public String getUrl() {
     return url.get();
   }
 
   private class UrlSupplier implements Supplier<String> {
     public String get() {
-      String guessStr = settings.getString("sonar.scm.hidden.guess"); // Default to true if not set
+      // Default to true if not set
+      String guessStr = settings.getString("sonar.scm.hidden.guess");
       if (StringUtils.isEmpty(guessStr) || Boolean.parseBoolean(guessStr)) {
         String guessedUrl = guessUrl();
         if (!StringUtils.isBlank(guessedUrl)) {

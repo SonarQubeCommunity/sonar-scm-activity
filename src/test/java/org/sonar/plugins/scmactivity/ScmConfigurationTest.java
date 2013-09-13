@@ -212,4 +212,11 @@ public class ScmConfigurationTest {
 
     assertThat(scmConfiguration.getUrl()).isNull();
   }
+
+  @Test
+  public void shouldReturnPerforceClientSpec() {
+    settings.setProperty(ScmActivityPlugin.PERFORCE_CLIENTSPEC_NAME, "myclientspec");
+
+    assertThat(scmConfiguration.getPerforceClientspecName()).isEqualTo("myclientspec");
+  }
 }
