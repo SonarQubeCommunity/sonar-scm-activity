@@ -79,7 +79,9 @@ import java.util.List;
     key = ScmActivityPlugin.PERFORCE_CLIENTSPEC_NAME,
     defaultValue = "",
     name = "Perforce Clientspec name",
-    description = "Will set the property <a href=\"http://maven.apache.org/scm/maven-scm-providers/maven-scm-provider-perforce/\">maven.scm.perforce.clientspec.name</a> used by Perforce SCM provider",
+    description = "Will set the property "
+      + "<a href=\"http://maven.apache.org/scm/maven-scm-providers/maven-scm-provider-perforce/\">maven.scm.perforce.clientspec.name</a> "
+      + "used by Perforce SCM provider",
     module = false,
     project = false,
     global = false

@@ -31,6 +31,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class ScmConfiguration implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
@@ -40,7 +41,7 @@ public class ScmConfiguration implements BatchExtension {
   private final MavenScmConfiguration mavenConfonfiguration;
   private final Supplier<String> url;
 
-  public ScmConfiguration(Settings settings, ScmUrlGuess scmUrlGuess, MavenScmConfiguration mavenConfiguration) {
+  public ScmConfiguration(Settings settings, ScmUrlGuess scmUrlGuess, @Nullable MavenScmConfiguration mavenConfiguration) {
     this.settings = settings;
     this.scmUrlGuess = scmUrlGuess;
     this.mavenConfonfiguration = mavenConfiguration;

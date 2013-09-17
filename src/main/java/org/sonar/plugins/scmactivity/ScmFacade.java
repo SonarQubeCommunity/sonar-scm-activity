@@ -49,9 +49,12 @@ public class ScmFacade implements BatchExtension {
   }
 
   public BlameScmResult blame(File file) throws ScmException {
-    if ("perforce".equals(configuration.getScmProvider()) && configuration.getPerforceClientspecName() != null) {
+    if ("perforce".equals(configuration.getScmProvider())) {
+      String perforceClientSpecName = configuration.getPerforceClientspecName();
       // SONARPLUGINS-2940
-      System.setProperty("maven.scm.perforce.clientspec.name", configuration.getPerforceClientspecName());
+      if (StringUtils.isNotBlank(perforceClientSpecName)) {
+        System.setProperty("maven.scm.perforce.clientspec.name", configuration.getPerforceClientspecName());
+      }
     }
     BlameScmRequest blameRequest = new BlameScmRequest(getScmRepository(), new ScmFileSet(file.getParentFile()));
     blameRequest.setFilename(file.getName());

@@ -35,11 +35,11 @@ public class MavenScmConfiguration implements BatchExtension {
 
   public String getDeveloperUrl() {
     Scm scm = pom.getScm();
-    return (scm != null ? scm.getDeveloperConnection() : null);
+    return scm != null ? scm.getDeveloperConnection() : null;
   }
 
   public String getUrl() {
     Scm scm = pom.getScm();
-    return (scm != null ? scm.getConnection() : null);
+    return scm != null ? scm.getConnection() : null;
   }
 }

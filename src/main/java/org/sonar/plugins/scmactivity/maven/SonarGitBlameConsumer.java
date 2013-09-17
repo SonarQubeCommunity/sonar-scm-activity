@@ -27,8 +27,11 @@ import org.apache.maven.scm.util.AbstractConsumer;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Plain copy of package org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameConsumer
@@ -50,7 +53,6 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
   private static final String GIT_COMMITTER_EMAIL = GIT_COMMITTER_PREFIX + "-mail ";
   private static final String OPENING_EMAIL_FIELD = "<";
   private static final String CLOSING_EMAIL_FIELD = ">";
-
 
   private List<BlameLine> lines = new ArrayList<BlameLine>();
 
@@ -85,7 +87,7 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
       consumeRevisionLine(line);
     } else {
 
-      if(extractCommitInfoFromLine(line)) {
+      if (extractCommitInfoFromLine(line)) {
         return;
       }
 
@@ -137,7 +139,7 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
     int emailStartIndex = line.indexOf(OPENING_EMAIL_FIELD);
     int emailEndIndex = line.indexOf(CLOSING_EMAIL_FIELD);
 
-    if(emailStartIndex == -1 || emailEndIndex == -1 || emailEndIndex <= emailStartIndex) {
+    if (emailStartIndex == -1 || emailEndIndex == -1 || emailEndIndex <= emailStartIndex) {
       return null;
     }
     return line.substring(emailStartIndex + 1, emailEndIndex);
@@ -159,7 +161,7 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
   }
 
   private void consumeRevisionLine(String line) {
-    String parts[] = line.split("\\s", 4);
+    String[] parts = line.split("\\s", 4);
 
     if (parts.length >= 1) {
       revision = parts[0];
