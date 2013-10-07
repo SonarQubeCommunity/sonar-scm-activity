@@ -32,21 +32,18 @@ public class SaveNewMeasures implements MeasureUpdate {
   private final Measure authors;
   private final Measure dates;
   private final Measure revisions;
-  private final Measure sha1;
 
-  public SaveNewMeasures(Resource resource, Measure authors, Measure dates, Measure revisions, Measure sha1) {
+  public SaveNewMeasures(Resource resource, Measure authors, Measure dates, Measure revisions) {
     this.resource = resource;
     this.authors = authors;
     this.dates = dates;
     this.revisions = revisions;
-    this.sha1 = sha1;
   }
 
   public void execute(TimeMachine timeMachine, SensorContext context) {
     saveMeasure(context, authors);
     saveMeasure(context, dates);
     saveMeasure(context, revisions);
-    saveMeasure(context, sha1);
   }
 
   private void saveMeasure(SensorContext context, Measure measure) {
@@ -61,10 +58,5 @@ public class SaveNewMeasures implements MeasureUpdate {
   @VisibleForTesting
   Measure getRevisions() {
     return revisions;
-  }
-
-  @VisibleForTesting
-  Measure getSha1() {
-    return sha1;
   }
 }
