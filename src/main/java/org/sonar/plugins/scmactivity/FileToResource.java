@@ -23,12 +23,11 @@ package org.sonar.plugins.scmactivity;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-
-import java.util.List;
 
 public class FileToResource implements BatchExtension {
   private final Project project;
@@ -37,26 +36,26 @@ public class FileToResource implements BatchExtension {
     this.project = project;
   }
 
-  public Resource toResource(java.io.File file, List<java.io.File> sourceDirs, boolean unitTest, SensorContext context) {
+  public Resource toResource(InputFile file, SensorContext context) {
     Resource resource;
 
     if (Java.KEY.equals(project.getLanguageKey())) {
-      resource = resourceForJavaProject(file, sourceDirs, unitTest);
+      resource = resourceForJavaProject(file);
     } else {
-      resource = resourceForOtherProject(file, sourceDirs);
+      resource = resourceForOtherProject(file);
     }
 
     return (resource == null) ? null : context.getResource(resource);
   }
 
-  private static Resource resourceForJavaProject(java.io.File file, List<java.io.File> sourceDirs, boolean unitTest) {
-    if (Java.isJavaFile(file)) {
-      return JavaFile.fromIOFile(file, sourceDirs, unitTest);
+  private static Resource resourceForJavaProject(InputFile file) {
+    if (Java.isJavaFile(file.getFile())) {
+      return JavaFile.fromRelativePath(file.getRelativePath(), false);
     }
     return null;
   }
 
-  private static Resource resourceForOtherProject(java.io.File file, List<java.io.File> sourceDirs) {
-    return File.fromIOFile(file, sourceDirs);
+  private static Resource resourceForOtherProject(InputFile file) {
+    return new File(file.getRelativePath());
   }
 }

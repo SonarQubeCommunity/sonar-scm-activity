@@ -23,12 +23,12 @@ package org.sonar.plugins.scmactivity;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
 import java.io.File;
-import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -53,7 +53,7 @@ public class FileToResourceTest {
     when(project.getLanguageKey()).thenReturn("java");
     when(context.getResource(any(JavaFile.class))).thenReturn(javaFile);
 
-    Resource resource = fileToResource.toResource(new File("src/main/java/source.java"), Arrays.asList(new File("src/main/java")), false, context);
+    Resource resource = fileToResource.toResource(inputFile("source.java"), context);
 
     assertThat(resource).isSameAs(javaFile);
   }
@@ -62,7 +62,7 @@ public class FileToResourceTest {
   public void should_ignore_non_java_file_in_java_project() {
     when(project.getLanguageKey()).thenReturn("java");
 
-    Resource resource = fileToResource.toResource(new File("src/main/java/pom.xml"), Arrays.asList(new File("src/main/java")), false, context);
+    Resource resource = fileToResource.toResource(inputFile("pom.xml"), context);
 
     assertThat(resource).isNull();
   }
@@ -72,7 +72,7 @@ public class FileToResourceTest {
     when(project.getLanguageKey()).thenReturn("cpp");
     when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file);
 
-    Resource resource = fileToResource.toResource(new File("src/test.cpp"), Arrays.asList(new File("src")), false, context);
+    Resource resource = fileToResource.toResource(inputFile("source.cpp"), context);
 
     assertThat(resource).isSameAs(file);
   }
@@ -82,16 +82,22 @@ public class FileToResourceTest {
     when(project.getLanguageKey()).thenReturn("cpp");
     when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file);
 
-    Resource resource = fileToResource.toResource(new File("src/source.java"), Arrays.asList(new File("src")), false, context);
+    Resource resource = fileToResource.toResource(inputFile("source.java"), context);
 
     assertThat(resource).isSameAs(file);
   }
 
   @Test
   public void shouldnt_find_file() {
-    Resource resource = fileToResource.toResource(new File("src/unknow.java"), Arrays.asList(new File("src")), false, context);
+    Resource resource = fileToResource.toResource(inputFile("unknown.java"), context);
 
     assertThat(resource).isNull();
   }
 
+  static InputFile inputFile(String relativePath) {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(new File(relativePath));
+    when(inputFile.getRelativePath()).thenReturn(relativePath);
+    return inputFile;
+  }
 }

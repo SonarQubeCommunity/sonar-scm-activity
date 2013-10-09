@@ -34,9 +34,10 @@ import java.util.List;
 
 public class CopyPreviousMeasures implements MeasureUpdate {
   private static final List<Metric> METRICS = ImmutableList.of(
-    CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-    CoreMetrics.SCM_REVISIONS_BY_LINE,
-    CoreMetrics.SCM_AUTHORS_BY_LINE);
+      CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+      CoreMetrics.SCM_REVISIONS_BY_LINE,
+      CoreMetrics.SCM_AUTHORS_BY_LINE,
+      ScmActivityMetrics.SCM_HASH);
 
   private final Resource resource;
 
