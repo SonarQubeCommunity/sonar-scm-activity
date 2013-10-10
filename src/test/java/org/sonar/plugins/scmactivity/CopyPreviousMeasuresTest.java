@@ -46,10 +46,9 @@ public class CopyPreviousMeasuresTest {
   @Test
   public void should_copy_previous_measures_and_current_hash() {
     when(timeMachine.getMeasures(refEq(expectedQuery(resource)))).thenReturn(Arrays.asList(
-        measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "measure1"),
-        measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "measure2"),
-        measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "measure3"),
-        measure(ScmActivityMetrics.SCM_HASH, "old_sha1")));
+      measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "measure1"),
+      measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "measure2"),
+      measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "measure3")));
 
     CopyPreviousMeasures copy = new CopyPreviousMeasures(resource);
     copy.execute(timeMachine, context);
@@ -57,17 +56,15 @@ public class CopyPreviousMeasuresTest {
     verify(context).saveMeasure(same(resource), refEq(measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "measure1").setPersistenceMode(PersistenceMode.DATABASE)));
     verify(context).saveMeasure(same(resource), refEq(measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "measure2").setPersistenceMode(PersistenceMode.DATABASE)));
     verify(context).saveMeasure(same(resource), refEq(measure(CoreMetrics.SCM_AUTHORS_BY_LINE, "measure3").setPersistenceMode(PersistenceMode.DATABASE)));
-    verify(context).saveMeasure(same(resource), refEq(measure(ScmActivityMetrics.SCM_HASH, "old_sha1").setPersistenceMode(PersistenceMode.DATABASE)));
   }
 
   static TimeMachineQuery expectedQuery(Resource resource) {
     return new TimeMachineQuery(resource)
-        .setOnlyLastAnalysis(true)
-        .setMetrics(
-            CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-            CoreMetrics.SCM_REVISIONS_BY_LINE,
-            CoreMetrics.SCM_AUTHORS_BY_LINE,
-            ScmActivityMetrics.SCM_HASH);
+      .setOnlyLastAnalysis(true)
+      .setMetrics(
+        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+        CoreMetrics.SCM_REVISIONS_BY_LINE,
+        CoreMetrics.SCM_AUTHORS_BY_LINE);
   }
 
   static Measure measure(Metric metric, String data) {
