@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.InputFile;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
@@ -62,19 +60,6 @@ public class BlameVersionSelector implements BatchExtension {
       }
       return fileChanged(file, resource, context);
     }
-  }
-
-  /**
-  * TODO Waiting for an official API in SonarQube to convert from InputFile to Resource
-  */
-  public static Resource toResource(org.sonar.api.scan.filesystem.InputFile inputFile) {
-    String sourceRelativePath = inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
-    if (sourceRelativePath != null) {
-      boolean isTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
-      boolean isJava = Java.KEY.equals(inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE));
-      return isJava ? JavaFile.fromRelativePath(sourceRelativePath, isTest) : new org.sonar.api.resources.File(sourceRelativePath);
-    }
-    return null;
   }
 
   public MeasureUpdate fileChanged(InputFile inputFile, Resource resource, SensorContext context) {
