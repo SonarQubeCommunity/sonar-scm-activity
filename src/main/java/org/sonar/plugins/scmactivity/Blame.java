@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Resource;
@@ -47,7 +48,7 @@ public class Blame implements BatchExtension {
     this.scmFacade = scmFacade;
   }
 
-  public MeasureUpdate save(File file, Resource resource, int lineCount) {
+  public MeasureUpdate save(File file, Resource resource, String sha1, int lineCount) {
     BlameScmResult result = retrieveBlame(file);
     if (result == null) {
       return new CopyPreviousMeasures(resource);
@@ -72,7 +73,7 @@ public class Blame implements BatchExtension {
       }
     }
 
-    return new SaveNewMeasures(resource, authors.build(), dates.build(), revisions.build());
+    return new SaveNewMeasures(resource, authors.build(), dates.build(), revisions.build(), new Measure(ScmActivityMetrics.SCM_HASH, sha1));
   }
 
   private BlameScmResult retrieveBlame(File file) {

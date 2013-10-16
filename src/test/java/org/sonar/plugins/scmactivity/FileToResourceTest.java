@@ -22,49 +22,82 @@ package org.sonar.plugins.scmactivity;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
+
+import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FileToResourceTest {
   FileToResource fileToResource;
 
-  InputFile javaFile, cobolFile;
+  Project project = mock(Project.class);
+  SensorContext context = mock(SensorContext.class);
+  JavaFile javaFile = mock(JavaFile.class);
   org.sonar.api.resources.File file = mock(org.sonar.api.resources.File.class);
 
   @Before
   public void setUp() {
-    javaFile = mock(InputFile.class);
-    when(javaFile.attribute(InputFile.ATTRIBUTE_LANGUAGE)).thenReturn("java");
-    when(javaFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH)).thenReturn("com/foo/bar/MyClass.java");
-    cobolFile = mock(InputFile.class);
-    when(cobolFile.attribute(InputFile.ATTRIBUTE_LANGUAGE)).thenReturn("cobol");
-    when(cobolFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH)).thenReturn("some/Cobol.cbl");
-    fileToResource = new FileToResource();
+    fileToResource = new FileToResource(project);
   }
 
   @Test
   public void should_find_java_file_in_java_project() {
-    Resource resource = fileToResource.toResource(javaFile);
+    when(project.getLanguageKey()).thenReturn("java");
+    when(context.getResource(any(JavaFile.class))).thenReturn(javaFile);
 
-    assertThat(resource).isNotNull();
+    Resource resource = fileToResource.toResource(inputFile("source.java"), context);
+
+    assertThat(resource).isSameAs(javaFile);
   }
 
   @Test
-  public void should_find_file_in_non_java_project() {
-    Resource resource = fileToResource.toResource(cobolFile);
+  public void should_ignore_non_java_file_in_java_project() {
+    when(project.getLanguageKey()).thenReturn("java");
 
-    assertThat(resource).isNotNull();
-  }
-
-  @Test
-  public void shouldnt_find_file() {
-    Resource resource = fileToResource.toResource(mock(InputFile.class));
+    Resource resource = fileToResource.toResource(inputFile("pom.xml"), context);
 
     assertThat(resource).isNull();
   }
 
+  @Test
+  public void should_find_file_in_non_java_project() {
+    when(project.getLanguageKey()).thenReturn("cpp");
+    when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file);
+
+    Resource resource = fileToResource.toResource(inputFile("source.cpp"), context);
+
+    assertThat(resource).isSameAs(file);
+  }
+
+  @Test
+  public void should_treat_java_file_as_standard_file_in_non_java_project() {
+    when(project.getLanguageKey()).thenReturn("cpp");
+    when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file);
+
+    Resource resource = fileToResource.toResource(inputFile("source.java"), context);
+
+    assertThat(resource).isSameAs(file);
+  }
+
+  @Test
+  public void shouldnt_find_file() {
+    Resource resource = fileToResource.toResource(inputFile("unknown.java"), context);
+
+    assertThat(resource).isNull();
+  }
+
+  static InputFile inputFile(String relativePath) {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(new File(relativePath));
+    when(inputFile.getRelativePath()).thenReturn(relativePath);
+    return inputFile;
+  }
 }

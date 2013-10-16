@@ -21,55 +21,48 @@
 package org.sonar.plugins.scmactivity;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
+import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScmActivitySensorTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
   ScmActivitySensor scmActivitySensor;
 
   BlameVersionSelector blameVersionSelector = mock(BlameVersionSelector.class);
   ScmConfiguration conf = mock(ScmConfiguration.class);
   UrlChecker urlChecker = mock(UrlChecker.class);
-  ModuleFileSystem fs = mock(ModuleFileSystem.class);
+  ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
   Project project = mock(Project.class);
   SensorContext context = mock(SensorContext.class);
+  FileToResource fileToResource = mock(FileToResource.class);
+  PreviousSha1Finder previousSha1Finder = mock(PreviousSha1Finder.class);
   TimeMachine timeMachine = mock(TimeMachine.class);
   Resource resource = mock(Resource.class);
   MeasureUpdate measureUpdate = mock(MeasureUpdate.class);
 
   @Before
   public void setUp() {
-    when(fs.inputFiles(any(FileQuery.class))).thenReturn(Collections.<InputFile> emptyList());
-    scmActivitySensor = new ScmActivitySensor(fs, conf, blameVersionSelector, urlChecker, timeMachine);
+    scmActivitySensor = new ScmActivitySensor(conf, blameVersionSelector, urlChecker, fileToResource, previousSha1Finder, timeMachine);
   }
 
   @Test
   public void should_execute() {
     when(conf.isEnabled()).thenReturn(true);
+    when(project.isLatestAnalysis()).thenReturn(true);
 
     boolean shouldExecute = scmActivitySensor.shouldExecuteOnProject(project);
 
@@ -79,6 +72,17 @@ public class ScmActivitySensorTest {
   @Test
   public void should_not_execute_if_disabled() {
     when(conf.isEnabled()).thenReturn(false);
+    when(project.isLatestAnalysis()).thenReturn(true);
+
+    boolean shouldExecute = scmActivitySensor.shouldExecuteOnProject(project);
+
+    assertThat(shouldExecute).isFalse();
+  }
+
+  @Test
+  public void should_not_execute_if_not_latest_analysis() {
+    when(conf.isEnabled()).thenReturn(true);
+    when(project.isLatestAnalysis()).thenReturn(false);
 
     boolean shouldExecute = scmActivitySensor.shouldExecuteOnProject(project);
 
@@ -89,13 +93,14 @@ public class ScmActivitySensorTest {
   public void should_generate_metrics() {
     List<Metric> metrics = scmActivitySensor.generatesMetrics();
 
-    assertThat(metrics).hasSize(3);
+    assertThat(metrics).hasSize(4);
   }
 
   @Test(timeout = 2000)
   public void should_check_url() {
     when(conf.getThreadCount()).thenReturn(1);
     when(project.getLanguageKey()).thenReturn("java");
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
     when(conf.getUrl()).thenReturn("scm:url");
 
     scmActivitySensor.analyse(project, context);
@@ -104,31 +109,36 @@ public class ScmActivitySensorTest {
   }
 
   @Test
-  public void should_collect_measure_updates_on_main_and_test_files() throws Exception {
-    InputFile source = mock(InputFile.class);
-    InputFile test = mock(InputFile.class);
+  public void should_execute_measure_update_for_known_files() {
+    InputFile source = file("source.java");
+    InputFile test = file("UNKNOWN.java");
     when(conf.getThreadCount()).thenReturn(1);
-    when(fs.inputFiles(any(FileQuery.class))).thenReturn(Arrays.asList(source)).thenReturn(Arrays.asList(test));
-    when(blameVersionSelector.select(source, context))
-      .thenReturn(measureUpdate);
-    when(blameVersionSelector.select(test, context))
-      .thenReturn(measureUpdate);
+    when(project.getLanguageKey()).thenReturn("java");
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
+    when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(source));
+    when(projectFileSystem.testFiles("java")).thenReturn(Arrays.asList(test));
+    when(fileToResource.toResource(source, context)).thenReturn(resource);
+    when(previousSha1Finder.find(resource)).thenReturn("SHA1");
+    when(blameVersionSelector.detect(source, "SHA1", context)).thenReturn(measureUpdate);
 
     scmActivitySensor.analyse(project, context);
 
-    verify(measureUpdate, times(2)).execute(timeMachine, context);
+    verify(measureUpdate).execute(timeMachine, context);
   }
 
   @Test
-  public void should_carry_on_after_error() throws Exception {
-    InputFile source1 = mock(InputFile.class);
-    InputFile source2 = mock(InputFile.class);
+  public void should_carry_on_after_error() {
+    InputFile first = file("source.java");
+    InputFile second = file("UNKNOWN.java");
     when(conf.getThreadCount()).thenReturn(1);
-    when(fs.inputFiles(any(FileQuery.class))).thenReturn(Arrays.asList(source1, source2)).thenReturn(Arrays.<InputFile> asList());
-    when(blameVersionSelector.select(source1, context))
-      .thenThrow(new RuntimeException("BUG"));
-    when(blameVersionSelector.select(source2, context))
-      .thenReturn(measureUpdate);
+    when(project.getLanguageKey()).thenReturn("java");
+    when(project.getFileSystem()).thenReturn(projectFileSystem);
+    when(projectFileSystem.mainFiles("java")).thenReturn(Arrays.asList(first, second));
+    when(fileToResource.toResource(first, context)).thenReturn(resource);
+    when(fileToResource.toResource(second, context)).thenReturn(resource);
+    when(previousSha1Finder.find(resource)).thenReturn("SHA1");
+    when(blameVersionSelector.detect(first, "SHA1", context)).thenThrow(new RuntimeException("BUG"));
+    when(blameVersionSelector.detect(second, "SHA1", context)).thenReturn(measureUpdate);
 
     scmActivitySensor.analyse(project, context);
 
@@ -140,5 +150,11 @@ public class ScmActivitySensorTest {
     String debugName = scmActivitySensor.toString();
 
     assertThat(debugName).isEqualTo("ScmActivitySensor");
+  }
+
+  static InputFile file(String name) {
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(new File(name));
+    return inputFile;
   }
 }

@@ -21,26 +21,41 @@
 package org.sonar.plugins.scmactivity;
 
 import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
 
 public class FileToResource implements BatchExtension {
+  private final Project project;
 
-  public FileToResource() {
+  public FileToResource(Project project) {
+    this.project = project;
   }
 
-  /**
-   * TODO Waiting for an official API in SonarQube to convert from InputFile to Resource
-   */
-  public Resource toResource(org.sonar.api.scan.filesystem.InputFile inputFile) {
-    String sourceRelativePath = inputFile.attribute(InputFile.ATTRIBUTE_SOURCE_RELATIVE_PATH);
-    if (sourceRelativePath != null) {
-      boolean isTest = InputFile.TYPE_TEST.equals(inputFile.attribute(InputFile.ATTRIBUTE_TYPE));
-      boolean isJava = Java.KEY.equals(inputFile.attribute(InputFile.ATTRIBUTE_LANGUAGE));
-      return isJava ? JavaFile.fromRelativePath(sourceRelativePath, isTest) : new org.sonar.api.resources.File(sourceRelativePath);
+  public Resource toResource(InputFile file, SensorContext context) {
+    Resource resource;
+
+    if (Java.KEY.equals(project.getLanguageKey())) {
+      resource = resourceForJavaProject(file);
+    } else {
+      resource = resourceForOtherProject(file);
+    }
+
+    return (resource == null) ? null : context.getResource(resource);
+  }
+
+  private static Resource resourceForJavaProject(InputFile file) {
+    if (Java.isJavaFile(file.getFile())) {
+      return JavaFile.fromRelativePath(file.getRelativePath(), false);
     }
     return null;
+  }
+
+  private static Resource resourceForOtherProject(InputFile file) {
+    return new File(file.getRelativePath());
   }
 }

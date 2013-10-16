@@ -73,7 +73,7 @@
 
   <properties>
     <version.maven-scm>1.8</version.maven-scm>
-    <sonar.buildVersion>4.0-SNAPSHOT</sonar.buildVersion>
+    <sonar.buildVersion>3.0</sonar.buildVersion>
     <sonar.pluginName>SCM Activity</sonar.pluginName>
     <sonar.pluginClass>org.sonar.plugins.scmactivity.ScmActivityPlugin</sonar.pluginClass>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -187,12 +187,6 @@
           <artifactId>plexus-utils</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>2.0.1</version>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>

@@ -25,12 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
-import javax.annotation.CheckForNull;
-
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -38,52 +37,48 @@ public class BlameVersionSelector implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(BlameVersionSelector.class);
 
   private final Blame blame;
-  private final ModuleFileSystem fs;
+  private final Sha1Generator sha1Generator;
   private final FileToResource fileToResource;
+  private final ProjectFileSystem projectFileSystem;
 
-  public BlameVersionSelector(FileToResource fileToResource, Blame blame, ModuleFileSystem fs) {
-    this.fileToResource = fileToResource;
+  public BlameVersionSelector(Blame blame, Sha1Generator sha1Generator, FileToResource fileToResource, ProjectFileSystem projectFileSystem) {
     this.blame = blame;
-    this.fs = fs;
+    this.sha1Generator = sha1Generator;
+    this.fileToResource = fileToResource;
+    this.projectFileSystem = projectFileSystem;
   }
 
-  @CheckForNull
-  public MeasureUpdate select(final InputFile file, final SensorContext context) {
-    final Resource resource = fileToResource.toResource(file);
+  public MeasureUpdate detect(InputFile inputFile, String previousSha1, SensorContext context) {
+    File file = inputFile.getFile();
 
-    if (resource == null) {
-      LOG.debug("Unable to convert file in resource: {}", file);
-      return null;
-    } else {
-      if (file.has(InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_SAME)) {
+    try {
+      Resource resource = fileToResource.toResource(inputFile, context);
+      Charset charset = projectFileSystem.getSourceCharset();
+
+      String fileContent = FileUtils.readFileToString(file, charset.name());
+
+      String currentSha1 = sha1Generator.find(fileContent);
+      if (currentSha1.equals(previousSha1)) {
         return fileNotChanged(file, resource);
       }
-      return fileChanged(file, resource, context);
-    }
-  }
 
-  public MeasureUpdate fileChanged(InputFile inputFile, Resource resource, SensorContext context) {
-    try {
-      Charset charset = fs.sourceCharset();
-
-      String fileContent = FileUtils.readFileToString(inputFile.file(), charset.name());
       String[] lines = fileContent.split("(\r)?\n|\r", -1);
-      return fileChanged(inputFile, resource, lines.length);
+      return fileChanged(file, resource, currentSha1, lines.length);
     } catch (IOException e) {
-      LOG.error("Unable to get scm information: {}", inputFile, e);
+      LOG.error("Unable to get scm information: {}", file, e);
       return MeasureUpdate.NONE;
     }
   }
 
-  private MeasureUpdate fileNotChanged(InputFile inputFile, Resource resource) {
-    LOG.debug("File not changed since previous analysis: {}", inputFile);
+  private MeasureUpdate fileNotChanged(File file, Resource resource) {
+    LOG.debug("File not changed since previous analysis: {}", file);
 
     return new CopyPreviousMeasures(resource);
   }
 
-  private MeasureUpdate fileChanged(InputFile inputFile, Resource resource, int lineCount) {
-    LOG.debug("File changed since previous analysis: {}", inputFile);
+  private MeasureUpdate fileChanged(File file, Resource resource, String currentSha1, int lineCount) {
+    LOG.debug("File changed since previous analysis: {}", file);
 
-    return blame.save(inputFile.file(), resource, lineCount);
+    return blame.save(file, resource, currentSha1, lineCount);
   }
 }
