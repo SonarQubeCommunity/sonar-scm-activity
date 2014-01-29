@@ -21,7 +21,10 @@
 package org.sonar.plugins.scmactivity;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.*;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
+import org.sonar.api.SonarPlugin;
 
 import java.util.List;
 
@@ -95,20 +98,16 @@ public final class ScmActivityPlugin extends SonarPlugin {
   public static final String PERFORCE_CLIENTSPEC_NAME = "sonar.scm.perforce.clientspec.name";
 
   @SuppressWarnings("unchecked")
-  public List<Class<? extends BatchExtension>> getExtensions() {
+  public List getExtensions() {
     return ImmutableList.of(
-        Blame.class,
-        BlameVersionSelector.class,
-        FileToResource.class,
-        MavenScmConfiguration.class,
-        PreviousSha1Finder.class,
-        ScmActivityMetrics.class,
-        ScmActivitySensor.class,
-        ScmConfiguration.class,
-        Sha1Generator.class,
-        SonarScmManager.class,
-        ScmFacade.class,
-        ScmUrlGuess.class,
-        UrlChecker.class);
+      Blame.class,
+      BlameVersionSelector.class,
+      MavenScmConfiguration.class,
+      ScmActivitySensor.class,
+      ScmConfiguration.class,
+      SonarScmManager.class,
+      ScmFacade.class,
+      ScmUrlGuess.class,
+      UrlChecker.class);
   }
 }

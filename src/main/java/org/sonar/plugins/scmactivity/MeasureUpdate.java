@@ -24,11 +24,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
 
 interface MeasureUpdate {
-  MeasureUpdate NONE = new MeasureUpdate() {
-    public void execute(TimeMachine timeMachine, SensorContext context) {
-      // Do nothing
-    }
-  };
 
   void execute(TimeMachine timeMachine, SensorContext context);
 }
