@@ -26,26 +26,20 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ScmActivitySensorTest {
 
@@ -57,22 +51,18 @@ public class ScmActivitySensorTest {
   BlameVersionSelector blameVersionSelector = mock(BlameVersionSelector.class);
   ScmConfiguration conf = mock(ScmConfiguration.class);
   UrlChecker urlChecker = mock(UrlChecker.class);
-  ModuleFileSystem fs = mock(ModuleFileSystem.class);
+  DefaultFileSystem fs = new DefaultFileSystem();
   Project project = mock(Project.class);
   SensorContext context = mock(SensorContext.class);
   TimeMachine timeMachine = mock(TimeMachine.class);
   org.sonar.api.resources.File file = mock(org.sonar.api.resources.File.class);
   MeasureUpdate measureUpdate = mock(MeasureUpdate.class);
-
-  private File baseDir;
+  File baseDir;
 
   @Before
-  public void setUp() throws IOException {
+  public void before() throws IOException {
     baseDir = temp.newFolder();
-    when(fs.baseDir()).thenReturn(baseDir);
-    ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
-    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
-    when(project.getFileSystem()).thenReturn(projectFileSystem);
+    fs.setBaseDir(baseDir);
     scmActivitySensor = new ScmActivitySensor(conf, blameVersionSelector, urlChecker, timeMachine, fs);
   }
 
@@ -106,9 +96,6 @@ public class ScmActivitySensorTest {
     when(conf.getThreadCount()).thenReturn(1);
     when(conf.getUrl()).thenReturn("scm:url");
 
-    Iterable<InputFile> files = Collections.emptyList();
-    when(fs.inputFiles(FileQuery.all())).thenReturn(files);
-
     scmActivitySensor.analyse(project, context);
 
     verify(urlChecker).check("scm:url");
@@ -119,7 +106,8 @@ public class ScmActivitySensorTest {
     InputFile source = file("source.java");
     InputFile test = file("UNKNOWN.java");
     when(conf.getThreadCount()).thenReturn(1);
-    when(fs.inputFiles(FileQuery.all())).thenReturn(Arrays.asList(source, test));
+    fs.add(source);
+    fs.add(test);
     when(blameVersionSelector.detect(any(org.sonar.api.resources.File.class), eq(source), eq(context))).thenReturn(measureUpdate);
     when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file).thenReturn(null);
     scmActivitySensor.analyse(project, context);
@@ -132,7 +120,8 @@ public class ScmActivitySensorTest {
     InputFile first = file("source.java");
     InputFile second = file("UNKNOWN.java");
     when(conf.getThreadCount()).thenReturn(1);
-    when(fs.inputFiles(FileQuery.all())).thenReturn(Arrays.asList(first, second));
+    fs.add(first);
+    fs.add(second);
     when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file);
     when(blameVersionSelector.detect(file, first, context)).thenThrow(new RuntimeException("BUG"));
     when(blameVersionSelector.detect(file, second, context)).thenReturn(measureUpdate);
@@ -150,8 +139,7 @@ public class ScmActivitySensorTest {
   }
 
   InputFile file(String name) {
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(new File(baseDir, name));
-    return inputFile;
+    return new DefaultInputFile(name)
+      .setFile(new File(baseDir, name));
   }
 }

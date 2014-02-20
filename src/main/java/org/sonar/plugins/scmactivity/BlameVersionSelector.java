@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.InputFile;
 
 import java.io.File;
 
@@ -38,14 +38,14 @@ public class BlameVersionSelector implements BatchExtension {
     this.blame = blame;
   }
 
-  public MeasureUpdate detect(Resource sonarFile, org.sonar.api.scan.filesystem.InputFile inputFile, SensorContext context) {
+  public MeasureUpdate detect(Resource sonarFile, InputFile inputFile, SensorContext context) {
     File file = inputFile.file();
 
-    if (inputFile.has(InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_SAME)) {
+    if (inputFile.status()==InputFile.Status.SAME) {
       return fileNotChanged(file, sonarFile);
     }
 
-    return fileChanged(file, sonarFile, Integer.valueOf(inputFile.attribute(InputFile.ATTRIBUTE_LINE_COUNT)));
+    return fileChanged(file, sonarFile, inputFile.lines());
   }
 
   private MeasureUpdate fileNotChanged(File file, Resource resource) {

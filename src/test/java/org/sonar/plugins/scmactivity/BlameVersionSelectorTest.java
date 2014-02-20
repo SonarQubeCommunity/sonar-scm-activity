@@ -24,7 +24,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.scan.filesystem.InputFile;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.plugins.scmactivity.test.TemporaryFile;
 
 import java.io.File;
@@ -54,9 +55,9 @@ public class BlameVersionSelectorTest {
   @Test
   public void should_save_blame_when_file_changed() throws IOException {
     File file = file("source.java", "foo");
-    InputFile inputFile = inputFile(file);
-    when(inputFile.has(InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_SAME)).thenReturn(false);
-    when(inputFile.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).thenReturn("1");
+    DefaultInputFile inputFile = new DefaultInputFile("source.java").setFile(file);
+    inputFile.setStatus(InputFile.Status.CHANGED);
+    inputFile.setLines(1);
     when(blameSensor.save(file, resource, 1)).thenReturn(saveBlame);
 
     MeasureUpdate update = blameVersionSelector.detect(resource, inputFile, context);
@@ -67,20 +68,14 @@ public class BlameVersionSelectorTest {
   @Test
   public void should_copy_previous_measures_when_file_is_the_same() throws IOException {
     File file = file("source.java", "foo");
-    InputFile inputFile = inputFile(file);
-    when(inputFile.has(InputFile.ATTRIBUTE_STATUS, InputFile.STATUS_SAME)).thenReturn(true);
-    when(inputFile.attribute(InputFile.ATTRIBUTE_LINE_COUNT)).thenReturn("2");
+    DefaultInputFile inputFile = new DefaultInputFile("source.java").setFile(file);
+    inputFile.setStatus(InputFile.Status.SAME);
+    inputFile.setLines(2);
     when(blameSensor.save(file, resource, 1)).thenReturn(saveBlame);
 
     MeasureUpdate update = blameVersionSelector.detect(resource, inputFile, context);
 
     assertThat(update).isInstanceOf(CopyPreviousMeasures.class);
-  }
-
-  static InputFile inputFile(File file) {
-    InputFile inputFile = mock(InputFile.class);
-    when(inputFile.file()).thenReturn(file);
-    return inputFile;
   }
 
   File file(String name, String content) throws IOException {

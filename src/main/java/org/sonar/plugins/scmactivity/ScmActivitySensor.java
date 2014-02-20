@@ -29,14 +29,14 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.InputFile;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.TimeProfiler;
 
 import java.nio.charset.Charset;
@@ -53,10 +53,10 @@ public final class ScmActivitySensor implements Sensor {
   private final BlameVersionSelector blameVersionSelector;
   private final UrlChecker urlChecker;
   private final TimeMachine timeMachine;
-  private final ModuleFileSystem fs;
+  private final FileSystem fs;
 
   public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector blameVersionSelector, UrlChecker urlChecker,
-    TimeMachine timeMachine, ModuleFileSystem fs) {
+    TimeMachine timeMachine, FileSystem fs) {
     this.configuration = configuration;
     this.blameVersionSelector = blameVersionSelector;
     this.urlChecker = urlChecker;
@@ -87,7 +87,7 @@ public final class ScmActivitySensor implements Sensor {
     ExecutorService executor = createExecutor();
 
     List<Future<MeasureUpdate>> updates = Lists.newArrayList();
-    collect(module, updates, context, fs.inputFiles(FileQuery.all()), executor);
+    collect(module, updates, context, fs.inputFiles(FilePredicates.all()), executor);
     execute(updates, context);
 
     executor.shutdown();
@@ -95,11 +95,11 @@ public final class ScmActivitySensor implements Sensor {
     profiler.stop();
   }
 
-  private void collect(Project module, List<Future<MeasureUpdate>> updates, final SensorContext context, Iterable<InputFile> allFiles,
-    ExecutorService executor) {
+  private void collect(Project module, List<Future<MeasureUpdate>> updates, final SensorContext context,
+                       Iterable<InputFile> allFiles, ExecutorService executor) {
     for (final InputFile inputFile : allFiles) {
       // Load resource to get fully initialized one
-      final Resource sonarFile = context.getResource(File.fromIOFile(inputFile.file(), module));
+      final Resource sonarFile = context.getResource(File.create(inputFile.relativePath()));
       if (sonarFile == null) {
         LOG.debug("File not found in Sonar index: {}", inputFile.file());
       } else {
