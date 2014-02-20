@@ -23,23 +23,23 @@ package org.sonar.plugins.scmactivity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.batch.fs.FileSystem;
 
 import java.io.File;
 
 public class ScmUrlGuess implements BatchExtension {
   private static final Logger LOG = LoggerFactory.getLogger(ScmUrlGuess.class);
 
-  private final ProjectFileSystem projectFileSystem;
+  private final FileSystem fs;
 
-  public ScmUrlGuess(ProjectFileSystem projectFileSystem) {
-    this.projectFileSystem = projectFileSystem;
+  public ScmUrlGuess(FileSystem fs) {
+    this.fs = fs;
   }
 
   public String guess() {
     LOG.info("Trying to guess scm provider from project layout...");
 
-    File basedir = projectFileSystem.getBasedir();
+    File basedir = fs.baseDir();
 
     for (File dir = basedir; dir != null; dir = dir.getParentFile()) {
       for (SupportedScm scm : SupportedScm.values()) {

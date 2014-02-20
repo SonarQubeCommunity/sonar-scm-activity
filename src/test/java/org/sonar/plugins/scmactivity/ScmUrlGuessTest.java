@@ -25,31 +25,29 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 
 import java.io.File;
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ScmUrlGuessTest {
   ScmUrlGuess scmUrlGuess;
-  ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  DefaultFileSystem fs = new DefaultFileSystem();
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() {
-    scmUrlGuess = new ScmUrlGuess(projectFileSystem);
+    scmUrlGuess = new ScmUrlGuess(fs);
   }
 
   @Test
   public void shouldnt_guess_url_from_empty_project() throws IOException {
     File baseDir = temporaryFolder.newFolder();
-    when(projectFileSystem.getBasedir()).thenReturn(baseDir);
+    fs.setBaseDir(baseDir);
 
     String url = scmUrlGuess.guess();
 
@@ -58,7 +56,7 @@ public class ScmUrlGuessTest {
 
   @Test
   public void should_guess_from_git_project() {
-    when(projectFileSystem.getBasedir()).thenReturn(project(".git"));
+    fs.setBaseDir(project(".git"));
 
     String url = scmUrlGuess.guess();
 
@@ -69,7 +67,7 @@ public class ScmUrlGuessTest {
   @Test
   public void should_guess_from_mercurial_subsubproject() {
     File rootDir = project(".hg", "subproject/subsubproject");
-    when(projectFileSystem.getBasedir()).thenReturn(new File(rootDir, "subproject/subsubproject"));
+    fs.setBaseDir(new File(rootDir, "subproject/subsubproject"));
 
     String url = scmUrlGuess.guess();
 
@@ -79,7 +77,7 @@ public class ScmUrlGuessTest {
 
   @Test
   public void should_guess_from_svn_project() {
-    when(projectFileSystem.getBasedir()).thenReturn(project(".svn"));
+    fs.setBaseDir(project(".svn"));
 
     String url = scmUrlGuess.guess();
 
@@ -90,7 +88,7 @@ public class ScmUrlGuessTest {
   @Test
   public void should_guess_from_svn_subproject() {
     File rootDir = project(".svn", "subproject");
-    when(projectFileSystem.getBasedir()).thenReturn(new File(rootDir, "subproject"));
+    fs.setBaseDir(new File(rootDir, "subproject"));
 
     String url = scmUrlGuess.guess();
 
@@ -100,7 +98,7 @@ public class ScmUrlGuessTest {
 
   @Test
   public void should_guess_from_bazaar_project() {
-    when(projectFileSystem.getBasedir()).thenReturn(project(".bzr"));
+    fs.setBaseDir(project(".bzr"));
 
     String url = scmUrlGuess.guess();
 
@@ -111,7 +109,7 @@ public class ScmUrlGuessTest {
   @Test
   public void guess_from_directory_not_file() throws IOException {
     File fileWithMisleadingName = temporaryFolder.newFile(".git");
-    when(projectFileSystem.getBasedir()).thenReturn(fileWithMisleadingName.getParentFile());
+    fs.setBaseDir(fileWithMisleadingName.getParentFile());
 
     String url = scmUrlGuess.guess();
 
