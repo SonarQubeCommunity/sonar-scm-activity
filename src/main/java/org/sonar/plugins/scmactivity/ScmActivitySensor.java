@@ -87,7 +87,7 @@ public final class ScmActivitySensor implements Sensor {
     ExecutorService executor = createExecutor();
 
     List<Future<MeasureUpdate>> updates = Lists.newArrayList();
-    collect(module, updates, context, fs.inputFiles(FilePredicates.all()), executor);
+    collect(module, updates, context, fs.inputFiles(fs.predicates().all()), executor);
     execute(updates, context);
 
     executor.shutdown();
