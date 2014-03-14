@@ -29,7 +29,6 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
-import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
@@ -56,7 +55,7 @@ public final class ScmActivitySensor implements Sensor {
   private final FileSystem fs;
 
   public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector blameVersionSelector, UrlChecker urlChecker,
-    TimeMachine timeMachine, FileSystem fs) {
+                           TimeMachine timeMachine, FileSystem fs) {
     this.configuration = configuration;
     this.blameVersionSelector = blameVersionSelector;
     this.urlChecker = urlChecker;
@@ -87,7 +86,7 @@ public final class ScmActivitySensor implements Sensor {
     ExecutorService executor = createExecutor();
 
     List<Future<MeasureUpdate>> updates = Lists.newArrayList();
-    collect(module, updates, context, fs.inputFiles(fs.predicates().all()), executor);
+    collect(updates, context, fs.inputFiles(fs.predicates().all()), executor);
     execute(updates, context);
 
     executor.shutdown();
@@ -95,7 +94,7 @@ public final class ScmActivitySensor implements Sensor {
     profiler.stop();
   }
 
-  private void collect(Project module, List<Future<MeasureUpdate>> updates, final SensorContext context,
+  private void collect(List<Future<MeasureUpdate>> updates, final SensorContext context,
                        Iterable<InputFile> allFiles, ExecutorService executor) {
     for (final InputFile inputFile : allFiles) {
       // Load resource to get fully initialized one
