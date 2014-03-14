@@ -179,7 +179,7 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>4.2-SNAPSHOT</version>
+      <version>${sonar.buildVersion}</version>
       <scope>provided</scope>
       <exclusions>
         <exclusion>
