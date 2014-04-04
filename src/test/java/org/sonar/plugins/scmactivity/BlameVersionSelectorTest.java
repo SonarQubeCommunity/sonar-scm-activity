@@ -24,14 +24,20 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.measures.Measure;
 import org.sonar.plugins.scmactivity.test.TemporaryFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,10 +52,11 @@ public class BlameVersionSelectorTest {
   SensorContext context = mock(SensorContext.class);
   org.sonar.api.resources.File resource = mock(org.sonar.api.resources.File.class);
   MeasureUpdate saveBlame = mock(MeasureUpdate.class);
+  TimeMachine timeMachine = mock(TimeMachine.class);
 
   @Before
   public void setUp() {
-    blameVersionSelector = new BlameVersionSelector(blameSensor);
+    blameVersionSelector = new BlameVersionSelector(blameSensor, timeMachine);
   }
 
   @Test
@@ -65,13 +72,32 @@ public class BlameVersionSelectorTest {
     assertThat(update).isSameAs(saveBlame);
   }
 
+  // SONARPLUGINS-3633
   @Test
-  public void should_copy_previous_measures_when_file_is_the_same() throws IOException {
+  public void should_save_blame_when_file_is_the_same_but_no_previous_measures_present() throws IOException {
+    File file = file("source.java", "foo");
+    DefaultInputFile inputFile = new DefaultInputFile("source.java").setFile(file);
+    inputFile.setStatus(InputFile.Status.SAME);
+    inputFile.setLines(1);
+    when(blameSensor.save(file, resource, 1)).thenReturn(saveBlame);
+
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Collections.<Measure>emptyList());
+
+    MeasureUpdate update = blameVersionSelector.detect(resource, inputFile, context);
+
+    assertThat(update).isSameAs(saveBlame);
+  }
+
+  @Test
+  public void should_copy_previous_measures_when_file_is_the_same_and_previous_measures_present() throws IOException {
+
     File file = file("source.java", "foo");
     DefaultInputFile inputFile = new DefaultInputFile("source.java").setFile(file);
     inputFile.setStatus(InputFile.Status.SAME);
     inputFile.setLines(2);
     when(blameSensor.save(file, resource, 1)).thenReturn(saveBlame);
+
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(new Measure()));
 
     MeasureUpdate update = blameVersionSelector.detect(resource, inputFile, context);
 
