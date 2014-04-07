@@ -29,9 +29,11 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -55,7 +57,7 @@ public final class ScmActivitySensor implements Sensor {
   private final FileSystem fs;
 
   public ScmActivitySensor(ScmConfiguration configuration, BlameVersionSelector blameVersionSelector, UrlChecker urlChecker,
-                           TimeMachine timeMachine, FileSystem fs) {
+    TimeMachine timeMachine, FileSystem fs) {
     this.configuration = configuration;
     this.blameVersionSelector = blameVersionSelector;
     this.urlChecker = urlChecker;
@@ -95,16 +97,17 @@ public final class ScmActivitySensor implements Sensor {
   }
 
   private void collect(List<Future<MeasureUpdate>> updates, final SensorContext context,
-                       Iterable<InputFile> allFiles, ExecutorService executor) {
+    Iterable<InputFile> allFiles, ExecutorService executor) {
     for (final InputFile inputFile : allFiles) {
       // Load resource to get fully initialized one
       final Resource sonarFile = context.getResource(File.create(inputFile.relativePath()));
       if (sonarFile == null) {
         LOG.debug("File not found in Sonar index: {}", inputFile.file());
       } else {
+        final boolean hasPreviousMeasures = hasScmMeasuresOnPreviousAnalysis(sonarFile);
         updates.add(executor.submit(new Callable<MeasureUpdate>() {
           public MeasureUpdate call() {
-            return blameVersionSelector.detect(sonarFile, inputFile, context);
+            return blameVersionSelector.detect(sonarFile, inputFile, context, hasPreviousMeasures);
           }
         }));
       }
@@ -124,6 +127,21 @@ public final class ScmActivitySensor implements Sensor {
 
   private ExecutorService createExecutor() {
     return Executors.newFixedThreadPool(configuration.getThreadCount());
+  }
+
+  private boolean hasScmMeasuresOnPreviousAnalysis(Resource resource) {
+    List<Measure> measures = timeMachine.getMeasures(queryPreviousMeasure(resource));
+    if (measures.isEmpty()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private static TimeMachineQuery queryPreviousMeasure(Resource resource) {
+    return new TimeMachineQuery(resource)
+      .setMetrics(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .setOnlyLastAnalysis(true);
   }
 
   @Override

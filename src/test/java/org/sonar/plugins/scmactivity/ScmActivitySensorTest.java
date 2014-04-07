@@ -26,20 +26,26 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.TimeMachine;
+import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ScmActivitySensorTest {
 
@@ -108,7 +114,8 @@ public class ScmActivitySensorTest {
     when(conf.getThreadCount()).thenReturn(1);
     fs.add(source);
     fs.add(test);
-    when(blameVersionSelector.detect(any(org.sonar.api.resources.File.class), eq(source), eq(context))).thenReturn(measureUpdate);
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(new Measure()));
+    when(blameVersionSelector.detect(any(org.sonar.api.resources.File.class), eq(source), eq(context), eq(true))).thenReturn(measureUpdate);
     when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file).thenReturn(null);
     scmActivitySensor.analyse(project, context);
 
@@ -122,9 +129,10 @@ public class ScmActivitySensorTest {
     when(conf.getThreadCount()).thenReturn(1);
     fs.add(first);
     fs.add(second);
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class))).thenReturn(Arrays.asList(new Measure()));
     when(context.getResource(any(org.sonar.api.resources.File.class))).thenReturn(file);
-    when(blameVersionSelector.detect(file, first, context)).thenThrow(new RuntimeException("BUG"));
-    when(blameVersionSelector.detect(file, second, context)).thenReturn(measureUpdate);
+    when(blameVersionSelector.detect(file, first, context, true)).thenThrow(new RuntimeException("BUG"));
+    when(blameVersionSelector.detect(file, second, context, true)).thenReturn(measureUpdate);
 
     scmActivitySensor.analyse(project, context);
 
