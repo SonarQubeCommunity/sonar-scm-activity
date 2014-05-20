@@ -11,7 +11,7 @@
   <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
   <artifactId>sonar-scm-activity-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>1.7.1-SNAPSHOT</version>
+  <version>1.7.1</version>
 
   <name>Sonar SCM Activity Plugin</name>
   <description>Collects and reports information from SCM.</description>
@@ -58,7 +58,7 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-scm-activity.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-scm-activity.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-scm-activity</url>
-    <tag>HEAD</tag>
+    <tag>1.7.1</tag>
   </scm>
 
   <issueManagement>
