@@ -56,4 +56,5 @@ public class ScmUrlGuess implements BatchExtension {
     LOG.info("Didn't find which SCM provider is used. Fallback on configuration");
     return null;
   }
+
 }
