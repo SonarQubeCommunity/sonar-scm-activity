@@ -44,17 +44,15 @@ public class SonarTfsBlameCommand extends TfsBlameCommand {
 
     TfsBlameConsumer consumer = new TfsBlameConsumer(getLogger());
     CommandLineUtils.StringStreamConsumer stderr = new CommandLineUtils.StringStreamConsumer();
-    int exitCode;
-    try
-    {
-      exitCode = CommandLineUtils.executeCommandLine(cl, consumer, stderr);
-    } catch (CommandLineException ex)
-    {
+
+    try {
+      int exitCode = CommandLineUtils.executeCommandLine(cl, consumer, stderr);
+
+      if (exitCode != 0) {
+        return new BlameScmResult(cl.toString(), "The " + EXECUTABLE + " command failed.", stderr.getOutput(), false);
+      }
+    } catch (CommandLineException ex) {
       throw new ScmException("Error while executing command.", ex);
-    }
-    if (exitCode != 0)
-    {
-      return new BlameScmResult(cl.toString(), "The " + EXECUTABLE + " command failed.", stderr.getOutput(), false);
     }
 
     return new BlameScmResult(cl.toString(), consumer.getLines());

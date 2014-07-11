@@ -43,9 +43,7 @@ public class SonarTfsScmProvider extends TfsScmProvider {
   }
 
   @Override
-  protected BlameScmResult blame(ScmProviderRepository repository, ScmFileSet fileSet, CommandParameters parameters)
-    throws ScmException
-  {
+  protected BlameScmResult blame(ScmProviderRepository repository, ScmFileSet fileSet, CommandParameters parameters) throws ScmException {
     TfsBlameCommand command = new SonarTfsBlameCommand();
     command.setLogger(getLogger());
     return (BlameScmResult) command.execute(repository, fileSet, parameters);
