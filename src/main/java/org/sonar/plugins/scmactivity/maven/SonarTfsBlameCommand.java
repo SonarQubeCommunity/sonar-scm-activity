@@ -34,9 +34,7 @@ public class SonarTfsBlameCommand extends TfsBlameCommand {
   private static final String EXECUTABLE = "SonarTfsAnnotate";
 
   @Override
-  public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename)
-    throws ScmException
-  {
+  public BlameScmResult executeBlameCommand(ScmProviderRepository repo, ScmFileSet workingDirectory, String filename) throws ScmException {
     Commandline cl = new Commandline();
     cl.setWorkingDirectory(workingDirectory.getBasedir());
     cl.setExecutable(EXECUTABLE);
