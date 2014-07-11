@@ -68,7 +68,7 @@
 
   <issueManagement>
     <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14305</url>
+    <url>https://jira.codehaus.org/browse/SONARSCMAC</url>
   </issueManagement>
 
   <ciManagement>
