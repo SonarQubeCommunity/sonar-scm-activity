@@ -31,11 +31,11 @@ import org.apache.maven.scm.provider.integrity.IntegrityScmProvider;
 import org.apache.maven.scm.provider.jazz.JazzScmProvider;
 import org.apache.maven.scm.provider.perforce.PerforceScmProvider;
 import org.apache.maven.scm.provider.svn.svnexe.SvnExeScmProvider;
-import org.apache.maven.scm.provider.tfs.TfsScmProvider;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
+import org.sonar.plugins.scmactivity.maven.SonarTfsScmProvider;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -60,7 +60,7 @@ public class SonarScmManagerTest {
     assertThat(scmManager.getProviderByType("clearcase")).isInstanceOf(ClearCaseScmProvider.class);
     assertThat(scmManager.getProviderByType("accurev")).isInstanceOf(AccuRevScmProvider.class);
     assertThat(scmManager.getProviderByType("perforce")).isInstanceOf(PerforceScmProvider.class);
-    assertThat(scmManager.getProviderByType("tfs")).isInstanceOf(TfsScmProvider.class);
+    assertThat(scmManager.getProviderByType("tfs")).isInstanceOf(SonarTfsScmProvider.class);
     assertThat(scmManager.getProviderByType("jazz")).isInstanceOf(JazzScmProvider.class);
     assertThat(scmManager.getProviderByType("integrity")).isInstanceOf(IntegrityScmProvider.class);
   }
