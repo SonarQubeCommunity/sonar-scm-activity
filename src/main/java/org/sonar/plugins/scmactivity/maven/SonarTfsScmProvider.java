@@ -1,5 +1,5 @@
 /*
- * Sonar SCM Activity Plugin
+ * SonarQube SCM Activity Plugin
  * Copyright (C) 2010 SonarSource
  * dev@sonar.codehaus.org
  *
