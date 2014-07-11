@@ -52,6 +52,11 @@
       <name>Julien Henry</name>
       <timezone>+1</timezone>
     </developer>
+    <developer>
+      <id>dbolkensteyn</id>
+      <name>Dinesh Bolkensteyn</name>
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <scm>
