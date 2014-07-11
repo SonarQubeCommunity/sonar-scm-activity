@@ -47,7 +47,7 @@ public class SonarTfsBlameCommand extends TfsBlameCommand {
       int exitCode = CommandLineUtils.executeCommandLine(cl, consumer, stderr);
 
       if (exitCode != 0) {
-        return new BlameScmResult(cl.toString(), "The " + EXECUTABLE + " command failed.", stderr.getOutput(), false);
+        return new BlameScmResult(cl.toString(), "The " + EXECUTABLE + " command failed. Did you install https://github.com/SonarCommunity/sonar-tfs ?", stderr.getOutput(), false);
       }
     } catch (CommandLineException ex) {
       throw new ScmException("Error while executing command.", ex);
