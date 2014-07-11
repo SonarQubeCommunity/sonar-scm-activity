@@ -67,8 +67,8 @@
   </issueManagement>
 
   <ciManagement>
-    <system>Bamboo</system>
-    <url>http://ci.codehaus.org/browse/SONAR-SCMACTIVITY</url>
+    <system>Cloudbees</system>
+    <url>https://sonarplugins.ci.cloudbees.com/job/scm-activity/</url>
   </ciManagement>
 
   <properties>
