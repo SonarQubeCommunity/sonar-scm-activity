@@ -1,10 +1,10 @@
-Sonar SCM Activity plugin
+SonarQube SCM Activity plugin
 =========================
 
-This is the Sonar SCM Activity plugin
+This is the SonarQube SCM Activity plugin
 
 Project homepage:
-http://docs.codehaus.org/x/9YAtC
+http://docs.sonarqube.org/display/SONARQUBE45/SCM+Activity+Plugin
 
 Issue tracking:
-https://jira.codehaus.org/browse/SONARSCMAC
+http://jira.sonarsource.com/browse/SONARSCMAC

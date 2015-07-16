@@ -2,20 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.codehaus.sonar-plugins</groupId>
-    <artifactId>parent</artifactId>
-    <version>17</version>
+  <parent> 
+    <groupId>org.sonarsource.parent</groupId> 
+    <artifactId>parent</artifactId> 
+    <version>23</version> 
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins.scm-activity</groupId>
+  <groupId>org.sonarsource.scm-activity</groupId>
   <artifactId>sonar-scm-activity-plugin</artifactId>
   <packaging>sonar-plugin</packaging>
   <version>1.9-SNAPSHOT</version>
 
   <name>SonarQube SCM Activity Plugin</name>
   <description>Collects and reports information from SCM.</description>
-  <url>http://docs.codehaus.org/x/9YAtC</url>
+  <url>http://docs.sonarqube.org/display/SONARQUBE45/SCM+Activity+Plugin</url>
   <inceptionYear>2010</inceptionYear>
 
   <organization>
@@ -63,16 +63,15 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-scm-activity.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-scm-activity.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-scm-activity</url>
-    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
     <system>JIRA</system>
-    <url>https://jira.codehaus.org/browse/SONARSCMAC</url>
+    <url>http://jira.sonarsource.com/browse/SONARSCMAC</url>
   </issueManagement>
 
   <ciManagement>
-    <system>Cloudbees</system>
+    <system>Travis</system>
     <url>https://sonarplugins.ci.cloudbees.com/job/scm-activity/</url>
   </ciManagement>
 
