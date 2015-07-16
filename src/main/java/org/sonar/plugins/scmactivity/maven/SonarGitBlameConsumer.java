@@ -20,10 +20,6 @@
 package org.sonar.plugins.scmactivity.maven;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.maven.scm.command.blame.BlameLine;
-import org.apache.maven.scm.log.ScmLogger;
-import org.apache.maven.scm.util.AbstractConsumer;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,6 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.maven.scm.command.blame.BlameLine;
+import org.apache.maven.scm.log.ScmLogger;
+import org.apache.maven.scm.util.AbstractConsumer;
 
 /**
  * Plain copy of package org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameConsumer
@@ -47,7 +46,7 @@ import java.util.Map;
 public class SonarGitBlameConsumer extends AbstractConsumer {
 
   private static final String GIT_COMMITTER_PREFIX = "committer";
-  private static final String GIT_COMMITTER_TIME = GIT_COMMITTER_PREFIX + "-time ";
+  private static final String GIT_AUTHOR_TIME = "author-time ";
   private static final String GIT_AUTHOR_EMAIL = "author-mail ";
   private static final String GIT_COMMITTER_EMAIL = GIT_COMMITTER_PREFIX + "-mail ";
   private static final String OPENING_EMAIL_FIELD = "<";
@@ -110,8 +109,8 @@ public class SonarGitBlameConsumer extends AbstractConsumer {
       return true;
     }
 
-    if (line.startsWith(GIT_COMMITTER_TIME)) {
-      String timeStr = line.substring(GIT_COMMITTER_TIME.length());
+    if (line.startsWith(GIT_AUTHOR_TIME)) {
+      String timeStr = line.substring(GIT_AUTHOR_TIME.length());
       time = new Date(Long.parseLong(timeStr) * 1000L);
       return true;
     }
