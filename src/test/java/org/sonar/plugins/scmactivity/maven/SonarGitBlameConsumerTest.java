@@ -19,18 +19,19 @@
  */
 package org.sonar.plugins.scmactivity.maven;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Date;
 import junit.framework.Assert;
 import org.apache.maven.scm.command.blame.BlameLine;
 import org.apache.maven.scm.log.DefaultLog;
 import org.apache.maven.scm.log.ScmLogger;
 import org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameConsumer;
 import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -85,6 +86,7 @@ public class SonarGitBlameConsumerTest {
     Assert.assertEquals(0, consumer.getLines().size());
   }
 
+
   /**
    * Test what happens if a git-blame command got invoked on a
    * file which didn't got added to the git repo yet.
@@ -127,7 +129,7 @@ public class SonarGitBlameConsumerTest {
   public void should_extract_commit_data() throws Exception {
 
     String authorMailLine = "author-mail <developer@company.net>";
-    String authorTimeLine = "author-time 1332152194";
+    String authorTimeLine = "author-time 1332152193";
     String authorTimeZoneLine = "author-tz +0000";
     String committerLine = "committer Dave Loper";
     String committerMailLine = "committer-mail <developer@company.net>";
@@ -137,13 +139,13 @@ public class SonarGitBlameConsumerTest {
 
     assertThat(consumer.extractCommitInfoFromLine(authorMailLine)).isTrue();
     assertThat(consumer.getAuthor()).isEqualTo("developer@company.net");
-    assertThat(consumer.extractCommitInfoFromLine(authorTimeLine)).isTrue();
+    assertThat(consumer.extractCommitInfoFromLine(authorTimeLine)).isFalse();
     assertThat(consumer.extractCommitInfoFromLine(authorTimeZoneLine)).isFalse();
     assertThat(consumer.extractCommitInfoFromLine(committerLine)).isFalse();
     assertThat(consumer.extractCommitInfoFromLine(committerMailLine)).isTrue();
     assertThat(consumer.getCommitter()).isEqualTo("developer@company.net");
-    assertThat(consumer.extractCommitInfoFromLine(committerTimeLine)).isFalse();
-    assertThat(consumer.getTime()).isEqualTo(new Date(Long.parseLong("1332152194") * 1000L));
+    assertThat(consumer.extractCommitInfoFromLine(committerTimeLine)).isTrue();
+    assertThat(consumer.getTime()).isEqualTo(new Date(Long.parseLong("1332152193") * 1000L));
   }
 
   @Test
